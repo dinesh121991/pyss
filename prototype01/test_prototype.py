@@ -7,7 +7,7 @@ class test_cluster(unittest.TestCase):
         self.cluster = prototype.Cluster( num_processors = self.NUM_PROCESSORS )
 
     def test_initial_idle_processors(self):
-        self.assertEqual(self.NUM_PROCESSORS, self.cluster.idle_processors)
+        self.assertEqual(self.NUM_PROCESSORS, len(self.cluster.idle_processors))
 
     def test_bla(self):
         self.cluster.run_job(job = prototype.Job())
