@@ -34,7 +34,7 @@ class Cluster(object):
             self.busy = False
 
     def __init__(self, num_processors):
-        self.processors = [Processor(i) for i in xrange(len(num_processors))]
+        self.processors = [self.Processor(i) for i in xrange(num_processors)]
 
     idle_processors = property(
             lambda self: [p for p in self.processors if not p.busy]
