@@ -5,6 +5,10 @@ class JobEvent(object):
         self.timestamp = timestamp
         self.job_id = job_id
 
+    def __cmp__(self, other):
+        "Sort by timestamp"
+        return cmp(self.timestamp, other.timestamp)
+
 class JobStartEvent(JobEvent): pass
 class JobEndEvent(JobEvent): pass
 

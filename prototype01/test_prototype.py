@@ -1,6 +1,14 @@
 from unittest import TestCase
 
+import random, copy
+
 import prototype
+
+class test_JobEvent(TestCase):
+    def test_sort_order_random(self):
+        random_events = [prototype.JobEvent(timestamp=random.randrange(0,100), job_id=0) for i in xrange(30)]
+        sorted_events = sorted(random_events, key=lambda event:event.timestamp)
+        self.assertEqual( sorted_events, sorted(random_events) )
 
 class test_EventQueue(TestCase):
     def setUp(self):
