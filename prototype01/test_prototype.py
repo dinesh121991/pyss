@@ -92,7 +92,7 @@ class test_EventQueue(TestCase):
             0, len(self.queue._get_event_handlers( prototype.JobEvent ))
         )
 
-    def test_get_event_handlers_empty(self):
+    def test_get_event_handlers_nonempty(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
         self.assertEqual(
             1, len(self.queue._get_event_handlers( prototype.JobEvent ))
