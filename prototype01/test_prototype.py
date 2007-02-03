@@ -4,9 +4,15 @@ import random, copy
 
 import prototype
 
+def _gen_random_timestamp_events():
+    return [
+        prototype.JobEvent(timestamp=random.randrange(0,100), job_id=0)
+        for i in xrange(30)
+    ]
+
 class test_JobEvent(TestCase):
     def test_sort_order_random(self):
-        random_events = [prototype.JobEvent(timestamp=random.randrange(0,100), job_id=0) for i in xrange(30)]
+        random_events = _gen_random_timestamp_events()
         sorted_events = sorted(random_events, key=lambda event:event.timestamp)
         self.assertEqual( sorted_events, sorted(random_events) )
 
@@ -28,23 +34,26 @@ class test_EventQueue(TestCase):
         del self.queue
         del self.event
 
-    def test_empty_initialization(self):
-        self.assertEqual( 0, len(list(self.queue._events)) )
-
     def test_events_empty(self):
-        self.assertEqual( 0, len(list(self.queue._events)) )
+        self.assertEqual( 0, len(list(self.queue._sorted_events)) )
 
     def test_add_event_sanity(self):
         self.queue.add_event( self.event )
 
     def test_add_event_single_event(self):
         self.queue.add_event(self.event)
-        self.assertEqual( [self.event], self.queue._events )
+        self.assertEqual( [self.event], self.queue._sorted_events )
 
     def test_add_event_simple(self):
         for event in self.events:
             self.queue.add_event(event)
-        self.assertEqual( self.events, list(self.queue._events) )
+        self.assertEqual( self.events, list(self.queue._sorted_events) )
+
+    def test_add_event_sorting(self):
+        random_events = _gen_random_timestamp_events()
+        for event in random_events:
+            self.queue.add_event(event)
+        self.assertEqual( sorted(random_events), self.queue._sorted_events )
 
     def test_pop_one_job(self):
         self.queue.add_event( self.event )
