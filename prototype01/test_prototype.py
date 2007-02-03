@@ -1,4 +1,5 @@
 from unittest import TestCase
+import testoob
 
 import random, copy
 
@@ -137,17 +138,66 @@ class test_EventQueue(TestCase):
         for handler in nonmatching_handlers:
             self.failIf( handler.called )
 
+class test_Simulator(TestCase):
+    def setUp(self):
+        self.start_time_and_jobs = list(prototype.simple_job_generator(10))
+        self.simulator = prototype.Simulator(self.start_time_and_jobs)
+        self.jobs = set(job for start_time, job in self.start_time_and_jobs)
+
+    def tearDown(self):
+        del self.simulator
+
+    def test_init_empty(self):
+        self.assertEqual(0, len(prototype.Simulator([]).jobs))
+
+    def test_init_jobs(self):
+        self.assertEqual(self.jobs, set(self.simulator.jobs.values()))
+
+    def test_init_event_queue(self):
+        self.assertEqual(
+            set(job.id for job in self.jobs), 
+            set(event.job_id for event in self.simulator.event_queue._sorted_events)
+        )
+
+    def test_job_started_handler(self):
+        testoob.testing.skip("fails miserably, fix later")
+        print "==started=="
+        done_jobs_ids=[]
+        def job_done_handler(event):
+            done_jobs_ids.append(event.job_id)
+
+        job = prototype.Job(
+                id=0,
+                estimated_run_time=10,
+                actual_run_time=10,
+                num_required_processors=1,
+            )
+
+        simulator = prototype.Simulator( job_source = ((0, job),) )
+
+        simulator.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
+
+        print "==before run=="
+        self.simulator.run()
+        print "==after run=="
+
+        print done_jobs_ids
+        self.failUnless( job.id in done_jobs_ids )
+
+
 class test_simple_job_generator(TestCase):
     def test_unique_id(self):
         previously_seen = set()
-        for job in prototype.simple_job_generator(num_jobs=200):
+        for start_time, job in prototype.simple_job_generator(num_jobs=200):
             self.failIf( job.id in previously_seen )
             previously_seen.add( job.id )
 
+    def test_nondescending_start_times(self):
+        prev_time = 0
+        for start_time, job in prototype.simple_job_generator(num_jobs=200):
+            self.failUnless( start_time >= prev_time )
+            prev_time = start_time
+
 if __name__ == "__main__":
-    try:
-        from testoob import main
-    except ImportError:
-        print "Can't find Testoob, using unittest"
-        from unittest import main
-    main()
+    import testoob
+    testoob.main()

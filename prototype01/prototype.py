@@ -12,7 +12,7 @@ class JobEvent(object):
         return cmp(self.timestamp, other.timestamp)
 
     def __repr__(self):
-        return "JobEvent<timestamp=%(timestamp)s, job_id=%(job_id)s>" % vars(self)
+        return type(self).__name__ + "<timestamp=%(timestamp)s, job_id=%(job_id)s>" % vars(self)
 
 class JobStartEvent(JobEvent): pass
 class JobEndEvent(JobEvent): pass
@@ -63,10 +63,39 @@ class Job(object):
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
 
+class Simulator(object):
+    def __init__(self, job_source):
+        self.event_queue = EventQueue()
+        self.jobs = {}
+
+        for start_time, job in job_source:
+            self.jobs[job.id] = job
+            self.event_queue.add_event(
+                    JobStartEvent(timestamp = start_time, job_id = job.id)
+                )
+
+        self.event_queue.add_handler(JobStartEvent, self.job_started_handler)
+
+    def job_started_handler(self, event):
+        assert event.job_id in self.jobs
+        job = self.jobs[event.job_id]
+        self.event_queue.add_event(
+            JobEndEvent(
+                timestamp = event.timestamp + job.actual_run_time,
+                job_id = job.id,
+            )
+        )
+
+    def run(self):
+        while not self.event_queue._empty:
+            self.event_queue.advance()
+
 def simple_job_generator(num_jobs):
     import random
+    start_time = 0
     for id in xrange(num_jobs):
-        yield Job(
+        start_time += random.randrange(0, 15)
+        yield start_time, Job(
             id=id,
             estimated_run_time=random.randrange(400, 2000),
             actual_run_time=random.randrange(30, 1000),
