@@ -98,6 +98,9 @@ class test_EventQueue(TestCase):
             1, len(self.queue._get_event_handlers( prototype.JobEvent ))
         )
 
+    def test_advance_empty_queue(self):
+        self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.advance)
+
 if __name__ == "__main__":
     try:
         from testoob import main

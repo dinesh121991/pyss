@@ -30,9 +30,12 @@ class EventQueue(object):
 
     _empty = property(lambda self: len(self._sorted_events) == 0)
 
-    def pop(self):
+    def _assert_not_empty(self):
         if self._empty:
             raise self.EmptyQueue()
+
+    def pop(self):
+        self._assert_not_empty()
         return self._sorted_events.pop(0)
 
     def _get_event_handlers(self, event_type):
@@ -42,6 +45,7 @@ class EventQueue(object):
             return []
 
     def advance(self):
+        self._assert_not_empty()
         event = self.pop()
         for handler in self._get_event_handlers( type(event) ):
             handler(event)
