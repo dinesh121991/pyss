@@ -17,11 +17,16 @@ class test_EventQueue(TestCase):
     def test_add_event_sanity(self):
         self.queue.add_event( prototype.JobEvent(0, 0) )
 
+    def test_add_event_single_event(self):
+        event = prototype.JobEvent(timestamp=0, job_id=0)
+        self.queue.add_event(event)
+        self.assertEqual( [event], self.queue._events )
+
     def test_add_event_simple(self):
         events = [prototype.JobEvent(timestamp=0, job_id=i) for i in xrange(10)]
         for event in events:
             self.queue.add_event(event)
-        self.assertEqual( event, list(self.queue._events) )
+        self.assertEqual( events, list(self.queue._events) )
 
 if __name__ == "__main__":
     try:
