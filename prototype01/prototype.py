@@ -21,6 +21,10 @@ class EventQueue(object):
     def add_event(self, event):
         self._events.append(event)
 
+    _empty = property(lambda self: len(self._events) == 0)
+
     def pop(self):
+        if self._empty:
+            raise self.EmptyQueue()
         return self._events.pop(0)
 

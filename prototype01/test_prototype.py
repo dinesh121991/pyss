@@ -51,6 +51,16 @@ class test_EventQueue(TestCase):
         for event in self.events:
             assert self.queue.pop() is event
 
+    def test_pop_empty(self):
+        self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.pop)
+
+    def test_empty_true(self):
+        self.failUnless( self.queue._empty )
+
+    def test_empty_false(self):
+        self.queue.add_event( self.event )
+        self.failIf( self.queue._empty )
+
 if __name__ == "__main__":
     try:
         from testoob import main
