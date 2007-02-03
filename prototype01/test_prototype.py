@@ -80,13 +80,6 @@ class test_EventQueue(TestCase):
         self.queue.add_event(self.event)
         self.failIf( self.handler.called )
 
-    def test_add_handler_called(self):
-        self.queue.add_handler(prototype.JobEvent, self.handler)
-        self.queue.add_event(self.event)
-        self.queue.advance()
-
-        self.failUnless( self.handler.called )
-
     def test_get_event_handlers_empty(self):
         self.assertEqual(
             0, len(self.queue._get_event_handlers( prototype.JobEvent ))
@@ -100,6 +93,13 @@ class test_EventQueue(TestCase):
 
     def test_advance_empty_queue(self):
         self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.advance)
+
+    def test_advance_one_handler(self):
+        self.queue.add_handler(prototype.JobEvent, self.handler)
+        self.queue.add_event(self.event)
+        self.queue.advance()
+
+        self.failUnless( self.handler.called )
 
 if __name__ == "__main__":
     try:
