@@ -14,3 +14,5 @@ class EventQueue(object):
 
     def add_event(self, event):
         self._events.append(event)
+
+    next_event = property( lambda self: self._events.pop(0) )
