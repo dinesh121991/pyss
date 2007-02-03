@@ -137,6 +137,13 @@ class test_EventQueue(TestCase):
         for handler in nonmatching_handlers:
             self.failIf( handler.called )
 
+class test_simple_job_generator(TestCase):
+    def test_unique_id(self):
+        previously_seen = set()
+        for job in prototype.simple_job_generator(num_jobs=200):
+            self.failIf( job.id in previously_seen )
+            previously_seen.add( job.id )
+
 if __name__ == "__main__":
     try:
         from testoob import main

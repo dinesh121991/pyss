@@ -62,3 +62,13 @@ class Job(object):
         self.estimated_run_time = estimated_run_time
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
+
+def simple_job_generator(num_jobs):
+    import random
+    for id in xrange(num_jobs):
+        yield Job(
+            id=id,
+            estimated_run_time=random.randrange(400, 2000),
+            actual_run_time=random.randrange(30, 1000),
+            num_required_processors=random.randrange(2,100),
+        )
