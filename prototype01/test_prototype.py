@@ -41,15 +41,15 @@ class test_EventQueue(TestCase):
             self.queue.add_event(event)
         self.assertEqual( self.events, list(self.queue._events) )
 
-    def test_next_event_one_job(self):
+    def test_pop_one_job(self):
         self.queue.add_event( self.event )
-        assert self.queue.next_event is self.event
+        assert self.queue.pop is self.event
 
-    def test_next_event_many_jobs(self):
+    def test_pop_many_jobs(self):
         for event in self.events:
             self.queue.add_event(event)
         for event in self.events:
-            assert self.queue.next_event is event
+            assert self.queue.pop is event
 
 if __name__ == "__main__":
     try:
