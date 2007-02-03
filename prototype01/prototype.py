@@ -53,3 +53,12 @@ class EventQueue(object):
     def add_handler(self, event_type, handler):
         self._handlers.setdefault(event_type, [])
         self._handlers[event_type].append(handler)
+
+class Job(object):
+    def __init__(self,
+            id, estimated_run_time, actual_run_time, num_required_processors
+        ):
+        self.id = id
+        self.estimated_run_time = estimated_run_time
+        self.actual_run_time = actual_run_time
+        self.num_required_processors = num_required_processors
