@@ -10,6 +10,12 @@ def _gen_random_timestamp_events():
         for i in xrange(30)
     ]
 
+def _create_handler():
+    def handler(event):
+        handler.called = True
+    handler.called = False
+    return handler
+
 class test_JobEvent(TestCase):
     def test_sort_order_random(self):
         random_events = _gen_random_timestamp_events()
@@ -25,10 +31,7 @@ class test_EventQueue(TestCase):
                 for i in xrange(10)
             ]
 
-        def handler(event):
-            handler.called = True
-        handler.called = False
-        self.handler = handler
+        self.handler = _create_handler()
 
     def tearDown(self):
         del self.queue
@@ -94,12 +97,45 @@ class test_EventQueue(TestCase):
     def test_advance_empty_queue(self):
         self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.advance)
 
-    def test_advance_one_handler(self):
+    def test_advance_eats_event(self):
+        self.queue.add_event(self.event)
+        self.queue.advance()
+        self.failUnless(self.queue._empty)
+
+    def test_advance_one_handler_handles(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
         self.queue.add_event(self.event)
         self.queue.advance()
 
         self.failUnless( self.handler.called )
+
+    def test_advance_one_handler_doesnt_handle(self):
+        self.queue.add_handler(prototype.JobStartEvent, self.handler)
+        self.queue.add_event(self.event) # JobEvent, different type
+        self.queue.advance()
+
+        self.failIf( self.handler.called )
+
+    def test_advance_many_handlers(self):
+        matching_handlers = [ _create_handler() for i in xrange(5) ]
+        nonmatching_handlers = [ _create_handler() for i in xrange(5) ]
+
+        # register handlers that should run
+        for handler in matching_handlers:
+            self.queue.add_handler(prototype.JobEvent, handler)
+
+        # register handlers that shouldn't run with a different event type
+        for handlers in nonmatching_handlers:
+            self.queue.add_handler(prototype.JobStartEvent, handler)
+
+        self.queue.add_event(self.event)
+        self.queue.advance()
+
+        for handler in matching_handlers:
+            self.failUnless( handler.called )
+
+        for handler in nonmatching_handlers:
+            self.failIf( handler.called )
 
 if __name__ == "__main__":
     try:
