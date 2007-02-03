@@ -89,7 +89,6 @@ class test_EventQueue(TestCase):
             1, len(self.queue._get_event_handlers( prototype.JobEvent ))
         )
 
-
 if __name__ == "__main__":
     try:
         from testoob import main
