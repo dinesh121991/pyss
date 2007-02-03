@@ -19,6 +19,11 @@ class test_EventQueue(TestCase):
                 for i in xrange(10)
             ]
 
+        def handler(event):
+            handler.called = True
+        handler.called = False
+        self.handler = handler
+
     def tearDown(self):
         del self.queue
         del self.event
@@ -60,6 +65,30 @@ class test_EventQueue(TestCase):
     def test_empty_false(self):
         self.queue.add_event( self.event )
         self.failIf( self.queue._empty )
+
+    def test_add_handler_sanity(self):
+        self.queue.add_handler(prototype.JobEvent, self.handler)
+        self.queue.add_event(self.event)
+        self.failIf( self.handler.called )
+
+    def test_add_handler_called(self):
+        self.queue.add_handler(prototype.JobEvent, self.handler)
+        self.queue.add_event(self.event)
+        self.queue.advance()
+
+        self.failUnless( self.handler.called )
+
+    def test_get_event_handlers_empty(self):
+        self.assertEqual(
+            0, len(self.queue._get_event_handlers( prototype.JobEvent ))
+        )
+
+    def test_get_event_handlers_empty(self):
+        self.queue.add_handler(prototype.JobEvent, self.handler)
+        self.assertEqual(
+            1, len(self.queue._get_event_handlers( prototype.JobEvent ))
+        )
+
 
 if __name__ == "__main__":
     try:
