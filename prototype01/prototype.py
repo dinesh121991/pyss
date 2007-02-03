@@ -10,4 +10,7 @@ class JobEndEvent(JobEvent): pass
 
 class EventQueue(object):
     def __init__(self):
-        pass # TODO
+        self._events = []
+
+    def add_event(self, event):
+        self._events.append(event)
