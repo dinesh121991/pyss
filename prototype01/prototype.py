@@ -13,11 +13,14 @@ class JobStartEvent(JobEvent): pass
 class JobEndEvent(JobEvent): pass
 
 class EventQueue(object):
+    class EmptyQueue(Exception): pass
+
     def __init__(self):
         self._events = []
 
     def add_event(self, event):
         self._events.append(event)
 
-    pop = property( lambda self: self._events.pop(0) )
+    def pop(self):
+        return self._events.pop(0)
 
