@@ -160,8 +160,6 @@ class test_Simulator(TestCase):
         )
 
     def test_job_started_handler(self):
-        testoob.testing.skip("fails miserably, fix later")
-        print "==started=="
         done_jobs_ids=[]
         def job_done_handler(event):
             done_jobs_ids.append(event.job_id)
@@ -174,14 +172,10 @@ class test_Simulator(TestCase):
             )
 
         simulator = prototype.Simulator( job_source = ((0, job),) )
-
         simulator.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
 
-        print "==before run=="
-        self.simulator.run()
-        print "==after run=="
+        simulator.run()
 
-        print done_jobs_ids
         self.failUnless( job.id in done_jobs_ids )
 
 
