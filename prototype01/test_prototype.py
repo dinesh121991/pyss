@@ -159,7 +159,7 @@ class test_Simulator(TestCase):
             set(event.job_id for event in self.simulator.event_queue._sorted_events)
         )
 
-    def test_job_started_handler(self):
+    def test_job_started_handler_registers_end_events(self):
         done_jobs_ids=[]
         def job_done_handler(event):
             done_jobs_ids.append(event.job_id)
