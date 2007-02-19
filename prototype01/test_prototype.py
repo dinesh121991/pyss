@@ -73,11 +73,11 @@ class test_EventQueue(TestCase):
         self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.pop)
 
     def test_empty_true(self):
-        self.failUnless( self.queue._empty )
+        self.failUnless( self.queue.empty )
 
     def test_empty_false(self):
         self.queue.add_event( self.event )
-        self.failIf( self.queue._empty )
+        self.failIf( self.queue.empty )
 
     def test_add_handler_sanity(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
@@ -101,7 +101,7 @@ class test_EventQueue(TestCase):
     def test_advance_eats_event(self):
         self.queue.add_event(self.event)
         self.queue.advance()
-        self.failUnless(self.queue._empty)
+        self.failUnless(self.queue.empty)
 
     def test_advance_one_handler_handles(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)

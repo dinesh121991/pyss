@@ -28,10 +28,10 @@ class EventQueue(object):
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
 
-    _empty = property(lambda self: len(self._sorted_events) == 0)
+    empty = property(lambda self: len(self._sorted_events) == 0)
 
     def _assert_not_empty(self):
-        if self._empty:
+        if self.empty:
             raise self.EmptyQueue()
 
     def pop(self):
@@ -87,7 +87,7 @@ class Simulator(object):
         )
 
     def run(self):
-        while not self.event_queue._empty:
+        while not self.event_queue.empty:
             self.event_queue.advance()
 
 def simple_job_generator(num_jobs):
