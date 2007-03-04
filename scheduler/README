@@ -13,8 +13,6 @@ Type "help", "copyright", "credits" or "license" for more information.
 '__builtins__', '__doc__', '__name__', 'sim']
 >>> 
 
-
-
 ----------------------------------------------------------------------
 
 % svn status
@@ -24,3 +22,5 @@ Type "help", "copyright", "credits" or "license" for more information.
 % svn update
 
 % svn help <command>
+% svn checkout https://pyss.googlecode.com/svn/trunk/ pyss --username <username>
+% svn checkout http://pyss.googlecode.com/svn/trunk/ pyss
