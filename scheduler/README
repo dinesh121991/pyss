@@ -1,0 +1,26 @@
+Python 2.3.5 (#2, Aug 30 2005, 15:50:26) 
+[GCC 4.0.2 20050821 (prerelease) (Debian 4.0.1-6)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import sim
+>>> dir(sim)
+['ConservativeScheduler', 'CpuSnapshot', 'CpuTimeSlice', 'Job',
+'__builtins__', '__doc__', '__file__', '__name__']
+>>> reload(sim)
+<module 'sim' from 'sim.pyc'>
+>>> execfile('sim.py')
+>>> dir()
+['ConservativeScheduler', 'CpuSnapshot', 'CpuTimeSlice', 'Job',
+'__builtins__', '__doc__', '__name__', 'sim']
+>>> 
+
+
+
+----------------------------------------------------------------------
+
+% svn status
+% svn diff
+% svn commit
+% svn revert
+% svn update
+
+% svn help <command>
