@@ -24,3 +24,5 @@ Type "help", "copyright", "credits" or "license" for more information.
 % svn help <command>
 % svn checkout https://pyss.googlecode.com/svn/trunk/ pyss --username <username>
 % svn checkout http://pyss.googlecode.com/svn/trunk/ pyss
+
+./tests.py
