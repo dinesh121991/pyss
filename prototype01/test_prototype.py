@@ -1,5 +1,5 @@
+#!/usr/bin/env python2.4
 from unittest import TestCase
-import testoob
 
 import random, copy
 
@@ -193,5 +193,8 @@ class test_simple_job_generator(TestCase):
             prev_time = start_time
 
 if __name__ == "__main__":
-    import testoob
-    testoob.main()
+    try:
+        from testoob import main
+    except ImportError:
+        from unittest import main
+    main()
