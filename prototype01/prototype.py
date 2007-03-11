@@ -14,6 +14,11 @@ class JobEvent(object):
     def __repr__(self):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job_id=%(job_id)s>" % vars(self)
 
+class JobSubmitEvent(JobEvent):
+    def __init__(self, timestamp, job):
+        JobEvent.__init__(self, timestamp, job.id)
+        self.job = job
+
 class JobStartEvent(JobEvent): pass
 class JobEndEvent(JobEvent): pass
 
@@ -62,6 +67,18 @@ class Job(object):
         self.estimated_run_time = estimated_run_time
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
+
+class StupidScheduler(object):
+    # TODO: this does nothing yet
+    def __init__(self, event_queue):
+        self.event_queue = event_queue
+        self.next_free_time = 0
+
+    def job_submitted(self, event):
+        self.event_queue.add_event(
+            JobStartEvent(timestamp=self.next_free_time, job_id=event.job_id)
+        )
+        self.next_free_time += job.estimated_run_time
 
 class Simulator(object):
     def __init__(self, job_source):
