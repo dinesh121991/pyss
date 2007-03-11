@@ -4,6 +4,8 @@ class Job:
 
     def __init__(self, job_id, job_duration, job_nodes, \
                  job_arrival_time=0, job_actual_duration=0):
+
+        assert job_nodes > 0
         self.id = job_id
         self.duration = job_duration
         self.nodes = job_nodes
