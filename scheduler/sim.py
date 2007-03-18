@@ -214,12 +214,14 @@ class CpuSnapshot(object):
             newslice.addJob(job)
             self._add_slice(newslice)
 
-            newslice = CpuTimeSlice(
-                start_time = slice_start_time + remained_duration,
-                duration   = self._slice_duration(slice_start_time) - remained_duration,
-                jobs       = self.slices[slice_start_time].getJobs(),
+            self._add_slice(
+                CpuTimeSlice(
+                    start_time = slice_start_time + remained_duration,
+                    duration   = self._slice_duration(slice_start_time) - remained_duration,
+                    jobs       = self.slices[slice_start_time].getJobs(),
                 )
-            self._add_slice(newslice)
+                )
+                
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
