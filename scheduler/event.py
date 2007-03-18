@@ -311,32 +311,32 @@ class EasyBackfillScheduler(Scheduler):
                              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
             return emptyEvent # waiting list is empty        
-        else:
-            #first, try to schedule the head of the waiting list
-            while len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) > 0: 
-                first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
-                start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-                if start_time_of_first_job == time:
-                    self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(first_job)
-                    self.cpu_snapshot.assignJob(first_job, time)
-                    new_event = JobTerminationEvent(first_job)
-                    termination_time = time + first_job.actual_duration
+
+        #first, try to schedule the head of the waiting list
+        while len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) > 0: 
+            first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
+            start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+            if start_time_of_first_job == time:
+                self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(first_job)
+                self.cpu_snapshot.assignJob(first_job, time)
+                new_event = JobTerminationEvent(first_job)
+                termination_time = time + first_job.actual_duration
+                newEvents[termination_time] = new_event                
+            else:
+                break
+
+        #then, try to backfill the tail of the waiting list
+        if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) > 1:
+            first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
+            for next_job in self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[1:] : 
+                if self.canBeBackfilled(first_job, next_job, time):
+                    self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(next_job)
+                    start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
+                    self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
+                    new_event = JobTerminationEvent(next_job)
+                    termination_time = next_job.start_to_run_at_time + next_job.actual_duration
                     newEvents[termination_time] = new_event                
-                else:
-                    break
-                
-            #then, try to backfill the tail of the waiting list
-            if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) > 1:
-                first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
-                for next_job in self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[1:] : 
-                    if self.canBeBackfilled(first_job, next_job, time):
-                        self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(next_job)
-                        start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
-                        self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
-                        new_event = JobTerminationEvent(next_job)
-                        termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                        newEvents[termination_time] = new_event                
-            return newEvents
+        return newEvents
  
         
     
