@@ -225,10 +225,7 @@ class CpuSnapshot(object):
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
         
-        # ensure there is a slice that starts at assignment time
         self._ensure_a_slice_starts_at(assignment_time)
-
-        # add the job to the relevant slices
         self._add_job_to_relevant_slices(job)
 
     def _add_slice(self, slice):
