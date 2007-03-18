@@ -147,6 +147,10 @@ class CpuSnapshot(object):
     def _ensure_a_slice_starts_at(self, assignment_time, job):
         if assignment_time in self.slices:
             return # we already have a slice
+
+        if len(self.slices) == 0: # no slices
+            self._add_slice( CpuTimeSlice(assignment_time, job.duration, {}) )
+            return
         
         # like to split the slice accordingly in this preprocessing stage         
         last = 0
