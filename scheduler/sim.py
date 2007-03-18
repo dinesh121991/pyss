@@ -193,12 +193,9 @@ class CpuSnapshot:
                 
         #itteration through the slices 
          
-        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-        times.sort()
-
         remained_duration = job.duration
-        
-        for t in times:
+
+        for t in sorted(self.slices.keys()):
             last = t 
             duration_of_this_slice = self.slices[t].getDuration()
             
