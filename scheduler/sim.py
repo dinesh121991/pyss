@@ -10,7 +10,7 @@ class Job:
         self.duration = job_duration
         self.nodes = job_nodes
         self.arrival_time = job_arrival_time
-        self.start_to_run_at_time = 0 
+        self.start_to_run_at_time = 0
         self.actual_duration = job_actual_duration
         
 
@@ -48,11 +48,15 @@ class CpuTimeSlice:
                     
             
     def addJob(self, job):
+        import pdb; pdb.set_trace()
+        assert self.free_nodes >= job.nodes
         self.free_nodes = self.free_nodes - job.nodes
         self.jobs[job.id]= job.nodes
 
 
     def delJob(self, job):
+        if self.free_nodes + job.nodes > CpuTimeSlice.total_nodes:
+            assert False
         self.free_nodes = self.free_nodes + job.nodes
         del self.jobs[job.id]
 
@@ -80,7 +84,7 @@ class CpuSnapshot:
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
         self.slices={} # initializing the main structure of this class 
-        self.slices[0] = CpuTimeSlice() # the snapshot starts at time zero
+        self.slices[0] = CpuTimeSlice() # Assumption: the snapshot starts at time zero
         
             
     def addNewJobToNewSlice(self, time, duration, job):
@@ -146,7 +150,6 @@ class CpuSnapshot:
         """ assigns the job to start at the given assignment time.
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
-
         job.start_to_run_at_time = assignment_time
         
         if len(self.slices) == 0: # no current job assignments, all nodes are free
@@ -296,12 +299,47 @@ class CpuSnapshot:
             if accumulated_duration >= job.duration:                
                 return
             
-               
+    def CpuSlicesTestFeasibility(self):
+        
+        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
+        times.sort()
+        
+        duration = 0
+        time = 0
+        for t in times:
+            free_nodes = self.slices[t].getFreeNodes()
+            prev_duration = duration
+            prev_t = time 
+            if free_nodes < 0: 
+                print "PROBLEM: free nodes is a negative number, in slice", t
+                return False
+            if free_nodes > self.total_nodes:
+                print "PROBLEM: free nodes exceeds number of available nodes ...."
+                return False
+            num_of_active_nodes = 0
+            for job_id, job_nodes in self.slices[t].jobs.iteritems():
+                num_of_active_nodes += job_nodes
+
+            if num_of_active_nodes != self.total_nodes - free_nodes:
+                print "PROBLEM: wrong number of free nodes in slice", t 
+                return False
+            
+            if t != prev_t + prev_duration:
+                print "PROBLEM: non scuccessive slices", t, prev_t 
+            
+            duration = self.slices[t].getDuration()
+            time = t 
+        return True
+    
+            
+            
     
              
     def printCpuSlices(self):
         if len(self.slices) == 0:
             print "There are no slices to print"
+        print "start time | duration | #free nodes | { job.id : #job.nodes }"
+            
         times = self.slices.keys()
         times.sort()
         for t in times: 
