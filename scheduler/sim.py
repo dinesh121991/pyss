@@ -212,14 +212,14 @@ class CpuSnapshot(object):
                 jobs       = self.slices[slice_start_time].getJobs(),
                 )
             newslice.addJob(job)
-            self.slices[slice_start_time] = newslice
+            self._add_slice(newslice)
 
             newslice = CpuTimeSlice(
                 start_time = slice_start_time + remained_duration,
                 duration   = self._slice_duration(slice_start_time) - remained_duration,
                 jobs       = self.slices[slice_start_time].getJobs(),
                 )
-            self.slices[slice_start_time + remained_duration] = newslice
+            self._add_slice(newslice)
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
@@ -230,6 +230,9 @@ class CpuSnapshot(object):
         self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
         return
 
+    def _add_slice(self, slice):
+        self.slices[slice.start_time] = slice
+        
     def _slice_start_times_beginning_at(self, time):
         "yield only the slice start times after the given time"
         return (x for x in self._sorted_times if x >= time)
@@ -243,9 +246,7 @@ class CpuSnapshot(object):
     
     def addNewJobToNewSlice(self, time, duration, job):
         job_entry = {job.id : job.nodes}
-        newslice = CpuTimeSlice(time, duration, job_entry)
-        self.slices[time] = newslice 
-
+        self._add_slice( CpuTimeSlice(time, duration, job_entry) )
 
     def delJobFromCpuSlices(self, job):
         times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
@@ -287,12 +288,12 @@ class CpuSnapshot(object):
                 # splitting slice t with respect to delta and removing the job from the later slice
                 jobs = self.slices[t].getJobs()
                 newslice = CpuTimeSlice(t, duration_of_this_slice - delta , jobs)
-                self.slices[t] = newslice
+                self._add_slice(newslice)
                 
                 split_time = t + duration_of_this_slice - delta
                 newslice = CpuTimeSlice(split_time, delta , jobs)
-                newslice.delJob(job)                
-                self.slices[split_time] = newslice
+                newslice.delJob(job)
+                self._add_slice(newslice)
 
                 if accumulated_duration >= job.duration: #might delete this if i'll use python 2.4 with sorted()
                     return
