@@ -195,30 +195,30 @@ class CpuSnapshot(object):
          
         remained_duration = job.duration
 
-        for t in self._sorted_times:
-            last = t 
-            duration_of_this_slice = self.slices[t].getDuration()
+        for slice_start_time in self._sorted_times:
+            last = slice_start_time 
+            duration_of_this_slice = self.slices[slice_start_time].getDuration()
             
-            if t < assignment_time: # skip this slice 
+            if slice_start_time < assignment_time: # skip this slice 
                 continue
             
             if  duration_of_this_slice <= remained_duration: # just add the job to the current slice
-                self.slices[t].addJob(job)
-                remained_duration = remained_duration - self.slices[t].getDuration()
+                self.slices[slice_start_time].addJob(job)
+                remained_duration = remained_duration - self.slices[slice_start_time].getDuration()
                 if remained_duration == 0:
                     return
                 continue
             
                    
             #else: duration_of_this_slice > remained_duration :
-            jobs = self.slices[t].getJobs()
+            jobs = self.slices[slice_start_time].getJobs()
 
-            newslice = CpuTimeSlice(t, remained_duration, jobs)
+            newslice = CpuTimeSlice(slice_start_time, remained_duration, jobs)
             newslice.addJob(job)
-            self.slices[t] = newslice
+            self.slices[slice_start_time] = newslice
 
-            newslice = CpuTimeSlice(t + remained_duration, duration_of_this_slice - remained_duration, jobs)
-            self.slices[t + remained_duration] = newslice
+            newslice = CpuTimeSlice(slice_start_time + remained_duration, duration_of_this_slice - remained_duration, jobs)
+            self.slices[slice_start_time + remained_duration] = newslice
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
