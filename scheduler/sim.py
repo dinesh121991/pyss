@@ -49,7 +49,7 @@ class CpuTimeSlice:
             
     def addJob(self, job):
         assert self.free_nodes >= job.nodes
-        self.free_nodes = self.free_nodes - job.nodes
+        self.free_nodes -= job.nodes
         self.jobs[job.id]= job.nodes
 
 
