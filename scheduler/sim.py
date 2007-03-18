@@ -196,12 +196,10 @@ class CpuSnapshot(object):
         remained_duration = job.duration
 
         for slice_start_time in self._sorted_times:
-            duration_of_this_slice = self.slices[slice_start_time].getDuration()
-            
             if slice_start_time < assignment_time: # skip this slice 
                 continue
             
-            if  duration_of_this_slice <= remained_duration: # just add the job to the current slice
+            if  self._slice_duration(slice_start_time) <= remained_duration: # just add the job to the current slice
                 self.slices[slice_start_time].addJob(job)
                 remained_duration = remained_duration - self.slices[slice_start_time].getDuration()
                 if remained_duration == 0:
@@ -219,7 +217,11 @@ class CpuSnapshot(object):
             newslice.addJob(job)
             self.slices[slice_start_time] = newslice
 
-            newslice = CpuTimeSlice(slice_start_time + remained_duration, duration_of_this_slice - remained_duration, jobs)
+            newslice = CpuTimeSlice(
+                start_time = slice_start_time + remained_duration,
+                duration   = self._slice_duration(slice_start_time) - remained_duration,
+                jobs       = self.slices[slice_start_time].getJobs(),
+                )
             self.slices[slice_start_time + remained_duration] = newslice
             return
             
@@ -230,6 +232,9 @@ class CpuSnapshot(object):
         end_of_last_slice = last_slice_start_time + self.slices[last_slice_start_time].getDuration()
         self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
         return
+
+    def _slice_duration(self, start_time):
+        return self.slices[start_time].getDuration()
 
     @property
     def _sorted_times(self):
