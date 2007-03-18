@@ -77,7 +77,7 @@ class CpuTimeSlice:
 
         
         
-class CpuSnapshot:
+class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available nodes. """    
     def __init__(self, total_nodes=100):
         CpuTimeSlice.total_nodes = total_nodes
@@ -195,7 +195,7 @@ class CpuSnapshot:
          
         remained_duration = job.duration
 
-        for t in sorted(self.slices.keys()):
+        for t in self._sorted_times:
             last = t 
             duration_of_this_slice = self.slices[t].getDuration()
             
@@ -228,6 +228,9 @@ class CpuSnapshot:
         self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
         return
 
+    @property
+    def _sorted_times(self):
+        return sorted(self.slices.keys())
     
     def addNewJobToNewSlice(self, time, duration, job):
         job_entry = {job.id : job.nodes}
