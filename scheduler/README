@@ -28,3 +28,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 % svn checkout http://pyss.googlecode.com/svn/trunk/ pyss
 
 ./tests.py
+
+-----
+# Debugging an exception:
+% python2.4 -m pdb ./event.py
+# then do a 'continue' ('c' + <enter>) to reach the exception
+
+# to debug at a specific line, add this:
+import pdb; pdb.set_trace()
