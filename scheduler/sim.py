@@ -157,12 +157,9 @@ class CpuSnapshot(object):
 
         if assignment_time not in self.slices: #in case the job is assigned to the "middle" of a slice we would
             # like to split the slice accordingly in this preprocessing stage         
-            times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-            times.sort()
-
             last = 0
             
-            for t in times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
+            for t in self._sorted_times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
                 last = t #in case that assignment_time <= the_end_of_last current existing slice  
                 end_of_this_slice = t +  self.slices[t].getDuration()
                 duration_of_this_slice = self.slices[t].getDuration()
