@@ -144,7 +144,7 @@ class CpuSnapshot(object):
         return max(start_time, last + self.slices[last].getDuration()) # the job can be assigned right after the last slice or later 
 
 
-    def _ensure_a_slice_starts_at(self, assignment_time, job):
+    def _ensure_a_slice_starts_at(self, assignment_time):
         if assignment_time in self.slices:
             return # we already have a slice
 
@@ -174,7 +174,7 @@ class CpuSnapshot(object):
                                                                    # case there's no need to itterate through the slices
         if end_of_last_slice < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
             self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
-            self._add_slice( CpuTimeSlice(assignment_time, job.duration, {}) )
+            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
 
     def _add_job_to_relevant_slices(self, job):
         #itteration through the slices
@@ -226,7 +226,7 @@ class CpuSnapshot(object):
         job.start_to_run_at_time = assignment_time
         
         # ensure there is a slice that starts at assignment time
-        self._ensure_a_slice_starts_at(assignment_time, job)
+        self._ensure_a_slice_starts_at(assignment_time)
 
         # add the job to the relevant slices
         self._add_job_to_relevant_slices(job)
