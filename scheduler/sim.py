@@ -210,9 +210,12 @@ class CpuSnapshot(object):
             
                    
             #else: duration_of_this_slice > remained_duration :
-            jobs = self.slices[slice_start_time].getJobs()
 
-            newslice = CpuTimeSlice(slice_start_time, remained_duration, jobs)
+            newslice = CpuTimeSlice(
+                start_time = slice_start_time,
+                duration   = remained_duration,
+                jobs       = self.slices[slice_start_time].getJobs(),
+                )
             newslice.addJob(job)
             self.slices[slice_start_time] = newslice
 
