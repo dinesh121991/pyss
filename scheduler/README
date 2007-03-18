@@ -18,8 +18,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 % svn status
 % svn diff
 % svn commit
-% svn revert
 % svn update
+% svn revert
 
 % svn help <command>
 % svn checkout https://pyss.googlecode.com/svn/trunk/ pyss --username <username>
