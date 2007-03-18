@@ -155,7 +155,7 @@ class CpuSnapshot(object):
             self.addNewJobToNewSlice(assignment_time, job.duration, job)
             return
 
-        if not self.slices.has_key(assignment_time): #in case the job is assigned to the "middle" of a slice we would
+        if assignment_time not in self.slices: #in case the job is assigned to the "middle" of a slice we would
             # like to split the slice accordingly in this preprocessing stage         
             times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
             times.sort()
