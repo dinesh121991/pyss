@@ -15,10 +15,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ----------------------------------------------------------------------
 
-% svn status
+% svn stat
 % svn diff
 % svn commit
-% svn update
+% svn up
 
 % svn revert
 % svn add
