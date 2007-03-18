@@ -258,14 +258,11 @@ class CpuSnapshot(object):
         """ This function is used when the actual duration is smaller than the duration, so the tail
         of the job must be deleted from the slices
         Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
-        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-        times.sort()
-
         accumulated_duration = 0
         tail_of_the_job = False 
 
 
-        for t in times:
+        for t in self._sorted_times:
             duration_of_this_slice = self.slices[t].getDuration()
             
             if self.slices[t].isMemeber(job):
@@ -299,13 +296,9 @@ class CpuSnapshot(object):
                 return
             
     def CpuSlicesTestFeasibility(self):
-        
-        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-        times.sort()
-        
         duration = 0
         time = 0
-        for t in times:
+        for t in self._sorted_times:
             free_nodes = self.slices[t].getFreeNodes()
             prev_duration = duration
             prev_t = time 
@@ -339,9 +332,7 @@ class CpuSnapshot(object):
             print "There are no slices to print"
         print "start time | duration | #free nodes | { job.id : #job.nodes }"
             
-        times = self.slices.keys()
-        times.sort()
-        for t in times: 
+        for t in self._sorted_times: 
             print self.slices[t]
         print
         
