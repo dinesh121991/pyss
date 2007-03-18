@@ -19,7 +19,9 @@ Type "help", "copyright", "credits" or "license" for more information.
 % svn diff
 % svn commit
 % svn update
+
 % svn revert
+% svn add
 
 % svn help <command>
 % svn checkout https://pyss.googlecode.com/svn/trunk/ pyss --username <username>
