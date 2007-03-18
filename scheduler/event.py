@@ -237,6 +237,7 @@ class EasyBackfillScheduler(Scheduler):
         start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
         
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
+        # TODO: shouldn't this method not change the state?
         self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
         start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
 
