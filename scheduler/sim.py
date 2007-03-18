@@ -196,7 +196,6 @@ class CpuSnapshot(object):
         remained_duration = job.duration
 
         for slice_start_time in self._sorted_times:
-            last = slice_start_time 
             duration_of_this_slice = self.slices[slice_start_time].getDuration()
             
             if slice_start_time < assignment_time: # skip this slice 
@@ -223,8 +222,9 @@ class CpuSnapshot(object):
             
         # end of for loop, we've examined all existing slices and if this point is reached
         # we must add a new "tail" slice for the remaining part of the job
-            
-        end_of_last_slice = last + self.slices[last].getDuration()
+
+        last_slice_start_time = self._sorted_times[-1]
+        end_of_last_slice = last_slice_start_time + self.slices[last_slice_start_time].getDuration()
         self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
         return
 
