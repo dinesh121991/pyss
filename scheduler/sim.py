@@ -145,34 +145,36 @@ class CpuSnapshot(object):
 
 
     def _ensure_a_slice_starts_at(self, assignment_time, job):
-        if assignment_time not in self.slices: #in case the job is assigned to the "middle" of a slice we would
-            # like to split the slice accordingly in this preprocessing stage         
-            last = 0
-            
-            for t in self._sorted_times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
-                last = t #in case that assignment_time <= the_end_of_last current existing slice  
-                end_of_this_slice = t +  self.slices[t].getDuration()
-                duration_of_this_slice = self.slices[t].getDuration()
-            
-                if end_of_this_slice < assignment_time:
-                    continue
+        if assignment_time in self.slices:
+            return # we already have a slice
+        
+        # like to split the slice accordingly in this preprocessing stage         
+        last = 0
 
-                if end_of_this_slice == assignment_time:
-                    break
-                
-                # splitting slice t with respect to the assignment time 
-                jobs = self.slices[t].getJobs()
-                self._add_slice( CpuTimeSlice(t, assignment_time - t, jobs) )
-                
-                self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
-                break ## maybe this block can be deindented 
+        for t in self._sorted_times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
+            last = t #in case that assignment_time <= the_end_of_last current existing slice  
+            end_of_this_slice = t +  self.slices[t].getDuration()
+            duration_of_this_slice = self.slices[t].getDuration()
+
+            if end_of_this_slice < assignment_time:
+                continue
+
+            if end_of_this_slice == assignment_time:
+                break
+
+            # splitting slice t with respect to the assignment time 
+            jobs = self.slices[t].getJobs()
+            self._add_slice( CpuTimeSlice(t, assignment_time - t, jobs) )
+
+            self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
+            break ## maybe this block can be deindented 
 
 
-            end_of_last_slice = last + self.slices[last].getDuration() # in the following
-                                                                       # case there's no need to itterate through the slices
-            if end_of_last_slice < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-                self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
-                self._add_slice( CpuTimeSlice(assignment_time, job.duration, {}) )
+        end_of_last_slice = last + self.slices[last].getDuration() # in the following
+                                                                   # case there's no need to itterate through the slices
+        if end_of_last_slice < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
+            self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
+            self._add_slice( CpuTimeSlice(assignment_time, job.duration, {}) )
             
     def assignJob(self, job, assignment_time):         
         """ assigns the job to start at the given assignment time.
