@@ -306,7 +306,6 @@ class EasyBackfillScheduler(Scheduler):
 
 
     def schedule_jobs(self, time):
-        
         newEvents = emptyEvent = {}
                              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
