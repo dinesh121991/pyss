@@ -176,8 +176,9 @@ class CpuSnapshot(object):
             self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
             self._add_slice( CpuTimeSlice(assignment_time, job.duration, {}) )
 
-    def _add_job_to_relevant_slices(self, job, assignment_time):
-        #itteration through the slices 
+    def _add_job_to_relevant_slices(self, job):
+        #itteration through the slices
+        assignment_time = job.start_to_run_at_time
          
         remained_duration = job.duration
 
@@ -228,7 +229,7 @@ class CpuSnapshot(object):
         self._ensure_a_slice_starts_at(assignment_time, job)
 
         # add the job to the relevant slices
-        self._add_job_to_relevant_slices(job, assignment_time)
+        self._add_job_to_relevant_slices(job)
 
     def _add_slice(self, slice):
         self.slices[slice.start_time] = slice
