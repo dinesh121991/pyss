@@ -34,8 +34,8 @@ class CpuTimeSlice:
     def __init__(self, start_time=0, duration=1, jobs={}):
         self.start_time = start_time
         self.duration = duration
-        assert duration > 0 
-
+        assert duration > 0
+        
         if len(jobs)==0:  
             self.free_nodes = CpuTimeSlice.total_nodes
             self.jobs = {}
@@ -58,7 +58,7 @@ class CpuTimeSlice:
 
 
     def delJob(self, job):
-        assert self.free_nodes + job.nodes > CpuTimeSlice.total_nodes
+        assert self.free_nodes + job.nodes <= CpuTimeSlice.total_nodes
         self.free_nodes = self.free_nodes + job.nodes
         del self.jobs[job.id]
 
@@ -147,6 +147,20 @@ class CpuSnapshot(object):
 
         if assignment_time in self.slices:
             return # we already have a slice
+        
+        last_slice_start_time = self._sorted_times[-1]
+        last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
+
+        if last_slice_end_time < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
+            print "bla 1: end_time_of_last_slice:", last_slice_end_time, assignment_time
+            self._add_slice( CpuTimeSlice(last_slice_end_time, assignment_time - last_slice_end_time, {}) )
+            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
+            return
+        
+        if last_slice_end_time == assignment_time:
+            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
+            return
+
 
         for t in self._sorted_times:
         
@@ -156,26 +170,16 @@ class CpuSnapshot(object):
             if end_of_this_slice < assignment_time:
                 continue
 
-            if end_of_this_slice == assignment_time:
-                break
-
-            # splitting slice t with respect to the assignment time 
+            # splitting slice t with respect to the assignment time
+            print "bla 3"
             jobs = self.slices[t].getJobs()
             self._add_slice( CpuTimeSlice(t, assignment_time - t, jobs) )
 
             self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
-            break ## maybe this block can be deindented 
-
-        last_slice_start_time = self._sorted_times[-1]
-        last_slice_end_time = self.slices[last_slice_start_time].getDuration()
-        # in the follwing case there's no need to itterate through the slices
-        if last_slice_end_time <= assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            self._add_slice( CpuTimeSlice(last_slice_end_time, assignment_time - last_slice_end_time, {}) )
-            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
+            return 
 
 
-
-
+      
     def _add_job_to_relevant_slices(self, job):
      
         assignment_time = job.start_to_run_at_time     
@@ -225,9 +229,10 @@ class CpuSnapshot(object):
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
-        
         self._ensure_a_slice_starts_at(assignment_time)
+        print ; print "_____ printing the slices between the ensure and the add in assignJob()"; self.printCpuSlices()
         self._add_job_to_relevant_slices(job)
+        print ; print "_____ printing the slices right after the add in assignJob()"; self.printCpuSlices()
 
 
 
@@ -254,8 +259,9 @@ class CpuSnapshot(object):
         self._add_slice( CpuTimeSlice(time, duration, job_entry) )
 
 
-    def delJobFromCpuSlices(self, job):
-        """ Assumption: job resides at consecutive slices (no preemptions) """
+    def delJobFromCpuSlices(self, job):        
+        """ Delete an entire job from the slices.
+        Assumption: job resides at consecutive slices (no preemptions) """
 
         job_found = False
 
@@ -269,10 +275,12 @@ class CpuSnapshot(object):
         return
 
 
+
     def delTailofJobFromCpuSlices(self, job):
-        """ This function is used when the actual duration is smaller than the duration, so the tail
+        """ This function is used when the actual duration is smaller than the predicted duration, so the tail
         of the job must be deleted from the slices
         Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
+
         accumulated_duration = 0
         tail_of_the_job = False 
 
@@ -289,8 +297,8 @@ class CpuSnapshot(object):
             # at this point accumulated_duration > job.actual_duration:
             if not tail_of_the_job:          
                 tail_of_the_job = True 
-                delta = accumulated_duration - job.actual_duration 
-                # splitting slice t with respect to delta and removing the job from the later slice
+                delta = accumulated_duration - job.actual_duration
+                # split current slice with respect to delta and remove the job from the later slice
                 jobs = self.slices[t].getJobs()
                 newslice = CpuTimeSlice(t, duration_of_this_slice - delta , jobs)
                 self._add_slice(newslice)

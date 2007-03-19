@@ -258,6 +258,7 @@ class EasyBackfillScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
+        
              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
             first_job = just_arrived_job
@@ -265,6 +266,8 @@ class EasyBackfillScheduler(Scheduler):
             first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
             
         newEvent = emptyEvent = {}
+        
+        self.cpu_snapshot.printCpuSlices()
         
         if first_job.id != just_arrived_job.id: # two distinct jobs
             
@@ -274,7 +277,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(just_arrived_job, start_time_of_just_arrived_job)
                 new_event = JobTerminationEvent(just_arrived_job)
                 termination_time = just_arrived_job.start_to_run_at_time + just_arrived_job.actual_duration
-                newEvent[termination_time] = new_event                
+                newEvent[termination_time] = new_event
                 return newEvent  
 
             else:
