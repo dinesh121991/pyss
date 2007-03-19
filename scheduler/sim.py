@@ -57,10 +57,10 @@ class CpuTimeSlice:
 
 
     def delJob(self, job):
-        if self.free_nodes + job.nodes > CpuTimeSlice.total_nodes:
-            assert False
+        assert self.free_nodes + job.nodes > CpuTimeSlice.total_nodes
         self.free_nodes = self.free_nodes + job.nodes
         del self.jobs[job.id]
+
 
     def isMemeber(self, job):
         if job.id in self.jobs.keys():
@@ -81,7 +81,8 @@ class CpuTimeSlice:
         
         
 class CpuSnapshot(object):
-    """ represents the time table with the assignments of jobs to available nodes. """    
+    """ represents the time table with the assignments of jobs to available nodes. """
+    
     def __init__(self, total_nodes=100):
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
@@ -101,20 +102,11 @@ class CpuSnapshot(object):
         Assumption: number of requested nodes is not greater than number of total nodes.
         Assumption: earliest_start_time >=  the arrival time of the job."""
         
-        if len(self.slices) == 0: # no current job assignments, all nodes are free 
-            return earliest_start_time
-
-        partially_assigned = False
-         
-        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-        times.sort()
-        
+        partially_assigned = False         
         tentative_start_time = 0 
         accumulated_duration = 0
-        last = 0 #just to memorize the beginning time of the last exisiting slice 
         
-        for t in times: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
-            last = t
+        for t in self._sorted_times: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
             end_of_this_slice = t +  self.slices[t].getDuration()
 
@@ -123,39 +115,40 @@ class CpuSnapshot(object):
             if not feasible: # then surely the job cannot be assigned to this slice  
                 partially_assigned = False
                 accumulated_duration = 0
-                continue
-            
-            if feasible and not partially_assigned: 
+                        
+            elif feasible and not partially_assigned: 
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
-                accumulated_duration = t + self.slices[t].getDuration() - earliest_start_time
                 tentative_start_time =  max(earliest_start_time, t)
-                if accumulated_duration >= job.user_predicted_duration:
-                    return tentative_start_time
-                continue
-                
-            # at this point: it's a feasible slice and the job is partially_assigned:
-            accumulated_duration += self.slices[t].getDuration()
+                accumulated_duration = end_of_this_slice  - tentative_start_time
+
+            else:     
+                # it's a feasible slice and the job is partially_assigned:
+                accumulated_duration += self.slices[t].getDuration()
+            
             if accumulated_duration >= job.user_predicted_duration:
                 return tentative_start_time
-            continue
-            
+    
             # end of for loop, we've examined all existing slices
             
-        if partially_assigned: 
+        if partially_assigned: #and so there are not enough slices in the tail, then: 
             return tentative_start_time
-             
-        return max(earliest_start_time, last + self.slices[last].getDuration()) # the job can be assigned right after the last slice or later 
+
+        # otherwise, the job will be assigned right after the last slice or later 
+        last_slice_start_time = self._sorted_times[-1]
+        last_slice_end_time = self.slices[last_slice_start_time].getDuration()
+        return max(earliest_start_time, last_slice_start_time)  
+
 
 
     def _ensure_a_slice_starts_at(self, assignment_time):
+        """ A preprocessing stage: to ensure that the assignment time of the new added job will start at a begining of a slice """
+
         if assignment_time in self.slices:
             return # we already have a slice
 
-        last = 0
-
-        for t in self._sorted_times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
-            last = t #in case that assignment_time >  the_end_of_last current existing slice  
+        for t in self._sorted_times:
+        
             end_of_this_slice = t +  self.slices[t].getDuration()
             duration_of_this_slice = self.slices[t].getDuration()
 
