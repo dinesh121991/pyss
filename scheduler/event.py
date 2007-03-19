@@ -199,7 +199,7 @@ class ConservativeScheduler(Scheduler):
         It then reschedule the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)
-        if job.actual_duration < job.duration: 
+        if job.actual_duration < job.user_predicted_duration: 
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
             return self.reschedule_jobs(time)
         else:
@@ -298,7 +298,7 @@ class EasyBackfillScheduler(Scheduler):
         It then reschedule the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
 
-        if job.actual_duration < job.duration: 
+        if job.actual_duration < job.user_predicted_duration: 
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         
         return self.schedule_jobs(time)
