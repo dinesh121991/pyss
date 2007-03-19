@@ -92,13 +92,14 @@ class CpuSnapshot(object):
     def printCpuSlices(self): 
         pass
    
-    def jobEarliestAssignment(self, job, start_time=0):
-        """ returns the earliest time right after the given start_time for which the job can be assigned
+    def jobEarliestAssignment(self, job, earliest_start_time=0):
+        """ returns the earliest time right after the given earliest_start_time for which the job can be assigned
         enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.
-        Assumption: number of requested nodes is not greater than number of total nodes. """
+        Assumption: number of requested nodes is not greater than number of total nodes.
+        Assumption: earliest_start_time >=  the arrival time of the job."""
         
         if len(self.slices) == 0: # no current job assignments, all nodes are free 
-            return start_time
+            return earliest_start_time
 
         partially_assigned = False
          
@@ -114,7 +115,7 @@ class CpuSnapshot(object):
             
             end_of_this_slice = t +  self.slices[t].getDuration()
 
-            feasible = end_of_this_slice > start_time and self.slices[t].getFreeNodes() >= job.nodes
+            feasible = end_of_this_slice > earliest_start_time and self.slices[t].getFreeNodes() >= job.nodes
             
             if not feasible: # then surely the job cannot be assigned to this slice  
                 partially_assigned = False
@@ -124,8 +125,8 @@ class CpuSnapshot(object):
             if feasible and not partially_assigned: 
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
-                accumulated_duration = t + self.slices[t].getDuration() - start_time
-                tentative_start_time =  max(start_time, t)
+                accumulated_duration = t + self.slices[t].getDuration() - earliest_start_time
+                tentative_start_time =  max(earliest_start_time, t)
                 if accumulated_duration >= job.user_predicted_duration:
                     return tentative_start_time
                 continue
@@ -141,7 +142,7 @@ class CpuSnapshot(object):
         if partially_assigned: 
             return tentative_start_time
              
-        return max(start_time, last + self.slices[last].getDuration()) # the job can be assigned right after the last slice or later 
+        return max(earliest_start_time, last + self.slices[last].getDuration()) # the job can be assigned right after the last slice or later 
 
 
     def _ensure_a_slice_starts_at(self, assignment_time):
