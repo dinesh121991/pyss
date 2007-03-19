@@ -34,7 +34,7 @@ class CpuTimeSlice:
     def __init__(self, start_time=0, duration=1, jobs={}):
         self.start_time = start_time
         self.duration = duration
-
+        assert duration > 0 
 
         if len(jobs)==0:  
             self.free_nodes = CpuTimeSlice.total_nodes
@@ -224,7 +224,8 @@ class CpuSnapshot(object):
         """ assigns the job to start at the given assignment time.
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
-        job.start_to_run_at_time = assignment_time        
+        job.start_to_run_at_time = assignment_time
+        
         self._ensure_a_slice_starts_at(assignment_time)
         self._add_job_to_relevant_slices(job)
 
@@ -233,28 +234,32 @@ class CpuSnapshot(object):
     def _add_slice(self, slice):
         self.slices[slice.start_time] = slice
         
+        
     def _slice_start_times_beginning_at(self, time):
         "yield only the slice start times after the given time"
         return (x for x in self._sorted_times if x >= time)
+
     
     def _slice_duration(self, start_time):
         return self.slices[start_time].getDuration()
 
+
     @property
     def _sorted_times(self):
         return sorted(self.slices.keys())
+
     
     def addNewJobToNewSlice(self, time, duration, job):
         job_entry = {job.id : job.nodes}
         self._add_slice( CpuTimeSlice(time, duration, job_entry) )
 
+
     def delJobFromCpuSlices(self, job):
-        times = self.slices.keys() #*** I couldn't do the sorting nicely as Ori suggested 
-        times.sort()
-        
+        """ Assumption: job resides at consecutive slices (no preemptions) """
+
         job_found = False
-        
-        for t in times:
+
+        for t in self._sorted_times:
             if self.slices[t].isMemeber(job):
                 job_found = True
                 self.slices[t].delJob(job)
