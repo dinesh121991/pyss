@@ -113,32 +113,38 @@ class CpuSnapshot(object):
 
             feasible = end_of_this_slice > earliest_start_time and self.slices[t].getFreeNodes() >= job.nodes
             
-            if not feasible: # then surely the job cannot be assigned to this slice  
+            if not feasible: # then surely the job cannot be assigned to this slice
+                print "aaaaa"
                 partially_assigned = False
                 accumulated_duration = 0
                         
-            elif feasible and not partially_assigned: 
+            elif feasible and not partially_assigned:
+                print "bbbb"
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
                 tentative_start_time =  max(earliest_start_time, t)
                 accumulated_duration = end_of_this_slice  - tentative_start_time
 
-            else:     
+            else:
+                print "cccc"
                 # it's a feasible slice and the job is partially_assigned:
                 accumulated_duration += self.slices[t].getDuration()
             
             if accumulated_duration >= job.user_predicted_duration:
+                print "dddddddd"
                 return tentative_start_time
     
             # end of for loop, we've examined all existing slices
             
-        if partially_assigned: #and so there are not enough slices in the tail, then: 
+        if partially_assigned: #and so there are not enough slices in the tail, then:
+            print "eeeeee"
             return tentative_start_time
 
-        # otherwise, the job will be assigned right after the last slice or later 
+        # otherwise, the job will be assigned right after the last slice or later
+        print "fffffff"
         last_slice_start_time = self._sorted_times[-1]
         last_slice_end_time = self.slices[last_slice_start_time].getDuration()
-        return max(earliest_start_time, last_slice_start_time)  
+        return max(earliest_start_time, last_slice_end_time)  
 
 
 
@@ -226,6 +232,7 @@ class CpuSnapshot(object):
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
+        print "assignment time of job: ", assignment_time
         self._ensure_a_slice_starts_at(assignment_time)
         print ; print "_____ printing the slices right after the _ensure() in assignJob()"; self.printCpuSlices()
         self._add_job_to_relevant_slices(job)

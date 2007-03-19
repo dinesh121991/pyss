@@ -105,6 +105,7 @@ class Simulator:
     def test(self):
         pass
     
+
     def startSimulation(self):
         """ Assumption1: times are non-negative numbers. """
 
@@ -237,6 +238,7 @@ class EasyBackfillScheduler(Scheduler):
         self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times = []
 
     def canBeBackfilled(self, first_job, second_job, time):
+        print "I'm checking if the job can be backfilled"
         start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
         
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
@@ -267,8 +269,6 @@ class EasyBackfillScheduler(Scheduler):
             
         newEvent = emptyEvent = {}
         
-        self.cpu_snapshot.printCpuSlices()
-        
         if first_job.id != just_arrived_job.id: # two distinct jobs
             
             if self.canBeBackfilled(first_job, just_arrived_job, time):
@@ -281,19 +281,23 @@ class EasyBackfillScheduler(Scheduler):
                 return newEvent  
 
             else:
+                print "cannot be backfilled  111111"
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
                 return emptyEvent 
  
         
-        else: # the just arrived job is the only job (to be scheduled soon) that we now have in the waiting list 
+        else: # the just arrived job is the only job (to be scheduled soon) that we now have in the waiting list
+             print "cannot be backfilled  22222 (this is the only job in the waiting list)"
              start_time_of_just_arrived_job = self.cpu_snapshot.jobEarliestAssignment(just_arrived_job, time)
              if start_time_of_just_arrived_job == time:
+                 print "cannot be backfilled  333333"
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
                  new_event = JobTerminationEvent(just_arrived_job)
                  termination_time = time + just_arrived_job.actual_duration
                  newEvent[termination_time] = new_event                
                  return newEvent
              else:
+                 print "cannot be backfilled  444444"
                  self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
                  return emptyEvent
              
@@ -308,7 +312,6 @@ class EasyBackfillScheduler(Scheduler):
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         
         return self.schedule_jobs(time)
-
 
 
     def schedule_jobs(self, time):
@@ -343,8 +346,7 @@ class EasyBackfillScheduler(Scheduler):
                     newEvents[termination_time] = new_event                
         return newEvents
  
-        
-    
+            
     
 ###############
 
