@@ -2,9 +2,8 @@
 from sim import * 
 
 class Event:
-
     def __init__(self, job=None):
-        self.job = job    
+        self.job = job
 
 class EndOfSimulationEvent(Event):
     def __str__(self):
@@ -29,6 +28,7 @@ class JobArrivalEventGeneratorViaLogFile:
         self.file = file(input_file) #open the specified file for reading 
         self.events = {}
         self.jobs = []
+        
         while True: 
             line = self.file.readline()
             if len(line) == 0: # zero length indicates end-of-file
@@ -44,8 +44,7 @@ class JobArrivalEventGeneratorViaLogFile:
                 self.events[int(job_arrival_time)].append(newEvent)
             else:
                 self.events[int(job_arrival_time)] = []
-                self.events[int(job_arrival_time)].append(newEvent)
-            
+                self.events[int(job_arrival_time)].append(newEvent)    
         self.file.close()
 
 
@@ -61,7 +60,9 @@ class JobArrivalEventGeneratorViaLogFile:
         
 
 class Simulator:
-
+    """ Assumption: The simulation clock goes only forward. Specifically,
+    an event on time t can only produce future events with time t' = t or t' > t."""
+    
     def startSimulation(self):
         pass
     
@@ -163,6 +164,8 @@ class Simulator:
             if job.actual_duration > 0:
                 new_job = Job(job.id, job.actual_duration, job.nodes, job.arrival_time, job.actual_duration)
                 cpu_snapshot.assignJob(new_job, job.start_to_run_at_time)
+                cpu_snapshot.printCpuSlices()
+                
         cpu_snapshot.printCpuSlices()
         return cpu_snapshot.CpuSlicesTestFeasibility()
     
@@ -345,117 +348,3 @@ class EasyBackfillScheduler(Scheduler):
 sim = Simulator()
 
             
-
-        
-        
-        
-
-    
-        
-
-
-
-
-"""
-            while len(self.events[current_time]) > 0:
-                print len(self.events[current_time])
-                
-                event = self.events[current_time].pop()
-
-                print str(event)
-                
-                if isinstance(event, JobTerminationEvent):
-                    termination_event_occured = True
-                    break
-
-
-            
-
-job10 = Job('job10', 1000, 10)
-job15 = Job('job15', 100, 10)
-job18 = Job('job18', 1000, 10)
-job19 = Job('job19', 1000, 10)
-
-
-print "start_time, duration, free_nodes, jobs"
-print
-print
-print
-
-cs = CpuSnapshot(100)
-cs.printCpuSlices()
-
-
-start_time = cs.jobEarliestAssignment(job10, 0)
-cs.assignJob(job10, start_time)
-cs.printCpuSlices()
-print
-
-
-start_time = cs.jobEarliestAssignment(job15, 10)
-print "eraliest start time", start_time, " for job15"  
-cs.assignJob(job15, start_time)
-#print job15 
-cs.printCpuSlices()
-print
-
-start_time = cs.jobEarliestAssignment(job18, 0)
-print "eraliest start time", start_time, " for job18"  
-cs.assignJob(job18, start_time)
-#print job18 
-cs.printCpuSlices()
-print
-
-start_time = cs.jobEarliestAssignment(job19, 30)
-print "eraliest start time", start_time, " for job19"  
-cs.assignJob(job19, start_time)
-#print job19 
-cs.printCpuSlices()
-print
-
-cs.delJobFromCpuSlices(job15)
-cs.printCpuSlices()
-print
-
-
-
-
-cs.assignJob('j15', 1000, 60)
-cs.printCpuSlices()
-print
-
-cs.assignJob('j18', 1000, 60)
-cs.printCpuSlices()
-print
-
-
-cs.assignJob('j20', 1000, 30)
-cs.printCpuSlices()
-print
-
-cs.assignJob('j21', 1000, 20)
-cs.printCpuSlices()
-print
-
-cs.assignJob('j22', 1000, 10)
-cs.printCpuSlices()
-print
-
-
-
-
-cpu=CpuTimeSlice(0, 100)
-
-print cpu
-
-cpu.addJob(job10)
-dict = cpu.getJobs(); 
-print "dict", dict
-
-cpu.addJob(job15)
-
-print "cpu", cpu
-print "dict", dict
-
-
-"""

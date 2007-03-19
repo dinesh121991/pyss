@@ -6,6 +6,7 @@ class Job:
                  job_arrival_time=0, job_actual_duration=0):
 
         assert job_nodes > 0
+
         self.id = job_id
         self.user_predicted_duration = user_predicted_duration
         self.nodes = job_nodes
@@ -15,16 +16,18 @@ class Job:
         
 
     def __str__(self):
-        return str(self.id) + ", arrival " + str(self.arrival_time) + \
-               ", dur " + str(self.user_predicted_duration) + ", #nodes " + str(self.nodes) + \
-               ", startTime " + str(self.start_to_run_at_time)  
+        return str(self.id) + ", arrival=" + str(self.arrival_time) + \
+               ", dur=" + str(self.user_predicted_duration) + ",act_dur=" + str(self.actual_duration) + \
+               ", #nodes=" + str(self.nodes) + \
+               ", startTime=" + str(self.start_to_run_at_time)  
     
         
 
 class CpuTimeSlice:
     ''' represents a "tenatative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
         It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
-        for nodes ba all the jobs assigned to this slice never exceeds the amount of the total nodes available '''
+        for nodes ba all the jobs assigned to this slice never exceeds the amount of the total nodes available.
+        Assumption: the duration of the slice is never changed. We can replace this slice with a new slice with shorter duration.'''
     
     total_nodes = 0 # a class variable
     
@@ -149,11 +152,10 @@ class CpuSnapshot(object):
         if assignment_time in self.slices:
             return # we already have a slice
 
-        # like to split the slice accordingly in this preprocessing stage         
         last = 0
 
         for t in self._sorted_times: #preprocessing stage: to ensure that the assignment time will start at a begining of a slice
-            last = t #in case that assignment_time <= the_end_of_last current existing slice  
+            last = t #in case that assignment_time >  the_end_of_last current existing slice  
             end_of_this_slice = t +  self.slices[t].getDuration()
             duration_of_this_slice = self.slices[t].getDuration()
 
@@ -177,10 +179,12 @@ class CpuSnapshot(object):
             self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
             self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
 
+
+
+
     def _add_job_to_relevant_slices(self, job):
-        #itteration through the slices
-        assignment_time = job.start_to_run_at_time
-         
+     
+        assignment_time = job.start_to_run_at_time     
         remained_duration = job.user_predicted_duration
 
         for slice_start_time in self._slice_start_times_beginning_at(assignment_time):
@@ -192,7 +196,8 @@ class CpuSnapshot(object):
                 continue
             
                    
-            #else: duration_of_this_slice > remained_duration :
+            #else: duration_of_this_slice > remained_duration, that is the current slice
+            #is longer than what we actually need, we thus split the slice, add the job to the 1st one, and return 
 
             newslice = CpuTimeSlice(
                 start_time = slice_start_time,
@@ -220,14 +225,16 @@ class CpuSnapshot(object):
         self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
         return
         
+
     def assignJob(self, job, assignment_time):         
         """ assigns the job to start at the given assignment time.
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
-        job.start_to_run_at_time = assignment_time
-        
+        job.start_to_run_at_time = assignment_time        
         self._ensure_a_slice_starts_at(assignment_time)
         self._add_job_to_relevant_slices(job)
+
+
 
     def _add_slice(self, slice):
         self.slices[slice.start_time] = slice
