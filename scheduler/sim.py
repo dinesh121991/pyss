@@ -165,11 +165,11 @@ class CpuSnapshot(object):
             self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
             break ## maybe this block can be deindented 
 
-
-        end_of_last_slice = last + self.slices[last].getDuration() # in the following
-                                                                   # case there's no need to itterate through the slices
-        if end_of_last_slice < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            self._add_slice( CpuTimeSlice(end_of_last_slice, assignment_time - end_of_last_slice, {}) )
+        last_slice_start_time = self._sorted_times[-1]
+        last_slice_end_time = self.slices[last_slice_start_time].getDuration()
+        # in the follwing case there's no need to itterate through the slices
+        if last_slice_end_time < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
+            self._add_slice( CpuTimeSlice(last_slice_end_time, assignment_time - last_slice_end_time, {}) )
             self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
 
 
