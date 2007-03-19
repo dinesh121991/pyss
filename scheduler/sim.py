@@ -307,29 +307,34 @@ class CpuSnapshot(object):
     def CpuSlicesTestFeasibility(self):
         duration = 0
         time = 0
+        
         for t in self._sorted_times:
             free_nodes = self.slices[t].getFreeNodes()
             prev_duration = duration
-            prev_t = time 
+            prev_t = time
+            
             if free_nodes < 0: 
-                print "PROBLEM: free nodes is a negative number, in slice", t
+                print ">>> PROBLEM: free nodes is a negative number, in slice", t
                 return False
+            
             if free_nodes > self.total_nodes:
-                print "PROBLEM: free nodes exceeds number of available nodes ...."
+                print ">>> PROBLEM: free nodes exceeds number of available nodes ...."
                 return False
+
             num_of_active_nodes = 0
             for job_id, job_nodes in self.slices[t].jobs.iteritems():
                 num_of_active_nodes += job_nodes
 
             if num_of_active_nodes != self.total_nodes - free_nodes:
-                print "PROBLEM: wrong number of free nodes in slice", t 
+                print ">>> PROBLEM: wrong number of free nodes in slice", t 
                 return False
             
             if t != prev_t + prev_duration:
-                print "PROBLEM: non scuccessive slices", t, prev_t 
-            
+                print ">>> PROBLEM: non scuccessive slices", t, prev_t 
+                return False 
             duration = self.slices[t].getDuration()
-            time = t 
+            time = t
+            
         return True
     
             
