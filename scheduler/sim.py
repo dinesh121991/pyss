@@ -31,9 +31,10 @@ class CpuTimeSlice:
     
     total_nodes = 0 # a class variable
     
-    def __init__(self, start_time=0, duration=0, jobs={}):
+    def __init__(self, start_time=0, duration=1, jobs={}):
         self.start_time = start_time
         self.duration = duration
+
 
         if len(jobs)==0:  
             self.free_nodes = CpuTimeSlice.total_nodes
