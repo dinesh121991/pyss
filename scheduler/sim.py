@@ -152,7 +152,6 @@ class CpuSnapshot(object):
         last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
 
         if last_slice_end_time < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            print "bla 1: end_time_of_last_slice:", last_slice_end_time, assignment_time
             self._add_slice( CpuTimeSlice(last_slice_end_time, assignment_time - last_slice_end_time, {}) )
             self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
             return
@@ -171,10 +170,8 @@ class CpuSnapshot(object):
                 continue
 
             # splitting slice t with respect to the assignment time
-            print "bla 3"
             jobs = self.slices[t].getJobs()
             self._add_slice( CpuTimeSlice(t, assignment_time - t, jobs) )
-
             self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
             return 
 
@@ -195,16 +192,8 @@ class CpuSnapshot(object):
             
                    
             #else: duration_of_this_slice > remained_duration, that is the current slice
-            #is longer than what we actually need, we thus split the slice, add the job to the 1st one, and return 
-
-            newslice = CpuTimeSlice(
-                start_time = slice_start_time,
-                duration   = remained_duration,
-                jobs       = self.slices[slice_start_time].getJobs(),
-                )
-            newslice.addJob(job)
-            self._add_slice(newslice)
-
+            #is longer than what we actually need, we thus split the slice, then add the job to the 1st one, and return
+            
             self._add_slice(
                 CpuTimeSlice(
                     start_time = slice_start_time + remained_duration,
@@ -212,6 +201,14 @@ class CpuSnapshot(object):
                     jobs       = self.slices[slice_start_time].getJobs(),
                 )
                 )
+            
+            newslice = CpuTimeSlice(
+                start_time = slice_start_time,
+                duration   = remained_duration,
+                jobs       = self.slices[slice_start_time].getJobs(),
+                )
+            newslice.addJob(job)
+            self._add_slice(newslice)
                 
             return
             
@@ -230,9 +227,9 @@ class CpuSnapshot(object):
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
         self._ensure_a_slice_starts_at(assignment_time)
-        print ; print "_____ printing the slices between the ensure and the add in assignJob()"; self.printCpuSlices()
+        print ; print "_____ printing the slices right after the _ensure() in assignJob()"; self.printCpuSlices()
         self._add_job_to_relevant_slices(job)
-        print ; print "_____ printing the slices right after the add in assignJob()"; self.printCpuSlices()
+        print ; print "_____ printing the slices right after the _add()  in assignJob()"; self.printCpuSlices()
 
 
 
