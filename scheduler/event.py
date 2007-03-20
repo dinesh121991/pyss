@@ -112,9 +112,7 @@ class Simulator:
 
         while end_of_simulation_event_has_not_occured and len(self.events) > 0:
  
-            times_of_events = self.events.keys() # sorting the events  
-            times_of_events.sort()
-            current_time = times_of_events.pop(0)
+            current_time = sorted(self.events.keys()).pop(0)
 
             while len(self.events[current_time]) > 0:
                 self.scheduler.cpu_snapshot.printCpuSlices()
@@ -144,7 +142,6 @@ class Simulator:
             
         self.scheduler.cpu_snapshot.printCpuSlices()
 
-        print "______ feasibility check starts now: _______" 
         if self.isFeasibleSchedule():
             print "Feasibility Test is OK!!!!!"
         else: 
@@ -159,7 +156,7 @@ class Simulator:
         for job in self.jobs:
             print str(job)
             if job.arrival_time > job.start_to_run_at_time:
-                print "PROBLEM: job starts before arrival...."
+                print ">>> PROBLEM: job starts before arrival...."
                 return False
             if job.actual_duration > 0:
                 new_job = Job(job.id, job.actual_duration, job.nodes, job.arrival_time, job.actual_duration)
@@ -171,7 +168,9 @@ class Simulator:
     
         
                 
-class Scheduler:        
+class Scheduler:
+     """" Assumption: every handler returns a (possibly empty) collection of new events"""
+    
      def handleArrivalOfJobEvent(self, job, time):
          pass
      def handleTerminationOfJobEvent(self, job, time):
@@ -197,8 +196,8 @@ class ConservativeScheduler(Scheduler):
         return newEvent
     
     def handleTerminationOfJobEvent(self, job, time):
-        """ this handler deletes the tail of job if it was ended before the duration declaration.
-        It then reschedule the remaining jobs and returns a collection of new termination events
+        """ Here we delete the tail of job if it was ended before the duration declaration.
+        It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)
         if job.actual_duration < job.user_predicted_duration: 
@@ -240,7 +239,7 @@ class EasyBackfillScheduler(Scheduler):
 
 
     def canBeBackfilled(self, first_job, second_job, time):
-        print "... I'm checking if the job can be backfilled"
+        print "... Let's check if the job can be backfilled"
         start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
         print "start time of the first job: ", start_time_of_first_job, first_job.id
         
@@ -266,7 +265,6 @@ class EasyBackfillScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
-        
              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
             first_job = just_arrived_job
@@ -349,7 +347,8 @@ class EasyBackfillScheduler(Scheduler):
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
                     new_event = JobTerminationEvent(next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    newEvents[termination_time] = new_event                
+                    newEvents[termination_time] = new_event
+                    
         return newEvents
  
             
