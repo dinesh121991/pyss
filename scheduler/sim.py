@@ -278,7 +278,7 @@ class CpuSnapshot(object):
 
         accumulated_duration = 0
         tail_of_the_job_is_found = False 
-
+        
 
         for t in self._sorted_times:
             duration_of_this_slice = self.slices[t].getDuration()
@@ -289,28 +289,27 @@ class CpuSnapshot(object):
             if accumulated_duration < job.actual_duration:
                 continue
             
-            # at this point accumulated_duration >= job.actual_duration, that is from now on we should delete 
-            if not tail_of_the_job_is_found:
+            elif accumulated_duration == job.actual_duration:
+                tail_of_the_job_is_found = True 
+                  
+            # at this point accumulated_duration > job.actual_duration, that is from now on we should delete 
+            elif not tail_of_the_job_is_found:
                 tail_of_the_job_is_found = True 
 
-                # we might need to split this slice, if the jobs terminated in the middle of it                
-                if accumulated_duration == job.actual_duration: # no need to split the current slice 
-                    self.slices[t].delJob(job)
-                    
-                else: # split
-                    # split current slice with respect to delta and remove the job from the later slice
-                    delta = accumulated_duration - job.actual_duration
-                    jobs = self.slices[t].getJobs()
-                    newslice = CpuTimeSlice(t, duration_of_this_slice - delta , jobs)
-                    self._add_slice(newslice)
+                # split current slice with respect to delta and remove the job from the later slice
+                delta = accumulated_duration - job.actual_duration
+                jobs = self.slices[t].getJobs()
+                newslice = CpuTimeSlice(t, duration_of_this_slice - delta , jobs)
+                self._add_slice(newslice)
                 
-                    split_time = t + duration_of_this_slice - delta
-                    newslice = CpuTimeSlice(split_time, delta , jobs)
-                    newslice.delJob(job)
-                    self._add_slice(newslice)
+                split_time = t + duration_of_this_slice - delta
+                newslice = CpuTimeSlice(split_time, delta , jobs)
+                newslice.delJob(job)
+                self._add_slice(newslice)
 
             else:
                 self.slices[t].delJob(job) # removing the job from further slices in the "tail"
+  
                 
             if accumulated_duration >= job.user_predicted_duration: #might delete this if i'll use python 2.4 with sorted()
                 return
