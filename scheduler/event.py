@@ -149,12 +149,12 @@ class Simulator:
         if self.isFeasibleSchedule():
             print "Feasibility Test is OK!!!!!"
         else: 
-            print "!!!!!!!!!! There is a problem with the feasibilty of the simulator/schedule !!!!!!!!"
+            print "!!!!!!!!!! There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
           
 
         
     def isFeasibleSchedule(self):
-        """ check the feasibility of the schedule produced by the simulation. """
+        """ Checks the feasibility of the schedule produced by the simulation. """
         
         cpu_snapshot = CpuSnapshot(self.total_nodes)
         for job in self.jobs:
@@ -171,8 +171,7 @@ class Simulator:
         return cpu_snapshot.CpuSlicesTestFeasibility()
     
         
-        
-        
+                
 class Scheduler:        
      def handleArrivalOfJobEvent(self, job, time):
          pass
@@ -232,20 +231,28 @@ class ConservativeScheduler(Scheduler):
                 
                 
 
+
+
 class EasyBackfillScheduler(Scheduler):
+    
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times = []
 
+
     def canBeBackfilled(self, first_job, second_job, time):
-        print "I'm checking if the job can be backfilled"
+        print "... I'm checking if the job can be backfilled"
         start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        print "start time of the first job: ", start_time_of_first_job, first_job.id
         
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
+        print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
+        
         # TODO: shouldn't this method not change the state?
         self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
-        start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-
+        start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, start_time_of_second_job)
+        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_first_job_after_assigning_the_second_job
+        
         self.cpu_snapshot.delJobFromCpuSlices(second_job)
        
         if start_time_of_first_job_after_assigning_the_second_job > start_time_of_first_job:

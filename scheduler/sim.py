@@ -143,7 +143,7 @@ class CpuSnapshot(object):
         # otherwise, the job will be assigned right after the last slice or later
         print "fffffff"
         last_slice_start_time = self._sorted_times[-1]
-        last_slice_end_time = self.slices[last_slice_start_time].getDuration()
+        last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
         return max(earliest_start_time, last_slice_end_time)  
 
 
