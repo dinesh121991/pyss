@@ -74,7 +74,7 @@ class Simulator:
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
-        #self.scheduler =  ConservativeScheduler(total_nodes)
+        # self.scheduler =  ConservativeScheduler(total_nodes)
         self.scheduler =  EasyBackfillScheduler(total_nodes)
         self.startSimulation()
 
@@ -116,18 +116,19 @@ class Simulator:
             current_time = sorted(self.events.keys()).pop(0)
 
             while len(self.events[current_time]) > 0:
-                self.scheduler.cpu_snapshot.printCpuSlices()
-
+                
                 event = self.events[current_time].pop()
                 print str(event)
 
                 if isinstance(event, JobArrivalEvent):
                     newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.addEvents(newEvents)
                     continue
 
@@ -144,6 +145,7 @@ class Simulator:
 
         print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
+
 
         if self.isFeasibleSchedule():
             print "Feasibility Test is OK!!!!!"
@@ -183,6 +185,7 @@ class Simulator:
 
         print "__________ Fesibilty Test __________"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
+        
         for job in self.jobs:
             print str(job)
             if job.arrival_time > job.start_to_run_at_time:
@@ -272,11 +275,16 @@ class EasyBackfillScheduler(Scheduler):
 
     def canBeBackfilled(self, first_job, second_job, time):
         print "... Let's check if the job can be backfilled"
-        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "start time of the first job: ", start_time_of_first_job, first_job.id
         
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
         print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
+
+        if start_time_of_second_job > time:
+            return False
+    
+        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        print "start time of the first job: ", start_time_of_first_job, first_job.id
+        
         
         # TODO: shouldn't this method not change the state?
         self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
