@@ -74,8 +74,10 @@ class Simulator:
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
+        
         # self.scheduler =  ConservativeScheduler(total_nodes)
         self.scheduler =  EasyBackfillScheduler(total_nodes)
+        
         self.startSimulation()
 
     def addEvent(self, time, event):
@@ -180,8 +182,7 @@ class Simulator:
         print "Average wait time is: ", sigma_wait / counter
         print "Average flow time is: ", sigma_flow / counter 
 
-        
-            
+    
 
             
     def isFeasibleSchedule(self):
@@ -202,9 +203,6 @@ class Simulator:
                 
         cpu_snapshot.printCpuSlices()
         return cpu_snapshot.CpuSlicesTestFeasibility()
-    
-        
-
 
                 
 class Scheduler:
@@ -376,7 +374,8 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(first_job, time)
                 new_event = JobTerminationEvent(first_job)
                 termination_time = time + first_job.actual_duration
-                newEvents[termination_time] = new_event                
+                newEvents[termination_time] = new_event
+                print termination_time, str(new_event)
             else:
                 break
 
