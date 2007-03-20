@@ -226,11 +226,8 @@ class CpuSnapshot(object):
 
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
-        print "assignment time of job: ", assignment_time
         self._ensure_a_slice_starts_at(assignment_time)
-        print ; print "_____ printing the slices right after the _ensure() in assignJob()"; self.printCpuSlices()
         self._add_job_to_relevant_slices(job)
-        print ; print "_____ printing the slices right after the _add()  in assignJob()"; self.printCpuSlices()
 
 
 
@@ -258,7 +255,7 @@ class CpuSnapshot(object):
 
 
     def delJobFromCpuSlices(self, job):        
-        """ Delete an entire job from the slices.
+        """ Deletes an entire job from the slices.
         Assumption: job resides at consecutive slices (no preemptions) """
 
         job_found = False
@@ -311,7 +308,6 @@ class CpuSnapshot(object):
                     newslice = CpuTimeSlice(split_time, delta , jobs)
                     newslice.delJob(job)
                     self._add_slice(newslice)
-                    print "____ deletes the tail of job", t, accumulated_duration, delta  
 
             else:
                 self.slices[t].delJob(job) # removing the job from further slices in the "tail"
@@ -360,10 +356,8 @@ class CpuSnapshot(object):
     
              
     def printCpuSlices(self):
-        if len(self.slices) == 0:
-            print "There are no slices to print"
-        print "start time | duration | #free nodes | { job.id : #job.nodes }"
-            
+
+        print "start time | duration | #free nodes | { job.id : #job.nodes }"            
         for t in self._sorted_times: 
             print self.slices[t]
         print
