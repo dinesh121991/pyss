@@ -88,15 +88,9 @@ class CpuSnapshot(object):
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
         self.slices={} # initializing the main structure of this class 
-        self.slices[0] = CpuTimeSlice() # Assumption: the snapshot starts at time zero
+        self.slices[0] = CpuTimeSlice() # Assumption: the snapshot always has at least one slice 
         
-            
-    def addNewJobToNewSlice(self, time, duration, job):
-        pass
-         
-    def printCpuSlices(self): 
-        pass
-   
+               
     def jobEarliestAssignment(self, job, earliest_start_time=0):
         """ returns the earliest time right after the given earliest_start_time for which the job can be assigned
         enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.

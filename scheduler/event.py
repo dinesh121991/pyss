@@ -103,8 +103,6 @@ class Simulator:
              else:
                  self.addEvent(time, new_event)
                  
-    def test(self):
-        pass
     
 
     def startSimulation(self):
@@ -114,7 +112,7 @@ class Simulator:
 
         while end_of_simulation_event_has_not_occured and len(self.events) > 0:
  
-            times_of_events = self.events.keys() #*** I couldn't do the sorting nicely as Ori suggested 
+            times_of_events = self.events.keys() # sorting the events  
             times_of_events.sort()
             current_time = times_of_events.pop(0)
 
@@ -146,7 +144,7 @@ class Simulator:
             
         self.scheduler.cpu_snapshot.printCpuSlices()
 
-        print "____ feasibility check starts now: _______" 
+        print "______ feasibility check starts now: _______" 
         if self.isFeasibleSchedule():
             print "Feasibility Test is OK!!!!!"
         else: 
