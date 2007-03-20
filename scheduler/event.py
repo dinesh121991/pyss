@@ -31,6 +31,7 @@ class JobArrivalEventGeneratorViaLogFile:
         
         while True: 
             line = self.file.readline()
+            print line
             if len(line) == 0: # zero length indicates end-of-file
                 break
             
