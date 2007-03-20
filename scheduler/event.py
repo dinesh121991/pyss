@@ -117,6 +117,10 @@ class Simulator:
 
             while len(self.events[current_time]) > 0:
                 
+                for eve in self.events[current_time]:
+                    print current_time, str(eve)
+                print
+                
                 event = self.events[current_time].pop()
                 print str(event)
 
@@ -317,10 +321,9 @@ class EasyBackfillScheduler(Scheduler):
             
             if self.canBeBackfilled(first_job, just_arrived_job, time):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
-                start_time_of_just_arrived_job = self.cpu_snapshot.jobEarliestAssignment(just_arrived_job, time)
-                self.cpu_snapshot.assignJob(just_arrived_job, start_time_of_just_arrived_job)
+                self.cpu_snapshot.assignJob(just_arrived_job, time)
                 new_event = JobTerminationEvent(just_arrived_job)
-                termination_time = just_arrived_job.start_to_run_at_time + just_arrived_job.actual_duration
+                termination_time = just_arrived_job.time + just_arrived_job.actual_duration
                 newEvent[termination_time] = new_event
                 return newEvent  
 
