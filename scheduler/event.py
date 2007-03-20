@@ -61,8 +61,9 @@ class JobArrivalEventGeneratorViaLogFile:
         
 
 class Simulator:
-    """ Assumption: The simulation clock goes only forward. Specifically,
-    an event on time t can only produce future events with time t' = t or t' > t."""
+    """ Assumption 1: The simulation clock goes only forward. Specifically,
+    an event on time t can only produce future events with time t' = t or t' > t.
+    Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
     
     def startSimulation(self):
         pass
@@ -73,7 +74,7 @@ class Simulator:
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
-        # self.scheduler =  ConservativeScheduler(total_nodes)
+        #self.scheduler =  ConservativeScheduler(total_nodes)
         self.scheduler =  EasyBackfillScheduler(total_nodes)
         self.startSimulation()
 
@@ -140,18 +141,47 @@ class Simulator:
             
             del self.events[current_time] #removing the events that were just handled
             
+
+        print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
 
         if self.isFeasibleSchedule():
             print "Feasibility Test is OK!!!!!"
         else: 
-            print "!!!!!!!!!! There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
-          
+            print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
+            
+        self.calculate_statistics()  
+
+
+
+
+    def calculate_statistics(self):
+
+        wait = sigma_wait = flow = sigma_flow = counter = 0.0
+        for job in self.jobs:
+
+            counter += 1
+            
+            wait = job.start_to_run_at_time - job.arrival_time
+            sigma_wait += wait
+
+            flow = wait + job.actual_duration
+            sigma_flow += flow
+            
+        print
+        print "STATISTICS: "
+        print "Number of jobs: ", counter
+        print "Average wait time is: ", sigma_wait / counter
+        print "Average flow time is: ", sigma_flow / counter 
 
         
+            
+
+            
     def isFeasibleSchedule(self):
-        """ Checks the feasibility of the schedule produced by the simulation. """
-        
+        """ Checks the feasibility of the schedule produced by the simulation."""
+
+        print "__________ Fesibilty Test __________"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
         for job in self.jobs:
             print str(job)
@@ -167,6 +197,8 @@ class Simulator:
         return cpu_snapshot.CpuSlicesTestFeasibility()
     
         
+
+
                 
 class Scheduler:
      """" Assumption: every handler returns a (possibly empty) collection of new events"""
