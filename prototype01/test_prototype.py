@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.4
 from unittest import TestCase
 
-import random, copy
+import random
 
 import prototype
 
