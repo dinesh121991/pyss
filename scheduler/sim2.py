@@ -74,18 +74,20 @@ class Simulator:
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
-        
+    
         # self.scheduler =  ConservativeScheduler(total_nodes)
         self.scheduler =  EasyBackfillScheduler(total_nodes)
+        
         
         self.startSimulation()
 
     def addEvent(self, time, event):
-         if self.events.has_key(time):
-             self.events[time].append(event)
-         else:
-             self.events[time] = []
-             self.events[time].append(event)
+        if self.events.has_key(time):
+            self.events[time].append(event)
+        else:
+            self.events[time] = []
+            self.events[time].append(event)
+            
     
     def addEvents(self, events_dictionary):
          for new_time, new_event in events_dictionary.iteritems():             
@@ -133,6 +135,7 @@ class Simulator:
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
+                    print "TERMINATION EVENT", event
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
                     self.scheduler.cpu_snapshot.printCpuSlices()
                     self.addEvents(newEvents)
@@ -152,12 +155,9 @@ class Simulator:
         print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
 
-
-        if self.isFeasibleSchedule():
-            print "Feasibility Test is OK!!!!!"
-        else: 
-            print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
-            
+        # self.on_line_test() // TODO ...  
+        self.off_line_test()
+        
         self.calculate_statistics()  
 
 
@@ -178,41 +178,54 @@ class Simulator:
             
         print
         print "STATISTICS: "
-        print "Number of jobs: ", counter
         print "Average wait time is: ", sigma_wait / counter
         print "Average flow time is: ", sigma_flow / counter 
-
-    
+        print "Number of jobs: ", counter
+        
+        
 
             
-    def isFeasibleSchedule(self):
+    def off_line_test(self):
         """ Checks the feasibility of the schedule produced by the simulation."""
 
         print "__________ Fesibilty Test __________"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
+
+        test_result1 = True
+        test_result2 = True
         
         for job in self.jobs:
             print str(job)
             if job.arrival_time > job.start_to_run_at_time:
                 print ">>> PROBLEM: job starts before arrival...."
-                return False
+                test_result1 = False
             if job.actual_duration > 0:
                 new_job = Job(job.id, job.actual_duration, job.nodes, job.arrival_time, job.actual_duration)
                 cpu_snapshot.assignJob(new_job, job.start_to_run_at_time)
                 cpu_snapshot.printCpuSlices()
                 
         cpu_snapshot.printCpuSlices()
-        return cpu_snapshot.CpuSlicesTestFeasibility()
-
+        
+        test_result2 = cpu_snapshot.CpuSlicesTestFeasibility()
+        
+        if test_result1 and test_result2:  
+            print "Feasibility Test is OK!!!!!"
+        else: 
+            print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
                 
+
 class Scheduler:
      """" Assumption: every handler returns a (possibly empty) collection of new events"""
     
      def handleArrivalOfJobEvent(self, job, time):
          pass
+     
      def handleTerminationOfJobEvent(self, job, time):
          pass
      
+     def on_line_test(self):
+         pass
+
 
 
 class ConservativeScheduler(Scheduler):
