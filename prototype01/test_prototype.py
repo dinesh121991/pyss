@@ -18,6 +18,12 @@ def _create_handler():
     return handler
 
 class test_JobEvent(TestCase):
+    def test_sort_order(self):
+        event1 = prototype.JobEvent(timestamp=1, job_id=0)
+        event2 = prototype.JobEvent(timestamp=2, job_id=0)
+        self.failUnless( event1 < event2 )
+        self.failIf( event1 >= event2 )
+        
     def test_sort_order_random(self):
         random_events = _gen_random_timestamp_events()
         sorted_events = sorted(random_events, key=lambda event:event.timestamp)
