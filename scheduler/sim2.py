@@ -162,7 +162,6 @@ class Simulator:
 
 
 
-
     def calculate_statistics(self):
 
         wait = sigma_wait = flow = sigma_flow = counter = 0.0
@@ -194,14 +193,15 @@ class Simulator:
         print "__________ Fesibilty Test __________"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
 
-        test_result1 = True
-        test_result2 = True
+        every_job_starts_after_its_arrival_time= True
+        cpu_snapshot_is_feasible = True
         
         for job in self.jobs:
             print str(job)
             if job.arrival_time > job.start_to_run_at_time:
                 print ">>> PROBLEM: job starts before arrival...."
-                test_result1 = False
+                every_job_starts_after_its_arrival_time = False
+                
             if job.actual_duration > 0:
                 new_job = Job(job.id, job.actual_duration, job.nodes, job.arrival_time, job.actual_duration)
                 cpu_snapshot.assignJob(new_job, job.start_to_run_at_time)
@@ -209,9 +209,9 @@ class Simulator:
                 
         cpu_snapshot.printCpuSlices()
         
-        test_result2 = cpu_snapshot.CpuSlicesTestFeasibility()
+        cpu_snapshot_is_feasible = cpu_snapshot.CpuSlicesTestFeasibility()
         
-        if test_result1 and test_result2:  
+        if every_job_starts_after_its_arrival_time and cpu_snapshot_is_feasible:  
             print "Feasibility Test is OK!!!!!"
         else: 
             print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
