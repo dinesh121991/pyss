@@ -94,21 +94,24 @@ class CpuSnapshot(object):
         self.slices[0] = CpuTimeSlice() # Assumption: the snapshot always has at least one slice 
         
                
-    def jobEarliestAssignment(self, job, earliest_start_time=0):
-        """ returns the earliest time right after the given earliest_start_time for which the job can be assigned
+    def jobEarliestAssignment(self, job, time=0):
+        """ returns the earliest time right after the given time for which the job can be assigned
         enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.
         Assumption: number of requested nodes is not greater than number of total nodes.
-        Assumption: earliest_start_time >=  the arrival time of the job."""
+        Assumption: time >=  the arrival time of the job >= 0."""
         
         partially_assigned = False         
         tentative_start_time = 0 
         accumulated_duration = 0
         
+        assert time >= 0
+        assert time >= job.arrival_time
+        
         for t in self._sorted_times: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
             end_of_this_slice = t +  self.slices[t].getDuration()
 
-            feasible = end_of_this_slice > earliest_start_time and self.slices[t].getFreeNodes() >= job.nodes
+            feasible = end_of_this_slice > time and self.slices[t].getFreeNodes() >= job.nodes
             
             if not feasible: # then surely the job cannot be assigned to this slice
                 print "aaaaa"
@@ -119,7 +122,7 @@ class CpuSnapshot(object):
                 print "bbbb"
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
-                tentative_start_time =  max(earliest_start_time, t)
+                tentative_start_time =  max(time, t)
                 accumulated_duration = end_of_this_slice  - tentative_start_time
 
             else:
@@ -141,7 +144,7 @@ class CpuSnapshot(object):
         print "fffffff"
         last_slice_start_time = self._sorted_times[-1]
         last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
-        return max(earliest_start_time, last_slice_end_time)  
+        return max(time, last_slice_end_time)  
 
 
 
