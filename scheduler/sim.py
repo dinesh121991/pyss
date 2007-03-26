@@ -123,7 +123,7 @@ class CpuSnapshot(object):
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
                 tentative_start_time =  max(time, t)
-                accumulated_duration = end_of_this_slice  - tentative_start_time
+                accumulated_duration = end_of_this_slice - tentative_start_time
 
             else:
                 print "cccc"
@@ -152,7 +152,7 @@ class CpuSnapshot(object):
         """ A preprocessing stage: to ensure that the assignment time of the new added job will start at a begining of a slice """
 
         if assignment_time in self.slices:
-            return # we already have a slice
+            return # we already have such a slice 
         
         last_slice_start_time = self._sorted_times[-1]
         last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
@@ -280,10 +280,12 @@ class CpuSnapshot(object):
     def delTailofJobFromCpuSlices(self, job):
         """ This function is used when the actual duration is smaller than the predicted duration, so the tail
         of the job must be deleted from the slices.
+        We itterate trough the sorted slices until the critical point is found: the point from which the
+        tail of the job starts. 
         Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
 
         accumulated_duration = 0
-        tail_of_the_job_is_found = False 
+        critical_point_is_found = False 
         
 
         for t in self._sorted_times:
@@ -292,34 +294,32 @@ class CpuSnapshot(object):
             if self.slices[t].isMemeber(job):
                 accumulated_duration += duration_of_this_slice
 
-            if accumulated_duration < job.actual_duration:
-                continue
-            
-            elif accumulated_duration == job.actual_duration:
-                tail_of_the_job_is_found = True 
-                  
-            # at this point accumulated_duration > job.actual_duration, that is from now on we should delete 
-            elif not tail_of_the_job_is_found:
-                tail_of_the_job_is_found = True 
+            if accumulated_duration == job.actual_duration:
+                critical_point_is_found = True                   
 
+            # when we just found the critical point 
+            elif accumulated_duration > job.actual_duration and not critical_point_is_found:
+                
+                critical_point_is_found = True 
                 # split current slice with respect to delta and remove the job from the later slice
                 delta = accumulated_duration - job.actual_duration
                 jobs = self.slices[t].getJobs()
-                newslice = CpuTimeSlice(t, duration_of_this_slice - delta , jobs)
+
+                newslice = CpuTimeSlice(t, duration_of_this_slice - delta, jobs)
                 self._add_slice(newslice)
                 
                 split_time = t + duration_of_this_slice - delta
-                newslice = CpuTimeSlice(split_time, delta , jobs)
+                newslice = CpuTimeSlice(split_time, delta, jobs)
                 newslice.delJob(job)
                 self._add_slice(newslice)
-
-            else:
-                self.slices[t].delJob(job) # removing the job from further slices in the "tail"
+                
+            #we already found the critical point, so the job should be removed entirly from this slice
+            elif accumulated_duration > job.actual_duration and critical_point_is_found:
+                self.slices[t].delJob(job) 
   
                 
-            if accumulated_duration >= job.user_predicted_duration: #might delete this if i'll use python 2.4 with sorted()
+            if accumulated_duration >= job.user_predicted_duration:
                 return
-
 
 
             
