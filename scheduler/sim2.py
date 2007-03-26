@@ -90,8 +90,10 @@ class Simulator:
             
     
     def addEvents(self, events_dictionary):
-         for new_time, new_event in events_dictionary.iteritems():             
-             if isinstance(new_event, JobTerminationEvent): #del prev termination event
+        
+         for new_time, new_event in events_dictionary.iteritems():
+             
+             if isinstance(new_event, JobTerminationEvent): #delete previous termination event if exists
                  found = False
                  for time, list_of_events_at_this_time in self.events.iteritems():
                      if found:
@@ -103,16 +105,14 @@ class Simulator:
                              print "_____ new job termination event at time", new_time 
                              found = True
                              break
-                 self.addEvent(new_time, new_event)
+             self.addEvent(new_time, new_event)
 
-             else:
-                 self.addEvent(time, new_event)
+     
                  
     
 
     def startSimulation(self):
-        """ Assumption1: times are non-negative numbers. """
-
+    
         end_of_simulation_event_has_not_occured = True 
 
         while end_of_simulation_event_has_not_occured and len(self.events) > 0:
@@ -120,9 +120,10 @@ class Simulator:
             current_time = sorted(self.events.keys()).pop(0)
 
             while len(self.events[current_time]) > 0:
-                
-                for eve in self.events[current_time]:
-                    print current_time, str(eve)
+
+                print "Current Known Events:"
+                for tmp_event in self.events[current_time]:
+                    print current_time, str(tmp_event)
                 print
                 
                 event = self.events[current_time].pop()

@@ -326,7 +326,7 @@ class CpuSnapshot(object):
     def CpuSlicesTestFeasibility(self):
         duration = 0
         time = 0
-        
+    
         for t in self._sorted_times:
             free_nodes = self.slices[t].getFreeNodes()
             prev_duration = duration
