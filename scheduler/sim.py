@@ -6,6 +6,8 @@ class Job:
                  job_arrival_time=0, job_actual_duration=0):
 
         assert job_nodes > 0
+        assert user_predicted_duration > 0
+        assert job_actual_duration >= 0 
 
         self.id = job_id
         self.user_predicted_duration = user_predicted_duration
@@ -58,8 +60,8 @@ class CpuTimeSlice:
 
 
     def delJob(self, job):
-        assert self.free_nodes + job.nodes <= CpuTimeSlice.total_nodes
-        self.free_nodes = self.free_nodes + job.nodes
+        self.free_nodes += job.nodes
+        assert self.free_nodes <= CpuTimeSlice.total_nodes
         del self.jobs[job.id]
 
 
@@ -68,6 +70,7 @@ class CpuTimeSlice:
             return True
         else: 
             return False
+        
 
     def getJobs(self):
         return self.jobs.copy() 
