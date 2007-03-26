@@ -156,7 +156,7 @@ class Simulator:
         self.scheduler.cpu_snapshot.printCpuSlices()
 
         # self.on_line_test() // TODO ...  
-        self.off_line_test()
+        self.feasibilty_check_of_jobs_data()
         
         self.calculate_statistics()  
 
@@ -185,8 +185,11 @@ class Simulator:
         
 
             
-    def off_line_test(self):
-        """ Checks the feasibility of the schedule produced by the simulation."""
+    def feasibilty_check_of_jobs_data(self):
+        """ Reconstructs a schedule from the jobs (using the values:
+        job.arrival time, job.start_to_run_at_time, job_actual_duration for each job),
+        and then checks the feasibility of this schedule. """
+        
 
         print "__________ Fesibilty Test __________"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
