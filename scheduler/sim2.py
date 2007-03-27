@@ -77,8 +77,8 @@ class Simulator:
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
     
-        # self.scheduler =  ConservativeScheduler(total_nodes)
-        self.scheduler =  EasyBackfillScheduler(total_nodes)        
+        self.scheduler =  ConservativeScheduler(total_nodes)
+        # self.scheduler =  EasyBackfillScheduler(total_nodes)        
         
         self.startSimulation()
         
@@ -233,12 +233,13 @@ class Scheduler:
      def on_line_test(self):
          pass
 
-     def add_event_to_collection_of_events(self, time, event, collection_of_events):
-        if collection_of_events.has_key(time):
-            collection_of_events[time].append(event)
-        else:
-            collection_of_events[time] = []
-            collection_of_events[time].append(event)
+     def add_termination_event_to_collection_of_new_events(self, time, job, collection_of_events):
+         event = JobTerminationEvent(job)
+         if collection_of_events.has_key(time):
+             collection_of_events[time].append(event)
+         else:
+             collection_of_events[time] = []
+             collection_of_events[time].append(event)
 
 
 class ConservativeScheduler(Scheduler):
@@ -249,30 +250,28 @@ class ConservativeScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, job, time):
+        newEvents={}
         self.list_of_unfinished_jobs_arranged_by_arrival_times.append(job)        
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
-        newEvent ={}
-        new_event = JobTerminationEvent(job)
         termination_time = job.start_to_run_at_time + job.actual_duration
-        newEvent[termination_time] = new_event                
-        return newEvent
+        self.add_termination_event_to_collection_of_new_events(termination_time, job, newEvents)
+        return newEvents
     
     def handleTerminationOfJobEvent(self, job, time):
         """ Here we delete the tail of job if it was ended before the duration declaration.
         It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
+        newEvents={}
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)
         if job.actual_duration < job.user_predicted_duration: 
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-            return self.reschedule_jobs(time)
+            return self._reschedule_jobs(time, newEvents)
         else:
             return {}
 
 
-    def reschedule_jobs(self, time):
-
-        newEvents ={}
+    def _reschedule_jobs(self, time, newEvents):
 
         for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
 
@@ -284,9 +283,8 @@ class ConservativeScheduler(Scheduler):
             start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
             self.cpu_snapshot.assignJob(job, start_time_of_job)
             if prev_start_to_run_at_time > job.start_to_run_at_time:
-                new_event = JobTerminationEvent(job)
                 new_termination_time = job.start_to_run_at_time + job.actual_duration
-                newEvents[new_termination_time] = new_event
+                self.add_termination_event_to_collection_of_new_events(new_termination_time, job, newEvents)
                 
         return newEvents
                 
@@ -347,9 +345,8 @@ class EasyBackfillScheduler(Scheduler):
             if self.canBeBackfilled(first_job, just_arrived_job, time):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
-                new_event = JobTerminationEvent(just_arrived_job)
                 termination_time = just_arrived_job.time + just_arrived_job.actual_duration
-                self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
+                self.add_termination_event_to_collection_of_new_events(termination_time, just_arrived_job, newEvents)
                 return newEvents  
 
             else:
@@ -364,9 +361,8 @@ class EasyBackfillScheduler(Scheduler):
              if start_time_of_just_arrived_job == time:
                  print "cannot be backfilled  333333"
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
-                 new_event = JobTerminationEvent(just_arrived_job)
                  termination_time = time + just_arrived_job.actual_duration
-                 self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
+                 self.add_termination_event_to_collection_of_new_events(termination_time, just_arrived_job, newEvents)
                  return newEvents
              else:
                  print "cannot be backfilled  444444"
@@ -383,10 +379,10 @@ class EasyBackfillScheduler(Scheduler):
         if job.actual_duration < job.user_predicted_duration: 
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         
-        return self.schedule_jobs(time)
+        return self._schedule_jobs(time)
 
 
-    def schedule_jobs(self, time):
+    def _schedule_jobs(self, time):
         newEvents = {}
                              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
@@ -399,9 +395,8 @@ class EasyBackfillScheduler(Scheduler):
             if start_time_of_first_job == time:
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(first_job)
                 self.cpu_snapshot.assignJob(first_job, time)
-                new_event = JobTerminationEvent(first_job)
                 termination_time = time + first_job.actual_duration
-                self.add_event_to_collection_of_events(termination_time, new_event, newEvents) 
+                self.add_termination_event_to_collection_of_new_events(termination_time, first_job, newEvents) 
             else:
                 break
 
@@ -413,9 +408,8 @@ class EasyBackfillScheduler(Scheduler):
                     self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(next_job)
                     start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
-                    new_event = JobTerminationEvent(next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
+                    self.add_termination_event_to_collection_of_new_events(termination_time, next_job , newEvents)
                     
         return newEvents
  
