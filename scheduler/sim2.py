@@ -77,8 +77,8 @@ class Simulator:
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
 
-        self.scheduler =  ConservativeScheduler(total_nodes)
-        # self.scheduler =  EasyBackfillScheduler(total_nodes)        
+        # self.scheduler =  ConservativeScheduler(total_nodes)
+        self.scheduler =  EasyBackfillScheduler(total_nodes)        
         
         self.startSimulation()
         

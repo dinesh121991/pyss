@@ -40,7 +40,7 @@ class CpuTimeSlice:
         self.jobs = []
   
         
-        if len(jobs)==0:  
+        if len(jobs) == 0:  
             self.free_nodes = CpuTimeSlice.total_nodes
            
         else:
@@ -55,7 +55,7 @@ class CpuTimeSlice:
     def __str__(self):
         jobs_str = ""
         for job in self.jobs:
-            jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"
+            jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"    
         return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, jobs_str)
 
 
@@ -191,7 +191,6 @@ class CpuSnapshot(object):
 
       
     def _add_job_to_relevant_slices(self, job):
-     
         assignment_time = job.start_to_run_at_time     
         remained_duration = job.user_predicted_duration
 
@@ -236,7 +235,7 @@ class CpuSnapshot(object):
 
     def assignJob(self, job, assignment_time):         
         """ assigns the job to start at the given assignment time.
-
+        
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
         self._ensure_a_slice_starts_at(assignment_time)
@@ -249,7 +248,7 @@ class CpuSnapshot(object):
         
         
     def _slice_start_times_beginning_at(self, time):
-        "yield only the slice start times after the given time"
+        "yields only the slice start times after the given time"
         return (x for x in self._sorted_times if x >= time)
 
     
@@ -334,7 +333,10 @@ class CpuSnapshot(object):
     def CpuSlicesTestFeasibility(self):
         duration = 0
         time = 0
-    
+        scheduled_jobs_start_slice = {}
+        scheduled_jobs_last_slice = {}
+        scheduled_jobs = {}
+        
         for t in self._sorted_times:
             free_nodes = self.slices[t].getFreeNodes()
             prev_duration = duration
@@ -349,18 +351,38 @@ class CpuSnapshot(object):
                 return False
 
             num_of_active_nodes = 0
+            
             for job in self.slices[t].jobs:
                 num_of_active_nodes += job.nodes
-
+                
+                if scheduled_jobs_start_slice.has_key(job.id):
+                    scheduled_jobs_last_slice[job.id] = t
+                else:
+                    if t != job.start_to_run_at_time:
+                        print ">>> PROBLEM: start time: ", job.start_to_run_at_time, " of job", job.id, "is:", t
+                        return False
+                    scheduled_jobs[job.id] = job
+                    scheduled_jobs_start_slice[job.id] = t
+                    scheduled_jobs_last_slice[job.id] = t
+                    
             if num_of_active_nodes != self.total_nodes - free_nodes:
                 print ">>> PROBLEM: wrong number of free nodes in slice", t 
                 return False
             
             if t != prev_t + prev_duration:
                 print ">>> PROBLEM: non scuccessive slices", t, prev_t 
-                return False 
+                return False
+                
             duration = self.slices[t].getDuration()
             time = t
+
+        for job_id, job_start_slice in scheduled_jobs_start_slice.iteritems():
+            job_last_slice =  scheduled_jobs_last_slice[job_id]
+            duration_of_job = job_last_slice + self.slices[job_last_slice].getDuration() - job_start_slice
+            print job_id, "start_slice, last_slice, duration_last:", job_start_slice, job_last_slice, self.slices[job_last_slice].getDuration()
+            if duration_of_job != scheduled_jobs[job_id].actual_duration:
+                print ">>>PROBLEM: with actual duration of job: ", job.actual_duration, "vs.", duration_of_job,  " of job", job_id
+                return False
             
         return True
     
