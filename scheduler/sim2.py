@@ -351,7 +351,7 @@ class EasyBackfillScheduler(Scheduler):
             if self.canBeBackfilled(first_job, just_arrived_job, time):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
-                termination_time = just_arrived_job.time + just_arrived_job.actual_duration
+                termination_time = time + just_arrived_job.actual_duration
                 self.add_termination_event_to_collection_of_new_events(termination_time, just_arrived_job, newEvents)
                 return newEvents  
 
