@@ -6,7 +6,7 @@ class Job:
                  job_arrival_time=0, job_actual_duration=0):
 
         assert job_nodes > 0
-        assert user_predicted_duration > 0
+        assert user_predicted_duration >= 0
         assert job_actual_duration >= 0 
 
         self.id = job_id
@@ -33,47 +33,54 @@ class CpuTimeSlice:
     
     total_nodes = 0 # a class variable
     
-    def __init__(self, start_time=0, duration=1, jobs={}):
+    def __init__(self, start_time=0, duration=1, jobs=[]):
+        assert duration > 0
         self.start_time = start_time
         self.duration = duration
-        assert duration > 0
+        self.jobs = []
+  
         
         if len(jobs)==0:  
             self.free_nodes = CpuTimeSlice.total_nodes
-            self.jobs = {}
            
         else:
             num_of_active_nodes = 0
-            for job_id, job_nodes in jobs.iteritems(): num_of_active_nodes += job_nodes
+            for job in jobs: num_of_active_nodes += job.nodes
             self.free_nodes = CpuTimeSlice.total_nodes - num_of_active_nodes 
-            self.jobs = jobs.copy()               
+            for job in jobs: # by value ... 
+                self.jobs.append(job)
+                
            
-            
+             
     def __str__(self):
-        return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, str(self.jobs))
-                    
+        jobs_str = ""
+        for job in self.jobs:
+            jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"
+        return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, jobs_str)
+
+
             
     def addJob(self, job):
         assert self.free_nodes >= job.nodes
         self.free_nodes -= job.nodes
-        self.jobs[job.id]= job.nodes
+        self.jobs.append(job)
 
 
     def delJob(self, job):
         self.free_nodes += job.nodes
         assert self.free_nodes <= CpuTimeSlice.total_nodes
-        del self.jobs[job.id]
+        self.jobs.remove(job)
 
 
     def isMemeber(self, job):
-        if job.id in self.jobs.keys():
+        if job in self.jobs:
             return True
         else: 
             return False
         
 
     def getJobs(self):
-        return self.jobs.copy() 
+        return self.jobs 
     
     def getDuration(self):
         return self.duration
@@ -256,8 +263,9 @@ class CpuSnapshot(object):
 
     
     def addNewJobToNewSlice(self, time, duration, job):
-        job_entry = {job.id : job.nodes}
-        self._add_slice( CpuTimeSlice(time, duration, job_entry) )
+        jobs = []
+        jobs.append(job)
+        self._add_slice(CpuTimeSlice(time, duration, jobs) )
 
 
     def delJobFromCpuSlices(self, job):        
@@ -341,8 +349,8 @@ class CpuSnapshot(object):
                 return False
 
             num_of_active_nodes = 0
-            for job_id, job_nodes in self.slices[t].jobs.iteritems():
-                num_of_active_nodes += job_nodes
+            for job in self.slices[t].jobs:
+                num_of_active_nodes += job.nodes
 
             if num_of_active_nodes != self.total_nodes - free_nodes:
                 print ">>> PROBLEM: wrong number of free nodes in slice", t 
