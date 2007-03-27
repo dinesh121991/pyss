@@ -18,6 +18,7 @@ class JobTerminationEvent(Event):
         return "Job Termination Event: " + str(self.job)
 
 
+
 class JobArrivalEventGeneratorViaLogFile:
     
     def __init__(self, input_file):
@@ -46,6 +47,7 @@ class JobArrivalEventGeneratorViaLogFile:
             else:
                 self.events[int(job_arrival_time)] = []
                 self.events[int(job_arrival_time)].append(newEvent)    
+
         self.file.close()
 
 
@@ -76,10 +78,10 @@ class Simulator:
         self.jobs = events_generated_by_input_file.jobs
     
         # self.scheduler =  ConservativeScheduler(total_nodes)
-        self.scheduler =  EasyBackfillScheduler(total_nodes)
-        
+        self.scheduler =  EasyBackfillScheduler(total_nodes)        
         
         self.startSimulation()
+        
 
     def addEvent(self, time, event):
         if self.events.has_key(time):
@@ -89,27 +91,27 @@ class Simulator:
             self.events[time].append(event)
             
     
-    def addEvents(self, events_dictionary):
+    def addEvents(self, collection_of_new_events):
         
-         for new_time, new_event in events_dictionary.iteritems():
-             
-             if isinstance(new_event, JobTerminationEvent): #delete previous termination event if exists
-                 found = False
-                 for time, list_of_events_at_this_time in self.events.iteritems():
-                     if found:
-                         break 
-                     for event in self.events[time]:
-                         if event.job.id == new_event.job.id and isinstance(event, JobTerminationEvent):
-                             list_of_events_at_this_time.remove(event)
-                             print "_____ old job termination event at time", time
-                             print "_____ new job termination event at time", new_time 
-                             found = True
-                             break
-             self.addEvent(new_time, new_event)
+         for new_time, new_list_of_events_at_this_time in collection_of_new_events.iteritems():
 
-     
-                 
-    
+             for new_event in new_list_of_events_at_this_time: 
+             
+                 if isinstance(new_event, JobTerminationEvent): #delete previous termination event if exists
+                     found = False
+                     for time, list_of_events_at_this_time in self.events.iteritems():
+                         if found:
+                             break 
+                         for event in self.events[time]:
+                             if event.job.id == new_event.job.id and isinstance(event, JobTerminationEvent):
+                                 list_of_events_at_this_time.remove(event)
+                                 print "_____ old job termination event at time", time
+                                 print "_____ new job termination event at time", new_time 
+                                 found = True
+                                 break
+                 self.addEvent(new_time, new_event)
+
+         
 
     def startSimulation(self):
     
@@ -330,7 +332,7 @@ class EasyBackfillScheduler(Scheduler):
         else: 
             first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
             
-        newEvent = emptyEvent = {}
+        newEvents = {}
         
         if first_job.id != just_arrived_job.id: # two distinct jobs
             
@@ -339,13 +341,13 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
                 new_event = JobTerminationEvent(just_arrived_job)
                 termination_time = just_arrived_job.time + just_arrived_job.actual_duration
-                newEvent[termination_time] = new_event
-                return newEvent  
+                self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
+                return newEvents  
 
             else:
                 print "cannot be backfilled  111111"
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
-                return emptyEvent 
+                return newEvents 
  
         
         else: # the just arrived job is the only job (to be scheduled soon) that we now have in the waiting list
@@ -356,12 +358,12 @@ class EasyBackfillScheduler(Scheduler):
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
                  new_event = JobTerminationEvent(just_arrived_job)
                  termination_time = time + just_arrived_job.actual_duration
-                 newEvent[termination_time] = new_event                
-                 return newEvent
+                 self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
+                 return newEvents
              else:
                  print "cannot be backfilled  444444"
                  self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
-                 return emptyEvent
+                 return newEvents
              
                  
 
@@ -377,10 +379,10 @@ class EasyBackfillScheduler(Scheduler):
 
 
     def schedule_jobs(self, time):
-        newEvents = emptyEvent = {}
+        newEvents = {}
                              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
-            return emptyEvent # waiting list is empty        
+            return newEvents # waiting list is empty        
 
         #first, try to schedule the head of the waiting list
         while len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) > 0: 
@@ -391,8 +393,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(first_job, time)
                 new_event = JobTerminationEvent(first_job)
                 termination_time = time + first_job.actual_duration
-                newEvents[termination_time] = new_event
-                print termination_time, str(new_event)
+                self.add_event_to_collection_of_events(termination_time, new_event, newEvents) 
             else:
                 break
 
@@ -406,11 +407,16 @@ class EasyBackfillScheduler(Scheduler):
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
                     new_event = JobTerminationEvent(next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    newEvents[termination_time] = new_event
+                    self.add_event_to_collection_of_events(termination_time, new_event, newEvents)
                     
         return newEvents
  
-            
+    def add_event_to_collection_of_events(self, time, event, collection_of_events):
+        if collection_of_events.has_key(time):
+            collection_of_events[time].append(event)
+        else:
+            collection_of_events[time] = []
+            collection_of_events[time].append(event)
     
 ###############
 
