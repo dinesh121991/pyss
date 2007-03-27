@@ -76,7 +76,7 @@ class Simulator:
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
-    
+
         self.scheduler =  ConservativeScheduler(total_nodes)
         # self.scheduler =  EasyBackfillScheduler(total_nodes)        
         

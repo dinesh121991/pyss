@@ -11,7 +11,7 @@ class test_CpuTimeSlice(unittest.TestCase):
 
     def test_addJob_free_nodes_simple(self):
         timeslice = sim.CpuTimeSlice()
-        timeslice.addJob( sim.Job(0, 0, job_nodes=1) )
+        timeslice.addJob( sim.Job(0, 1, job_nodes=1) )
         self.assertEqual(timeslice.total_nodes-1, timeslice.free_nodes)
 
 class test_Job(unittest.TestCase):
