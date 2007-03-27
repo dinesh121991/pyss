@@ -218,7 +218,8 @@ class Simulator:
             print "Feasibility Test is OK!!!!!"
         else: 
             print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
-                
+
+        
 
 class Scheduler:
      """" Assumption: every handler returns a (possibly empty) collection of new events"""
@@ -232,6 +233,12 @@ class Scheduler:
      def on_line_test(self):
          pass
 
+     def add_event_to_collection_of_events(self, time, event, collection_of_events):
+        if collection_of_events.has_key(time):
+            collection_of_events[time].append(event)
+        else:
+            collection_of_events[time] = []
+            collection_of_events[time].append(event)
 
 
 class ConservativeScheduler(Scheduler):
@@ -324,6 +331,7 @@ class EasyBackfillScheduler(Scheduler):
             return True 
       
 
+
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
              
@@ -411,12 +419,6 @@ class EasyBackfillScheduler(Scheduler):
                     
         return newEvents
  
-    def add_event_to_collection_of_events(self, time, event, collection_of_events):
-        if collection_of_events.has_key(time):
-            collection_of_events[time].append(event)
-        else:
-            collection_of_events[time] = []
-            collection_of_events[time].append(event)
     
 ###############
 
