@@ -103,7 +103,7 @@ class Simulator:
                          if found:
                              break 
                          for event in self.events[time]:
-                             if event.job.id == new_event.job.id and isinstance(event, JobTerminationEvent):
+                             if isinstance(event, JobTerminationEvent) and event.job.id == new_event.job.id:
                                  list_of_events_at_this_time.remove(event)
                                  print "_____ old job termination event at time", time
                                  print "_____ new job termination event at time", new_time 
@@ -114,7 +114,10 @@ class Simulator:
          
 
     def startSimulation(self):
-    
+        
+        endEvent = EndOfSimulationEvent()
+        self.addEvent(100000, endEvent)
+        
         end_of_simulation_event_has_not_occured = True 
 
         while end_of_simulation_event_has_not_occured and len(self.events) > 0:
@@ -145,7 +148,8 @@ class Simulator:
                     continue
 
                 elif isinstance(event, EndOfSimulationEvent):
-                    end_of_simulation_event_has_not_occured = False 
+                    end_of_simulation_event_has_not_occured = False
+                    self.scheduler.handleEndOfSimulationEvent()
                     break
 
                 else:
@@ -230,9 +234,9 @@ class Scheduler:
      def handleTerminationOfJobEvent(self, job, time):
          pass
      
-     def on_line_test(self):
+     def handleEndOfSimulationEvent(self):
          pass
-
+     
      def add_termination_event_to_collection_of_new_events(self, time, job, collection_of_events):
          event = JobTerminationEvent(job)
          if collection_of_events.has_key(time):
@@ -247,7 +251,7 @@ class ConservativeScheduler(Scheduler):
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.list_of_unfinished_jobs_arranged_by_arrival_times = []
-
+    
         
     def handleArrivalOfJobEvent(self, job, time):
         newEvents={}
@@ -287,7 +291,9 @@ class ConservativeScheduler(Scheduler):
                 self.add_termination_event_to_collection_of_new_events(new_termination_time, job, newEvents)
                 
         return newEvents
-                
+    
+    def handleEndOfSimulationEvent(self):
+        self.cpu_snapshot.CpuSlicesTestFeasibility()            
                 
 
 
@@ -412,8 +418,12 @@ class EasyBackfillScheduler(Scheduler):
                     self.add_termination_event_to_collection_of_new_events(termination_time, next_job , newEvents)
                     
         return newEvents
- 
     
+
+    def handleEndOfSimulationEvent(self):
+        self.cpu_snapshot.CpuSlicesTestFeasibility()
+        
+
 ###############
 
 sim = Simulator()

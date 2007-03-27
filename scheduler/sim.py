@@ -383,7 +383,8 @@ class CpuSnapshot(object):
             if duration_of_job != scheduled_jobs[job_id].actual_duration:
                 print ">>>PROBLEM: with actual duration of job: ", job.actual_duration, "vs.", duration_of_job,  " of job", job_id
                 return False
-            
+
+        print "TEST is OK!!!!" 
         return True
     
             
