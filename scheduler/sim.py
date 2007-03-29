@@ -12,8 +12,8 @@ class Job:
         self.id = job_id
         self.user_predicted_duration = user_predicted_duration
         self.nodes = job_nodes
-        self.arrival_time = job_arrival_time
-        self.start_to_run_at_time = 0
+        self.arrival_time = job_arrival_time # Assumption: arrival time is greater than zero 
+        self.start_to_run_at_time = -1 
         self.actual_duration = job_actual_duration
         
 
@@ -335,6 +335,7 @@ class CpuSnapshot(object):
         time = 0
         scheduled_jobs_start_slice = {}
         scheduled_jobs_last_slice = {}
+        scheduled_jobs_accumulated_duration = {}
         scheduled_jobs = {}
         
         for t in self._sorted_times:
@@ -357,6 +358,7 @@ class CpuSnapshot(object):
                 
                 if scheduled_jobs_start_slice.has_key(job.id):
                     scheduled_jobs_last_slice[job.id] = t
+                    scheduled_jobs_accumulated_duration[job.id] += self.slices[t].getDuration() 
                 else:
                     if t != job.start_to_run_at_time:
                         print ">>> PROBLEM: start time: ", job.start_to_run_at_time, " of job", job.id, "is:", t
@@ -364,6 +366,7 @@ class CpuSnapshot(object):
                     scheduled_jobs[job.id] = job
                     scheduled_jobs_start_slice[job.id] = t
                     scheduled_jobs_last_slice[job.id] = t
+                    scheduled_jobs_accumulated_duration[job.id] = self.slices[t].getDuration()
                     
             if num_of_active_nodes != self.total_nodes - free_nodes:
                 print ">>> PROBLEM: wrong number of free nodes in slice", t 
@@ -379,10 +382,18 @@ class CpuSnapshot(object):
         for job_id, job_start_slice in scheduled_jobs_start_slice.iteritems():
             job_last_slice =  scheduled_jobs_last_slice[job_id]
             duration_of_job = job_last_slice + self.slices[job_last_slice].getDuration() - job_start_slice
-            print job_id, "start_slice, last_slice, duration_last:", job_start_slice, job_last_slice, self.slices[job_last_slice].getDuration()
+            print job_id, "start_slice, last_slice, duration_last:", \
+                  job_start_slice, job_last_slice, self.slices[job_last_slice].getDuration()
             if duration_of_job != scheduled_jobs[job_id].actual_duration:
-                print ">>>PROBLEM: with actual duration of job: ", job.actual_duration, "vs.", duration_of_job,  " of job", job_id
+                print ">>>PROBLEM: with actual duration of job: ", \
+                      job.actual_duration, "vs.", duration_of_job,  " of job", job_id
                 return False
+            """
+            if duration_of_job != scheduled_jobs_accumulated_duration[job.id]:
+                print ">>>PROBLEM: with actual duration of job:", \
+                      scheduled_jobs_accumulated_duration[job.id], "vs.", duration_of_job,  " of job", job_id
+                return False
+            """
 
         print "TEST is OK!!!!" 
         return True

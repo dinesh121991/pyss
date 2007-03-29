@@ -1,17 +1,13 @@
 
-CPu
+Cpu
 Remove old slices from the cpusnapshot (in order to save "sorting" times) 
 
 Docummentation of the code
 
 
 
-
 class Event: 
 	self.time // curently the only date member we have is a job
-
-
-Statistics generator
 
 
 Testers

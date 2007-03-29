@@ -22,7 +22,7 @@ class JobTerminationEvent(Event):
 class JobArrivalEventGeneratorViaLogFile:
     
     def __init__(self, input_file):
-        """Assumption: Job details are 'correct': arrival_time, nodes and duration are non-negative,
+        """Assumption: Job details are 'correct': arrival_time, nodes and duration are non-negative, job id is unique, 
 
         and the amount of nodes requested by the job is never more than the total available nodes"""
         
@@ -37,6 +37,7 @@ class JobArrivalEventGeneratorViaLogFile:
                 break
             
             (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
+            
             newJob = Job(job_id, int(job_duration), int(job_nodes), int(job_arrival_time), int(job_actual_duration))
 
             self.jobs.append(newJob) 
