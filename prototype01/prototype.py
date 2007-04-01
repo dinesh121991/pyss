@@ -10,6 +10,9 @@ class JobEvent(object):
     def __repr__(self):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
 
+    def __cmp__(self, other):
+        return cmp((self.timestamp, self.job), (other.timestamp, other.job))
+
 class JobSubmitEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
 class JobEndEvent(JobEvent): pass
