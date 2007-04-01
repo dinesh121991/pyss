@@ -7,7 +7,7 @@ import prototype
 
 def _gen_random_timestamp_events():
     return [
-        prototype.JobEvent(timestamp=random.randrange(0,100), job_id=0)
+        prototype.JobEvent(timestamp=random.randrange(0,100), job=None)
         for i in xrange(30)
     ]
 
@@ -20,9 +20,9 @@ def _create_handler():
 class test_EventQueue(TestCase):
     def setUp(self):
         self.queue = prototype.EventQueue()
-        self.event = prototype.JobEvent(timestamp=0, job_id=0)
+        self.event = prototype.JobEvent(timestamp=0, job=None)
         self.events = [
-                prototype.JobEvent(timestamp=0, job_id=i)
+                prototype.JobEvent(timestamp=0, job=None)
                 for i in xrange(10)
             ]
 
@@ -150,13 +150,13 @@ class test_Simulator(TestCase):
     def test_init_event_queue(self):
         self.assertEqual(
             set(job.id for job in self.jobs), 
-            set(event.job_id for event in self.simulator.event_queue._sorted_events)
+            set(event.job.id for event in self.simulator.event_queue._sorted_events)
         )
 
     def test_job_started_handler_registers_end_events(self):
         done_jobs_ids=[]
         def job_done_handler(event):
-            done_jobs_ids.append(event.job_id)
+            done_jobs_ids.append(event.job.id)
 
         job = prototype.Job(
                 id=0,
