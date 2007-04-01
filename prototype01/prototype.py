@@ -30,7 +30,9 @@ class EventQueue(object):
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
 
-    empty = property(lambda self: len(self._sorted_events) == 0)
+    @property
+    def empty(self):
+        return len(self._sorted_events) == 0
 
     def _assert_not_empty(self):
         if self.empty:
