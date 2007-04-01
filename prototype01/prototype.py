@@ -64,6 +64,9 @@ class Job(object):
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
 
+    def __str__(self):
+        return "Job(id=%s)" % self.id
+
 class StupidScheduler(object):
     # TODO: this does nothing yet
     def __init__(self, event_queue):

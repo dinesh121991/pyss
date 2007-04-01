@@ -17,6 +17,10 @@ def _create_handler():
     handler.called = False
     return handler
 
+class test_Job(TestCase):
+    def test_str_sanity(self):
+        str(prototype.Job(None, None, None, None))
+
 class test_JobEvent(TestCase):
     def test_str_sanity(self):
         str(prototype.JobEvent(timestamp=11, job=None))
