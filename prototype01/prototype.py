@@ -8,7 +8,7 @@ class JobEvent(object):
         self.job = job
 
     def __repr__(self):
-        return type(self).__name__ + "<timestamp=%(timestamp)s, job_id=%(job_id)s>" % vars(self)
+        return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
 
 class JobSubmitEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
