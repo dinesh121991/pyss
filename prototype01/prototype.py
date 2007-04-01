@@ -7,10 +7,6 @@ class JobEvent(object):
         self.timestamp = timestamp
         self.job_id = job_id
 
-    def __cmp__(self, other):
-        "Sort by timestamp"
-        return cmp(self.timestamp, other.timestamp)
-
     def __repr__(self):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job_id=%(job_id)s>" % vars(self)
 
@@ -30,8 +26,9 @@ class EventQueue(object):
         self._handlers = {}
 
     def add_event(self, event):
-        # insert mainting sort
-        bisect.insort(self._sorted_events, event)
+        # insert mainting sort by timestamp
+        self._sorted_events.append(event)
+        self._sorted_events.sort(key=lambda x:x.timestamp)
 
     empty = property(lambda self: len(self._sorted_events) == 0)
 

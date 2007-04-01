@@ -17,18 +17,6 @@ def _create_handler():
     handler.called = False
     return handler
 
-class test_JobEvent(TestCase):
-    def test_sort_order(self):
-        event1 = prototype.JobEvent(timestamp=1, job_id=0)
-        event2 = prototype.JobEvent(timestamp=2, job_id=0)
-        self.failUnless( event1 < event2 )
-        self.failIf( event1 >= event2 )
-        
-    def test_sort_order_random(self):
-        random_events = _gen_random_timestamp_events()
-        sorted_events = sorted(random_events, key=lambda event:event.timestamp)
-        self.assertEqual( sorted_events, sorted(random_events) )
-
 class test_EventQueue(TestCase):
     def setUp(self):
         self.queue = prototype.EventQueue()
@@ -63,7 +51,7 @@ class test_EventQueue(TestCase):
         random_events = _gen_random_timestamp_events()
         for event in random_events:
             self.queue.add_event(event)
-        self.assertEqual( sorted(random_events), self.queue._sorted_events )
+        self.assertEqual( sorted(random_events, key=lambda x:x.timestamp), self.queue._sorted_events )
 
     def test_pop_one_job(self):
         self.queue.add_event( self.event )
