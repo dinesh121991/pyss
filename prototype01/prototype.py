@@ -11,6 +11,7 @@ class JobEvent(object):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
 
     def __cmp__(self, other):
+        "compare by timestamp first, job second"
         return cmp((self.timestamp, self.job), (other.timestamp, other.job))
 
 class JobSubmitEvent(JobEvent): pass
@@ -25,9 +26,8 @@ class EventQueue(object):
         self._handlers = {}
 
     def add_event(self, event):
-        # insert mainting sort by timestamp
-        self._sorted_events.append(event)
-        self._sorted_events.sort(key=lambda x:x.timestamp)
+        # insert mainting sort
+        bisect.insort(self._sorted_events, event)
 
     empty = property(lambda self: len(self._sorted_events) == 0)
 
