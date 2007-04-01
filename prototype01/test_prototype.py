@@ -7,7 +7,7 @@ import prototype
 
 def _gen_random_timestamp_events():
     return [
-        prototype.JobEvent(timestamp=random.randrange(0,100), job=None)
+        prototype.JobEvent(timestamp=random.randrange(0,100), job=str(i))
         for i in xrange(30)
     ]
 
@@ -48,7 +48,7 @@ class test_JobEvent(TestCase):
         
     def test_sort_order_random(self):
         random_events = _gen_random_timestamp_events()
-        sorted_events = sorted(random_events, key=lambda event:event.timestamp)
+        sorted_events = sorted(random_events, key=lambda x:(x.timestamp, x.job))
         self.assertEqual( sorted_events, sorted(random_events) )
 
 class test_EventQueue(TestCase):
@@ -56,7 +56,7 @@ class test_EventQueue(TestCase):
         self.queue = prototype.EventQueue()
         self.event = prototype.JobEvent(timestamp=0, job=None)
         self.events = [
-                prototype.JobEvent(timestamp=0, job=None)
+                prototype.JobEvent(timestamp=i, job=None)
                 for i in xrange(10)
             ]
 
@@ -75,6 +75,10 @@ class test_EventQueue(TestCase):
     def test_add_event_single_event(self):
         self.queue.add_event(self.event)
         self.assertEqual( [self.event], self.queue._sorted_events )
+
+    def test_add_same_event_fails(self):
+        self.queue.add_event(self.event)
+        self.assertRaises(Exception, self.queue.add_event, self.event)
 
     def test_add_event_simple(self):
         for event in self.events:

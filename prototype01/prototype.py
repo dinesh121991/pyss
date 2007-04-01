@@ -26,6 +26,7 @@ class EventQueue(object):
         self._handlers = {}
 
     def add_event(self, event):
+        assert event not in self._sorted_events
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
 
