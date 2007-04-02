@@ -91,6 +91,21 @@ class test_EventQueue(TestCase):
             self.queue.add_event(event)
         self.assertEqual( sorted(random_events), self.queue._sorted_events )
 
+    def test_remove_event_fails_on_empty(self):
+        self.assertRaises(Exception, self.queue.remove_event, self.event)
+
+    def test_remove_event_fails_on_missing_event(self):
+        event1 = prototype.JobEvent(0, 0)
+        event2 = prototype.JobEvent(0, 1)
+        assert event1 != event2 # different events
+        self.queue.add_event(event1)
+        self.assertRaises(Exception, self.queue.remove_event, event2)
+
+    def test_remove_event_succeeds(self):
+        self.queue.add_event(self.event)
+        self.queue.remove_event(self.event)
+        self.failUnless( self.queue.empty )
+
     def test_pop_one_job(self):
         self.queue.add_event( self.event )
         assert self.queue.pop() is self.event

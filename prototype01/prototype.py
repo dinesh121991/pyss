@@ -30,6 +30,10 @@ class EventQueue(object):
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
 
+    def remove_event(self, event):
+        assert event in self._sorted_events
+        self._sorted_events.remove(event)
+
     @property
     def empty(self):
         return len(self._sorted_events) == 0
