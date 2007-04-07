@@ -185,6 +185,19 @@ class test_EventQueue(TestCase):
         for handler in nonmatching_handlers:
             self.failIf( handler.called )
 
+    def test_sometimes_relevant_handler(self):
+        self.queue.add_handler(prototype.JobEvent, self.handler)
+        self.queue.add_event(prototype.JobEvent(timestamp=0, job="x"))
+        self.queue.advance()
+        self.failUnless(self.handler.called)
+        self.handler.called = False
+        self.queue.add_event(prototype.JobStartEvent(timestamp=1, job="x"))
+        self.queue.advance()
+        self.failIf(self.handler.called)
+        self.queue.add_event(prototype.JobEvent(timestamp=2, job="x"))
+        self.queue.advance()
+        self.failUnless(self.handler.called)
+
 class test_Simulator(TestCase):
     def setUp(self):
         self.start_time_and_jobs = list(prototype.simple_job_generator(10))
