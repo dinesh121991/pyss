@@ -173,7 +173,7 @@ class test_EventQueue(TestCase):
             self.queue.add_handler(prototype.JobEvent, handler)
 
         # register handlers that shouldn't run with a different event type
-        for handlers in nonmatching_handlers:
+        for handler in nonmatching_handlers:
             self.queue.add_handler(prototype.JobStartEvent, handler)
 
         self.queue.add_event(self.event)
