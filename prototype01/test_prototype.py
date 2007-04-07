@@ -261,7 +261,8 @@ class test_simple_job_generator(TestCase):
 
 if __name__ == "__main__":
     try:
-        from testoob import main
+        import testoob
+        testoob.main()
     except ImportError:
-        from unittest import main
-    main()
+        import unittest
+        unittest.main()
