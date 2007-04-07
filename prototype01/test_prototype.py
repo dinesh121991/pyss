@@ -313,6 +313,8 @@ class test_Machine(TestCase):
         self.machine.add_job(self._unique_job(num_required_processors=50))
         self.assertEqual(0, self.machine.free_processors)
 
+    # TODO: test Machine.busy_processors
+
 if __name__ == "__main__":
     try:
         import testoob
