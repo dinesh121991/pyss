@@ -89,6 +89,15 @@ class StupidScheduler(object):
         )
         self.next_free_time += job.estimated_run_time
 
+class Machine(object):
+    "Represents the actual parallel machine ('cluster')"
+    def __init__(self, num_processers):
+        self.num_processers = num_processers
+        self.jobs = set()
+
+    def add_job(self, job):
+        self.jobs.add(job)
+
 class Simulator(object):
     def __init__(self, job_source):
         self.event_queue = EventQueue()

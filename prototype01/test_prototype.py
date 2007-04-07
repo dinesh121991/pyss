@@ -259,6 +259,37 @@ class test_simple_job_generator(TestCase):
             self.failUnless( start_time >= prev_time )
             prev_time = start_time
 
+class UniqueNumbers(object):
+    def __init__(self):
+        self.used_numbers = set()
+    def get(self):
+        while True:
+            result = random.randrange(0,1000000)
+            if result in self.used_numbers: continue
+            self.used_numbers.add(result)
+            return result
+
+class test_Machine(TestCase):
+    def setUp(self):
+        self.machine = prototype.Machine(50)
+        self.unique_numbers = UniqueNumbers()
+
+    def tearDown(self):
+        del self.machine, self.unique_numbers
+
+    def _unique_job(self, estimated_run_time=100, actual_run_time=60, num_required_processors=20):
+        return prototype.Job(
+                id = self.unique_numbers.get(),
+                estimated_run_time = estimated_run_time,
+                actual_run_time = actual_run_time,
+                num_required_processors = num_required_processors
+            )
+
+    def test_add_job(self):
+        job = self._unique_job()
+        self.machine.add_job(job)
+        assert job in self.machine.jobs
+
 if __name__ == "__main__":
     try:
         import testoob
