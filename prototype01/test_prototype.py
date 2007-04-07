@@ -146,21 +146,18 @@ class test_EventQueue(TestCase):
         self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.advance)
 
     def test_advance_eats_event(self):
-        self.queue.add_event(self.event)
-        self.queue.advance()
+        self._add_event_and_advance(self.event)
         self.failUnless(self.queue.empty)
 
     def test_advance_one_handler_handles(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
-        self.queue.add_event(self.event)
-        self.queue.advance()
+        self._add_event_and_advance(self.event)
 
         self.failUnless( self.handler.called )
 
     def test_advance_one_handler_doesnt_handle(self):
         self.queue.add_handler(prototype.JobStartEvent, self.handler)
-        self.queue.add_event(self.event) # JobEvent, different type
-        self.queue.advance()
+        self._add_event_and_advance(self.event) # JobEvent, different type
 
         self.failIf( self.handler.called )
 
@@ -176,8 +173,7 @@ class test_EventQueue(TestCase):
         for handler in nonmatching_handlers:
             self.queue.add_handler(prototype.JobStartEvent, handler)
 
-        self.queue.add_event(self.event)
-        self.queue.advance()
+        self._add_event_and_advance(self.event)
 
         for handler in matching_handlers:
             self.failUnless( handler.called )
@@ -187,16 +183,17 @@ class test_EventQueue(TestCase):
 
     def test_sometimes_relevant_handler(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
-        self.queue.add_event(prototype.JobEvent(timestamp=0, job="x"))
-        self.queue.advance()
+        self._add_event_and_advance(prototype.JobEvent(timestamp=0, job="x"))
         self.failUnless(self.handler.called)
         self.handler.called = False
-        self.queue.add_event(prototype.JobStartEvent(timestamp=1, job="x"))
-        self.queue.advance()
+        self._add_event_and_advance(prototype.JobStartEvent(timestamp=1, job="x"))
         self.failIf(self.handler.called)
-        self.queue.add_event(prototype.JobEvent(timestamp=2, job="x"))
-        self.queue.advance()
+        self._add_event_and_advance(prototype.JobEvent(timestamp=2, job="x"))
         self.failUnless(self.handler.called)
+
+    def _add_event_and_advance(self, event):
+        self.queue.add_event(event)
+        self.queue.advance()
 
 class test_Simulator(TestCase):
     def setUp(self):
