@@ -91,11 +91,12 @@ class StupidScheduler(object):
 
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
-    def __init__(self, num_processers):
-        self.num_processers = num_processers
+    def __init__(self, num_processors):
+        self.num_processors = num_processors
         self.jobs = set()
 
     def add_job(self, job):
+        assert job.num_required_processors <= self.num_processors
         self.jobs.add(job)
 
 class Simulator(object):
