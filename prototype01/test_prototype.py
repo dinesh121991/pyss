@@ -154,6 +154,11 @@ class test_EventQueue(TestCase):
         self._add_event_and_advance(prototype.JobEvent(timestamp=2, job="x"))
         self.assertRaises(Exception, self.queue.add_event, prototype.JobEvent(timestamp=1, job="x"))
 
+    def test_add_event_same_timestamp_after_advance(self):
+        # same timestamp should succeed even after an event has been handled
+        self._add_event_and_advance(prototype.JobEvent(timestamp=2, job="x"))
+        self.queue.add_event(prototype.JobEvent(timestamp=2, job="y"))
+
     def test_advance_one_handler_handles(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
         self._add_event_and_advance(self.event)
