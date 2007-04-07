@@ -96,8 +96,16 @@ class Machine(object):
         self.jobs = set()
 
     def add_job(self, job):
-        assert job.num_required_processors <= self.num_processors
+        assert job.num_required_processors <= self.free_processors
         self.jobs.add(job)
+
+    @property
+    def free_processors(self):
+        return self.num_processors - self.busy_processors
+
+    @property
+    def busy_processors(self):
+        return sum(job.num_required_processors for job in self.jobs)
 
 class Simulator(object):
     def __init__(self, job_source):

@@ -297,6 +297,10 @@ class test_Machine(TestCase):
     def test_add_job_too_big(self):
         self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=100))
 
+    def test_add_second_job_too_big(self):
+        self.machine.add_job( self._unique_job(num_required_processors=40) )
+        self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=40) )
+
 if __name__ == "__main__":
     try:
         import testoob
