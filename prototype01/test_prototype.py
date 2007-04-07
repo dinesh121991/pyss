@@ -148,6 +148,12 @@ class test_EventQueue(TestCase):
         self._add_event_and_advance(self.event)
         self.failUnless(self.queue.empty)
 
+    def test_add_event_earlier_event_after_later_advance(self):
+        # after handling an event with a later timestamp, adding an event with
+        # an older timestamp should fail
+        self._add_event_and_advance(prototype.JobEvent(timestamp=2, job="x"))
+        self.assertRaises(Exception, self.queue.add_event, prototype.JobEvent(timestamp=1, job="x"))
+
     def test_advance_one_handler_handles(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
         self._add_event_and_advance(self.event)

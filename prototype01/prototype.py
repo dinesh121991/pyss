@@ -24,9 +24,11 @@ class EventQueue(object):
     def __init__(self):
         self._sorted_events = []
         self._handlers = {}
+        self._latest_handled_timestamp = -1
 
     def add_event(self, event):
         assert event not in self._sorted_events
+        assert event.timestamp >= self._latest_handled_timestamp
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
 
@@ -57,6 +59,7 @@ class EventQueue(object):
         event = self.pop()
         for handler in self._get_event_handlers( type(event) ):
             handler(event)
+        self._latest_handled_timestamp = event.timestamp
 
     def add_handler(self, event_type, handler):
         self._handlers.setdefault(event_type, [])
