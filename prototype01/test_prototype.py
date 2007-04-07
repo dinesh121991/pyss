@@ -290,6 +290,10 @@ class test_Machine(TestCase):
         self.machine.add_job(job)
         assert job in self.machine.jobs
 
+    def test_add_several_jobs_success(self):
+        for i in xrange(5):
+            self.machine.add_job( self._unique_job(num_required_processors=5) )
+
 if __name__ == "__main__":
     try:
         import testoob
