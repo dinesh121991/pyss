@@ -301,6 +301,18 @@ class test_Machine(TestCase):
         self.machine.add_job( self._unique_job(num_required_processors=40) )
         self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=40) )
 
+    def test_free_processors_empty(self):
+        self.assertEqual(50, self.machine.free_processors)
+
+    def test_free_processors_empty(self):
+        for i in xrange(10):
+            self.machine.add_job(self._unique_job(num_required_processors=3))
+        self.assertEqual(20, self.machine.free_processors)
+
+    def test_free_processors_full(self):
+        self.machine.add_job(self._unique_job(num_required_processors=50))
+        self.assertEqual(0, self.machine.free_processors)
+
 if __name__ == "__main__":
     try:
         import testoob
