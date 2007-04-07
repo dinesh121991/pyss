@@ -63,8 +63,7 @@ class test_EventQueue(TestCase):
         self.handler = _create_handler()
 
     def tearDown(self):
-        del self.queue
-        del self.event
+        del self.queue, self.event, self.events, self.handler
 
     def test_events_empty(self):
         self.assertEqual( 0, len(list(self.queue._sorted_events)) )
@@ -202,7 +201,7 @@ class test_Simulator(TestCase):
         self.jobs = set(job for start_time, job in self.start_time_and_jobs)
 
     def tearDown(self):
-        del self.simulator
+        del self.start_time_and_jobs, self.simulator, self.jobs
 
     def test_init_empty(self):
         self.assertEqual(0, len(prototype.Simulator([]).jobs))
