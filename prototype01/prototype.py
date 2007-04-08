@@ -69,6 +69,9 @@ class Job(object):
     def __init__(self,
             id, estimated_run_time, actual_run_time, num_required_processors
         ):
+        assert num_required_processors > 0
+        assert actual_run_time > 0
+        assert estimated_run_time > 0
         self.id = id
         self.estimated_run_time = estimated_run_time
         self.actual_run_time = actual_run_time

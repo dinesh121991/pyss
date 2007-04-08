@@ -19,7 +19,7 @@ def _create_handler():
 
 class test_Job(TestCase):
     def test_str_sanity(self):
-        str(prototype.Job(None, None, None, None))
+        str(prototype.Job(1, 1, 1, 1))
 
 class test_JobEvent(TestCase):
     def test_str_sanity(self):
