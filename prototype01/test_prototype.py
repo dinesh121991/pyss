@@ -335,6 +335,11 @@ class test_Machine(TestCase):
         self.event_queue.advance()
         self.assertEqual(0, self.machine.busy_processors)
 
+    def test_add_job_different_current_timestamp(self):
+        self.machine.add_job(current_timestamp=100, job=self._unique_job(actual_run_time=20, num_required_processors=10))
+        self.machine.add_job(current_timestamp=120, job=self._unique_job(actual_run_time=40, num_required_processors=5))
+        self.event_queue.advance()
+        self.assertEqual(5, self.machine.busy_processors)
 
 if __name__ == "__main__":
     try:
