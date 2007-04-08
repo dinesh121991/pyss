@@ -65,8 +65,13 @@ class test_EventQueue(TestCase):
     def tearDown(self):
         del self.queue, self.event, self.events, self.handler
 
-    def test_events_empty(self):
-        self.assertEqual( 0, len(list(self.queue._sorted_events)) )
+    def test_len_empty(self):
+        self.assertEqual( 0, len(self.queue) )
+
+    def test_len_nonempty(self):
+        for event in self.events:
+            self.queue.add_event(event)
+        self.assertEqual( len(self.events), len(self.queue) )
 
     def test_add_event_sanity(self):
         self.queue.add_event( self.event )

@@ -38,7 +38,10 @@ class EventQueue(object):
 
     @property
     def empty(self):
-        return len(self._sorted_events) == 0
+        return len(self) == 0
+
+    def __len__(self):
+        return len(self._sorted_events)
 
     def _assert_not_empty(self):
         if self.empty:
