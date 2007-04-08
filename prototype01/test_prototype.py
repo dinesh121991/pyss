@@ -344,6 +344,17 @@ class test_Machine(TestCase):
         self.event_queue.advance()
         self.assertEqual(5, self.machine.busy_processors)
 
+class test_StupidScheduler(TestCase):
+    def setUp(self):
+        self.event_queue = prototype.EventQueue()
+        self.scheduler = prototype.StupidScheduler(self.event_queue)
+
+    def tearDown(self):
+        del self.event_queue, self.scheduler
+
+    def test_sanity(self):
+        self.scheduler.job_submitted(prototype.JobSubmitEvent(job="x", timestamp=0))
+
 if __name__ == "__main__":
     try:
         import testoob
