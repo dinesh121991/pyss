@@ -94,13 +94,20 @@ class StupidScheduler(object):
 
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
-    def __init__(self, num_processors):
+    def __init__(self, num_processors, event_queue):
         self.num_processors = num_processors
+        self.event_queue = event_queue
         self.jobs = set()
+        self.event_queue.add_handler(JobEndEvent, self.remove_job_handler)
 
-    def add_job(self, job):
+    def add_job(self, job, current_timestamp):
         assert job.num_required_processors <= self.free_processors
         self.jobs.add(job)
+        self.event_queue.add_event(JobEndEvent(job=job, timestamp=0))
+
+    def remove_job_handler(self, event):
+        assert type(event) == JobEndEvent
+        self.jobs.remove(event.job)
 
     @property
     def free_processors(self):

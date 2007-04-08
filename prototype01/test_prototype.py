@@ -271,11 +271,12 @@ class UniqueNumbers(object):
 
 class test_Machine(TestCase):
     def setUp(self):
-        self.machine = prototype.Machine(50)
+        self.event_queue = prototype.EventQueue()
+        self.machine = prototype.Machine(50, self.event_queue)
         self.unique_numbers = UniqueNumbers()
 
     def tearDown(self):
-        del self.machine, self.unique_numbers
+        del self.event_queue, self.machine, self.unique_numbers
 
     def _unique_job(self, estimated_run_time=100, actual_run_time=60, num_required_processors=20):
         return prototype.Job(
@@ -287,30 +288,30 @@ class test_Machine(TestCase):
 
     def test_add_job(self):
         job = self._unique_job()
-        self.machine.add_job(job)
+        self.machine.add_job(job, current_timestamp=0)
         assert job in self.machine.jobs
 
     def test_add_several_jobs_success(self):
         for i in xrange(5):
-            self.machine.add_job( self._unique_job(num_required_processors=5) )
+            self.machine.add_job( self._unique_job(num_required_processors=5), current_timestamp=0 )
 
     def test_add_job_too_big(self):
-        self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=100))
+        self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=100), current_timestamp=0)
 
     def test_add_second_job_too_big(self):
-        self.machine.add_job( self._unique_job(num_required_processors=40) )
-        self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=40) )
+        self.machine.add_job( self._unique_job(num_required_processors=40), current_timestamp=0 )
+        self.assertRaises(Exception, self.machine.add_job, self._unique_job(num_required_processors=40), current_timestamp=0 )
 
     def test_free_processors_empty(self):
         self.assertEqual(50, self.machine.free_processors)
 
     def test_free_processors_nonempty(self):
         for i in xrange(10):
-            self.machine.add_job(self._unique_job(num_required_processors=3))
+            self.machine.add_job(self._unique_job(num_required_processors=3), current_timestamp=0)
         self.assertEqual(20, self.machine.free_processors)
 
     def test_free_processors_full(self):
-        self.machine.add_job(self._unique_job(num_required_processors=50))
+        self.machine.add_job(self._unique_job(num_required_processors=50), current_timestamp=0)
         self.assertEqual(0, self.machine.free_processors)
 
     def test_busy_processors_empty(self):
@@ -318,12 +319,22 @@ class test_Machine(TestCase):
 
     def test_busy_processors_nonempty(self):
         for i in xrange(10):
-            self.machine.add_job(self._unique_job(num_required_processors=3))
+            self.machine.add_job(self._unique_job(num_required_processors=3), current_timestamp=0)
         self.assertEqual(30, self.machine.busy_processors)
 
     def test_busy_processors_full(self):
-        self.machine.add_job(self._unique_job(num_required_processors=50))
+        self.machine.add_job(self._unique_job(num_required_processors=50), current_timestamp=0)
         self.assertEqual(50, self.machine.busy_processors)
+
+    def test_add_job_adds_job_end_event(self):
+        self.machine.add_job(self._unique_job(), current_timestamp=0)
+        self.failIf(self.event_queue.empty)
+
+    def test_job_done_removed(self):
+        self.machine.add_job(self._unique_job(), current_timestamp=0)
+        self.event_queue.advance()
+        self.assertEqual(0, self.machine.busy_processors)
+
 
 if __name__ == "__main__":
     try:
