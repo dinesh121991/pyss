@@ -261,13 +261,10 @@ class test_simple_job_generator(TestCase):
 
 class UniqueNumbers(object):
     def __init__(self):
-        self.used_numbers = set()
+        self.last_id = 0
     def get(self):
-        while True:
-            result = random.randrange(0,1000000)
-            if result in self.used_numbers: continue
-            self.used_numbers.add(result)
-            return result
+        self.last_id += 1
+        return self.last_id
 
 class test_Machine(TestCase):
     def setUp(self):
