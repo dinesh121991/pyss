@@ -87,6 +87,7 @@ class StupidScheduler(object):
         self.next_free_time = 0
 
     def job_submitted(self, event):
+        assert type(event) == JobSubmitEvent
         self.event_queue.add_event(
             JobStartEvent(timestamp=self.next_free_time, job=event.job)
         )
