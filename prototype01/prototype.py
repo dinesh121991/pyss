@@ -103,7 +103,7 @@ class Machine(object):
     def add_job(self, job, current_timestamp):
         assert job.num_required_processors <= self.free_processors
         self.jobs.add(job)
-        self.event_queue.add_event(JobEndEvent(job=job, timestamp=current_timestamp))
+        self.event_queue.add_event(JobEndEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
 
     def remove_job_handler(self, event):
         assert type(event) == JobEndEvent
