@@ -78,8 +78,9 @@ class Simulator:
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
 
-        self.scheduler =  ConservativeScheduler(total_nodes)
+        # self.scheduler =  ConservativeScheduler(total_nodes)
         # self.scheduler =  EasyBackfillScheduler(total_nodes)        
+        self.scheduler = FifoScheduler(total_nodes)
         
         self.startSimulation()
         
@@ -246,6 +247,46 @@ class Scheduler:
              collection_of_events[time] = []
              collection_of_events[time].append(event)
 
+             
+
+class FifoScheduler(Scheduler):
+    
+    def __init__(self, total_nodes = 100):
+        self.cpu_snapshot = CpuSnapshot(total_nodes)
+        self.waiting_queue_of_jobs = []
+
+    def handleArrivalOfJobEvent(self, job, time):
+        self.waiting_queue_of_jobs.append(job)
+        newEvents = self.schedule_jobs(time)
+        return newEvents
+
+
+    def handleTerminationOfJobEvent(self, job, time):
+        if job.actual_duration < job.user_predicted_duration: 
+            self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        newEvents = self.schedule_jobs(time)
+        return newEvents
+
+    def schedule_jobs(self, time):
+        newEvents = {}
+        first_failure_has_not_occured = True
+        while len(self.waiting_queue_of_jobs) > 0 and first_failure_has_not_occured:
+            job = self.waiting_queue_of_jobs[0]
+            earliest_possible_time = self.cpu_snapshot.jobEarliestAssignment(job, time)
+            if earliest_possible_time == time:
+                del self.waiting_queue_of_jobs[0]
+                self.cpu_snapshot.assignJob(job, time)     
+                termination_time = time + job.actual_duration
+                self.add_termination_event_to_collection_of_new_events(termination_time, job, newEvents)
+            else:
+                first_failure_has_not_occured = False
+        return newEvents
+
+    def handleEndOfSimulationEvent(self):
+        self.cpu_snapshot.CpuSlicesTestFeasibility()            
+                
+
+    
 
 class ConservativeScheduler(Scheduler):
 
@@ -293,49 +334,20 @@ class ConservativeScheduler(Scheduler):
                 
         return newEvents
     
+
     def handleEndOfSimulationEvent(self):
         self.cpu_snapshot.CpuSlicesTestFeasibility()            
                 
 
 
+      
+    
 
 class EasyBackfillScheduler(Scheduler):
     
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times = []
-
-
-    def canBeBackfilled(self, first_job, second_job, time):
-        print "... Let's check if the job can be backfilled"
-        
-        start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
-        print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
-
-        if start_time_of_second_job > time:
-            return False
-    
-        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "start time of the first job: ", start_time_of_first_job, first_job.id
-        
-        
-        # TODO: shouldn't this method not change the state?
-        self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
-        start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, start_time_of_second_job)
-        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_first_job_after_assigning_the_second_job
-        
-        self.cpu_snapshot.delJobFromCpuSlices(second_job)
-       
-        if start_time_of_first_job_after_assigning_the_second_job > start_time_of_first_job:
-            print "start_time_of_first_job", start_time_of_first_job
-            print "start_time_of_first_job_after_assigning_the_second_job", start_time_of_first_job_after_assigning_the_second_job
-            return False 
-                #this means that assigning the second job at the earliest possible time postphones the
-                #first job in the waiting list, and so we postphone the scheduling of the second job
-        else:
-            return True 
-      
-
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
@@ -420,6 +432,36 @@ class EasyBackfillScheduler(Scheduler):
                     
         return newEvents
     
+
+    def canBeBackfilled(self, first_job, second_job, time):
+        print "... Let's check if the job can be backfilled"
+        
+        start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
+        print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
+
+        if start_time_of_second_job > time:
+            return False
+    
+        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        print "start time of the first job: ", start_time_of_first_job, first_job.id
+        
+        
+        # TODO: shouldn't this method not change the state?
+        self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
+        start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, start_time_of_second_job)
+        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_first_job_after_assigning_the_second_job
+        
+        self.cpu_snapshot.delJobFromCpuSlices(second_job)
+       
+        if start_time_of_first_job_after_assigning_the_second_job > start_time_of_first_job:
+            print "start_time_of_first_job", start_time_of_first_job
+            print "start_time_of_first_job_after_assigning_the_second_job", start_time_of_first_job_after_assigning_the_second_job
+            return False 
+                #this means that assigning the second job at the earliest possible time postphones the
+                #first job in the waiting list, and so we postphone the scheduling of the second job
+        else:
+            return True 
+      
 
     def handleEndOfSimulationEvent(self):
         self.cpu_snapshot.CpuSlicesTestFeasibility()

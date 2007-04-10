@@ -382,8 +382,6 @@ class CpuSnapshot(object):
         for job_id, job_start_slice in scheduled_jobs_start_slice.iteritems():
             job_last_slice =  scheduled_jobs_last_slice[job_id]
             duration_of_job = job_last_slice + self.slices[job_last_slice].getDuration() - job_start_slice
-            print job_id, "start_slice, last_slice, duration_last:", \
-                  job_start_slice, job_last_slice, self.slices[job_last_slice].getDuration()
             if duration_of_job != scheduled_jobs[job_id].actual_duration:
                 print ">>>PROBLEM: with actual duration of job: ", \
                       job.actual_duration, "vs.", duration_of_job,  " of job", job_id
