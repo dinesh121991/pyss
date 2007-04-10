@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.4
 
-import sim
-
+from sim import * 
+ 
 
 class Event:
     def __init__(self, job=None):
@@ -19,6 +19,61 @@ class JobTerminationEvent(Event):
      def __str__(self):
         return "Job Termination Event: " + str(self.job)
 
+class Events:
+    
+    def __init__(self):
+        self.collection = {}
+
+    def add_arrival_event(self, time, job):
+        event = JobArrivalEvent(job)
+        self.addEvent(time, event)
+        
+    def add_termination_event(self, time, job):
+        event = JobTerminationEvent(job)
+        self.addEvent(time, event)
+
+    def add_end_of_simulation_event(self, time):       
+        event = EndOfSimulationEvent()
+        self.addEvent(time, event)
+        
+    def addEvent(self, time, event): 
+         if self.collection.has_key(time):
+             self.collection[time].append(event)
+         else:
+             self.collection[time] = []
+             self.collection[time].append(event)
+    
+    def printEvents(self):
+        times = self.collection.keys()
+        times.sort()
+        for t in times:
+            for event in self.collection[t]: 
+                print event 
+        print
+
+
+    def addEvents(self, new_events):
+        # makes sure that there's only one termination event for each job 
+        
+         for new_time, new_list_of_events_at_this_time in new_events.collection.iteritems():
+
+             for new_event in new_list_of_events_at_this_time: 
+             
+                 if isinstance(new_event, JobTerminationEvent): #deletes previous termination event if exists
+                     found = False
+                     for time, list_of_events_at_this_time in self.collection.iteritems():
+                         if found:
+                             break 
+                         for event in self.collection[time]:
+                             if isinstance(event, JobTerminationEvent) and event.job.id == new_event.job.id:
+                                 list_of_events_at_this_time.remove(event)
+                                 found = True
+                                 break
+                             
+                          
+                 self.addEvent(new_time, new_event)
+
+         
 
 
 
@@ -30,7 +85,7 @@ class JobArrivalEventGeneratorViaLogFile:
         and the amount of nodes requested by the job is never more than the total available nodes"""
         
         self.file = file(input_file) # open the specified file for reading 
-        self.events = {}
+        self.events = Events()
         self.jobs = []
         
         while True: 
@@ -39,31 +94,17 @@ class JobArrivalEventGeneratorViaLogFile:
             if len(line) == 0: # zero length indicates end-of-file
                 break
             
-            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
-            
+            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()            
+
             newJob = Job(job_id, int(job_duration), int(job_nodes), int(job_arrival_time), int(job_actual_duration))
 
-            self.jobs.append(newJob) 
-            newEvent = JobArrivalEvent(newJob)
+            self.jobs.append(newJob)
+            self.events.add_arrival_event(int(job_arrival_time), newJob)
 
-            if self.events.has_key(int(job_arrival_time)):
-                self.events[int(job_arrival_time)].append(newEvent)
-            else:
-                self.events[int(job_arrival_time)] = []
-                self.events[int(job_arrival_time)].append(newEvent)    
 
         self.file.close()
 
 
-    def printEvents(self):
-        times = self.events.keys()
-        times.sort()
-        for t in times:
-            for event in self.events[t]: 
-                print event 
-        print
-
-            
         
 
 class Simulator:
@@ -78,75 +119,45 @@ class Simulator:
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
 
-        # self.scheduler =  ConservativeScheduler(total_nodes)
-        # self.scheduler =  EasyBackfillScheduler(total_nodes)        
+        #self.scheduler =  ConservativeScheduler(total_nodes)
+        #self.scheduler =  EasyBackfillScheduler(total_nodes)        
         self.scheduler = FifoScheduler(total_nodes)
         
         self.startSimulation()
-        
-
-    def addEvent(self, time, event):
-        if self.events.has_key(time):
-            self.events[time].append(event)
-        else:
-            self.events[time] = []
-            self.events[time].append(event)
-            
-    
-    def addEvents(self, collection_of_new_events):
-        
-         for new_time, new_list_of_events_at_this_time in collection_of_new_events.iteritems():
-
-             for new_event in new_list_of_events_at_this_time: 
-             
-                 if isinstance(new_event, JobTerminationEvent): #delete previous termination event if exists
-                     found = False
-                     for time, list_of_events_at_this_time in self.events.iteritems():
-                         if found:
-                             break 
-                         for event in self.events[time]:
-                             if isinstance(event, JobTerminationEvent) and event.job.id == new_event.job.id:
-                                 list_of_events_at_this_time.remove(event)
-                                 print "_____ old job termination event at time", time
-                                 print "_____ new job termination event at time", new_time 
-                                 found = True
-                                 break
-                 self.addEvent(new_time, new_event)
-
          
+   
 
     def startSimulation(self):
         
-        endEvent = EndOfSimulationEvent()
-        self.addEvent(100000, endEvent)
+        self.events.add_end_of_simulation_event(10000000)
         
         end_of_simulation_event_has_not_occured = True 
 
-        while end_of_simulation_event_has_not_occured and len(self.events) > 0:
+        while end_of_simulation_event_has_not_occured and len(self.events.collection) > 0:
  
-            current_time = sorted(self.events.keys()).pop(0)
+            current_time = sorted(self.events.collection.keys()).pop(0)
 
-            while len(self.events[current_time]) > 0:
+            while len(self.events.collection[current_time]) > 0:
 
                 print "Current Known Events:"
-                for tmp_event in self.events[current_time]:
+                for tmp_event in self.events.collection[current_time]:
                     print current_time, str(tmp_event)
                 print
                 
-                event = self.events[current_time].pop()
+                event = self.events.collection[current_time].pop()
                 print str(event)
 
                 if isinstance(event, JobArrivalEvent):
                     newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
                     self.scheduler.cpu_snapshot.printCpuSlices()
-                    self.addEvents(newEvents) 
+                    self.events.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
                     print "TERMINATION EVENT", event
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
                     self.scheduler.cpu_snapshot.printCpuSlices()
-                    self.addEvents(newEvents)
+                    self.events.addEvents(newEvents)
                     continue
 
                 elif isinstance(event, EndOfSimulationEvent):
@@ -158,13 +169,12 @@ class Simulator:
                     assert False # should never reach here
                 
             
-            del self.events[current_time] #removing the events that were just handled
+            del self.events.collection[current_time] #removing the events that were just handled
             
 
         print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
 
-        # self.on_line_test() // TODO ...  
         self.feasibilty_check_of_jobs_data()
         
         self.calculate_statistics()  
@@ -239,14 +249,7 @@ class Scheduler:
      def handleEndOfSimulationEvent(self):
          pass
      
-     def add_termination_event_to_collection_of_new_events(self, time, job, collection_of_events):
-         event = JobTerminationEvent(job)
-         if collection_of_events.has_key(time):
-             collection_of_events[time].append(event)
-         else:
-             collection_of_events[time] = []
-             collection_of_events[time].append(event)
-
+   
              
 
 class FifoScheduler(Scheduler):
@@ -257,17 +260,16 @@ class FifoScheduler(Scheduler):
 
     def handleArrivalOfJobEvent(self, job, time):
         self.waiting_queue_of_jobs.append(job)
-        newEvents = self.schedule_jobs(time)
+        newEvents = self._schedule_jobs(time)
         return newEvents
 
     def handleTerminationOfJobEvent(self, job, time):
-        if job.actual_duration < job.user_predicted_duration: 
-            self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        newEvents = self.schedule_jobs(time)
+        self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        newEvents = self._schedule_jobs(time)
         return newEvents
 
-    def schedule_jobs(self, time):
-        newEvents = {}
+    def _schedule_jobs(self, time):
+        newEvents = Events()
         first_failure_has_not_occured = True
         while len(self.waiting_queue_of_jobs) > 0 and first_failure_has_not_occured:
             job = self.waiting_queue_of_jobs[0]
@@ -276,7 +278,7 @@ class FifoScheduler(Scheduler):
                 del self.waiting_queue_of_jobs[0]
                 self.cpu_snapshot.assignJob(job, time)     
                 termination_time = time + job.actual_duration
-                self.add_termination_event_to_collection_of_new_events(termination_time, job, newEvents)
+                newEvents.add_termination_event(termination_time, job)
             else:
                 first_failure_has_not_occured = False
         return newEvents
@@ -294,29 +296,26 @@ class ConservativeScheduler(Scheduler):
         self.list_of_unfinished_jobs_arranged_by_arrival_times = []    
         
     def handleArrivalOfJobEvent(self, job, time):
-        newEvents={}
+        newEvents = Events()
         self.list_of_unfinished_jobs_arranged_by_arrival_times.append(job)        
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
         termination_time = job.start_to_run_at_time + job.actual_duration
-        self.add_termination_event_to_collection_of_new_events(termination_time, job, newEvents)
+        newEvents.add_termination_event(termination_time, job)
         return newEvents
     
     def handleTerminationOfJobEvent(self, job, time):
         """ Here we delete the tail of job if it was ended before the duration declaration.
         It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
-        newEvents={}
-        self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)
-        if job.actual_duration < job.user_predicted_duration: 
-            self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-            return self._reschedule_jobs(time, newEvents)
-        else:
-            return {}
+        newEvents = Events()
+        self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)  
+        self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        return self._reschedule_jobs(time, newEvents)
+
 
 
     def _reschedule_jobs(self, time, newEvents):
-
         for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
 
             if job.start_to_run_at_time <= time:
@@ -328,8 +327,7 @@ class ConservativeScheduler(Scheduler):
             self.cpu_snapshot.assignJob(job, start_time_of_job)
             if prev_start_to_run_at_time > job.start_to_run_at_time:
                 new_termination_time = job.start_to_run_at_time + job.actual_duration
-                self.add_termination_event_to_collection_of_new_events(new_termination_time, job, newEvents)
-                
+                newEvents.add_termination_event(new_termination_time, job)               
         return newEvents
     
 
@@ -355,7 +353,7 @@ class EasyBackfillScheduler(Scheduler):
         else: 
             first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
             
-        newEvents = {}
+        newEvents = Events()
         
         if first_job.id != just_arrived_job.id: # two distinct jobs
             
@@ -363,7 +361,7 @@ class EasyBackfillScheduler(Scheduler):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
                 termination_time = time + just_arrived_job.actual_duration
-                self.add_termination_event_to_collection_of_new_events(termination_time, just_arrived_job, newEvents)
+                newEvents.add_termination_event(termination_time, just_arrived_job)
                 return newEvents  
 
             else:
@@ -379,7 +377,7 @@ class EasyBackfillScheduler(Scheduler):
                  print "cannot be backfilled  333333"
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
                  termination_time = time + just_arrived_job.actual_duration
-                 self.add_termination_event_to_collection_of_new_events(termination_time, just_arrived_job, newEvents)
+                 newEvents.add_termination_event(termination_time, just_arrived_job)
                  return newEvents
              else:
                  print "cannot be backfilled  444444"
@@ -389,18 +387,15 @@ class EasyBackfillScheduler(Scheduler):
                  
 
     def handleTerminationOfJobEvent(self, job, time):
-        """ this handler deletes the tail of job if it was ended before the duration declaration.
-        It then reschedule the remaining jobs and returns a collection of new termination events
+        """ this handler deletes the tail of job.
+        It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
-
-        if job.actual_duration < job.user_predicted_duration: 
-            self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        
+        self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(time)
 
 
     def _schedule_jobs(self, time):
-        newEvents = {}
+        newEvents = Events()
                              
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
             return newEvents # waiting list is empty        
@@ -413,7 +408,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(first_job)
                 self.cpu_snapshot.assignJob(first_job, time)
                 termination_time = time + first_job.actual_duration
-                self.add_termination_event_to_collection_of_new_events(termination_time, first_job, newEvents) 
+                newEvents.add_termination_event(termination_time, first_job) 
             else:
                 break
 
@@ -426,7 +421,7 @@ class EasyBackfillScheduler(Scheduler):
                     start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    self.add_termination_event_to_collection_of_new_events(termination_time, next_job , newEvents)
+                    newEvents.add_termination_event(termination_time, next_job)
                     
         return newEvents
     

@@ -14,8 +14,6 @@ Docummentation of the code
 class Event: 
 	self.time // curently the only date member we have is a job
 
-seperate calss to handle collection of events. 
-
 ----------------------------------------------- 
 
 

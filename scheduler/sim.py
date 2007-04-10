@@ -291,6 +291,9 @@ class CpuSnapshot(object):
         tail of the job starts. 
         Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
 
+        if job.actual_duration ==  job.user_predicted_duration: 
+            return
+        
         accumulated_duration = 0
         critical_point_is_found = False 
         
