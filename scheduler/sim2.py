@@ -1,5 +1,7 @@
 #!/usr/bin/env python2.4
-from sim import * 
+
+import sim
+
 
 class Event:
     def __init__(self, job=None):
@@ -19,6 +21,7 @@ class JobTerminationEvent(Event):
 
 
 
+
 class JobArrivalEventGeneratorViaLogFile:
     
     def __init__(self, input_file):
@@ -26,7 +29,7 @@ class JobArrivalEventGeneratorViaLogFile:
 
         and the amount of nodes requested by the job is never more than the total available nodes"""
         
-        self.file = file(input_file) #open the specified file for reading 
+        self.file = file(input_file) # open the specified file for reading 
         self.events = {}
         self.jobs = []
         
@@ -56,8 +59,8 @@ class JobArrivalEventGeneratorViaLogFile:
         times = self.events.keys()
         times.sort()
         for t in times:
-            for element in self.events[t]: 
-                print element 
+            for event in self.events[t]: 
+                print event 
         print
 
             
@@ -67,10 +70,7 @@ class Simulator:
     """ Assumption 1: The simulation clock goes only forward. Specifically,
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
-    
-    def startSimulation(self):
-        pass
-    
+        
     def __init__(self, total_nodes=100, input_file='input', scheduler="ConservativeScheduler"):
         self.total_nodes = total_nodes
         self.current_time = 0
@@ -260,7 +260,6 @@ class FifoScheduler(Scheduler):
         newEvents = self.schedule_jobs(time)
         return newEvents
 
-
     def handleTerminationOfJobEvent(self, job, time):
         if job.actual_duration < job.user_predicted_duration: 
             self.cpu_snapshot.delTailofJobFromCpuSlices(job)
@@ -292,8 +291,7 @@ class ConservativeScheduler(Scheduler):
 
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
-        self.list_of_unfinished_jobs_arranged_by_arrival_times = []
-    
+        self.list_of_unfinished_jobs_arranged_by_arrival_times = []    
         
     def handleArrivalOfJobEvent(self, job, time):
         newEvents={}

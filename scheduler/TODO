@@ -1,13 +1,35 @@
 
-Cpu
+----------------------------------------------- 
+Cpu - History 
 Remove old slices from the cpusnapshot (in order to save "sorting" times) 
 
+
+----------------------------------------------- 
 Docummentation of the code
 
 
 
+----------------------------------------------- 
+
 class Event: 
 	self.time // curently the only date member we have is a job
 
+seperate calss to handle collection of events. 
 
-Testers
+----------------------------------------------- 
+
+
+UnitTesters
+example of unitesthttp://www.python.org/doc/2.3.2/lib/minimal-example.html
+assertEqual() checks for an expected result. 
+assert_() verifies a condition.
+assertRaises() to verify that an expected exception gets raised.
+
+
+----------------------------------------------- 
+
+Maui scheduler 
+
+Dror's code: ~feit/src/sim/maui.c
+
+----------------------------------------------- 

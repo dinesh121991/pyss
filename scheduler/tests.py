@@ -1,6 +1,9 @@
 #!/usr/bin/env python2.4
+
 import unittest
 import sim
+import sim2
+
 
 sim.CpuTimeSlice.total_nodes = 100
 
@@ -17,10 +20,18 @@ class test_CpuTimeSlice(unittest.TestCase):
 class test_Job(unittest.TestCase):
     def test_init_zero_nodes(self):
         self.assertRaises(AssertionError, sim.Job, 0, 0, job_nodes=0)
-    
+
+
+class test_
+
+
+
+
 if __name__ == "__main__":
-    try:
-        from testoob import main
-    except ImportError:
-        from unittest import main
-    main()
+    unittest.main()
+
+
+
+
+
+
