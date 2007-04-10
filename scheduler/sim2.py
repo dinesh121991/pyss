@@ -1,80 +1,7 @@
 #!/usr/bin/env python2.4
 
-from sim import * 
- 
-
-class Event:
-    def __init__(self, job=None):
-        self.job = job
-
-class EndOfSimulationEvent(Event):
-    def __str__(self):
-        return "End of Simulation Event" 
-
-class JobArrivalEvent(Event):
-    def __str__(self):
-        return "Job Arrival Event: " + str(self.job)
-
-class JobTerminationEvent(Event):
-     def __str__(self):
-        return "Job Termination Event: " + str(self.job)
-
-class Events:
-    
-    def __init__(self):
-        self.collection = {}
-
-    def add_arrival_event(self, time, job):
-        event = JobArrivalEvent(job)
-        self.addEvent(time, event)
-        
-    def add_termination_event(self, time, job):
-        event = JobTerminationEvent(job)
-        self.addEvent(time, event)
-
-    def add_end_of_simulation_event(self, time):       
-        event = EndOfSimulationEvent()
-        self.addEvent(time, event)
-        
-    def addEvent(self, time, event): 
-         if self.collection.has_key(time):
-             self.collection[time].append(event)
-         else:
-             self.collection[time] = []
-             self.collection[time].append(event)
-    
-    def printEvents(self):
-        times = self.collection.keys()
-        times.sort()
-        for t in times:
-            for event in self.collection[t]: 
-                print event 
-        print
-
-
-    def addEvents(self, new_events):
-        # makes sure that there's only one termination event for each job 
-        
-         for new_time, new_list_of_events_at_this_time in new_events.collection.iteritems():
-
-             for new_event in new_list_of_events_at_this_time: 
-             
-                 if isinstance(new_event, JobTerminationEvent): #deletes previous termination event if exists
-                     found = False
-                     for time, list_of_events_at_this_time in self.collection.iteritems():
-                         if found:
-                             break 
-                         for event in self.collection[time]:
-                             if isinstance(event, JobTerminationEvent) and event.job.id == new_event.job.id:
-                                 list_of_events_at_this_time.remove(event)
-                                 found = True
-                                 break
-                             
-                          
-                 self.addEvent(new_time, new_event)
-
-         
-
+from sim import *
+from sim1 import * 
 
 
 class JobArrivalEventGeneratorViaLogFile:
@@ -120,8 +47,8 @@ class Simulator:
         self.jobs = events_generated_by_input_file.jobs
 
         #self.scheduler =  ConservativeScheduler(total_nodes)
-        #self.scheduler =  EasyBackfillScheduler(total_nodes)        
-        self.scheduler = FifoScheduler(total_nodes)
+        self.scheduler =  EasyBackfillScheduler(total_nodes)        
+        #self.scheduler = FifoScheduler(total_nodes)
         
         self.startSimulation()
          
@@ -356,7 +283,6 @@ class EasyBackfillScheduler(Scheduler):
         newEvents = Events()
         
         if first_job.id != just_arrived_job.id: # two distinct jobs
-            
             if self.canBeBackfilled(first_job, just_arrived_job, time):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
@@ -421,9 +347,9 @@ class EasyBackfillScheduler(Scheduler):
                     start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    newEvents.add_termination_event(termination_time, next_job)
-                    
+                    newEvents.add_termination_event(termination_time, next_job)                    
         return newEvents
+
     
 
     def canBeBackfilled(self, first_job, second_job, time):
@@ -435,8 +361,8 @@ class EasyBackfillScheduler(Scheduler):
         if start_time_of_second_job > time:
             return False
     
-        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "start time of the first job: ", start_time_of_first_job, first_job.id
+        shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        print "shadow time, the start time of the first job: ", shadow_time, first_job.id
         
         
         # TODO: shouldn't this method not change the state?
@@ -446,8 +372,8 @@ class EasyBackfillScheduler(Scheduler):
         
         self.cpu_snapshot.delJobFromCpuSlices(second_job)
        
-        if start_time_of_first_job_after_assigning_the_second_job > start_time_of_first_job:
-            print "start_time_of_first_job", start_time_of_first_job
+        if start_time_of_first_job_after_assigning_the_second_job > shadow_time:
+            print "start_time_of_first_job", shadow_time
             print "start_time_of_first_job_after_assigning_the_second_job", start_time_of_first_job_after_assigning_the_second_job
             return False 
                 #this means that assigning the second job at the earliest possible time postphones the
