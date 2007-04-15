@@ -26,7 +26,7 @@ class JobArrivalEventGeneratorViaLogFile:
             newJob = Job(job_id, int(job_duration), int(job_nodes), int(job_arrival_time), int(job_actual_duration))
 
             self.jobs.append(newJob)
-            self.events.add_arrival_event(int(job_arrival_time), newJob)
+            self.events.add_job_arrival_event(int(job_arrival_time), newJob)
 
 
         self.file.close()
@@ -56,7 +56,7 @@ class Simulator:
 
     def startSimulation(self):
         
-        self.events.add_end_of_simulation_event(sys.maxint) #generates end of simulation event at "maxint" time
+        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end of simulation event at "maxint" time
          
         end_of_simulation_event_has_not_occured = True 
 
@@ -205,7 +205,7 @@ class FifoScheduler(Scheduler):
                 del self.waiting_queue_of_jobs[0]
                 self.cpu_snapshot.assignJob(job, time)     
                 termination_time = time + job.actual_duration
-                newEvents.add_termination_event(termination_time, job)
+                newEvents.add_job_termination_event(termination_time, job)
             else:
                 first_failure_has_not_occured = False
         return newEvents
@@ -228,7 +228,7 @@ class ConservativeScheduler(Scheduler):
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
         termination_time = job.start_to_run_at_time + job.actual_duration
-        newEvents.add_termination_event(termination_time, job)
+        newEvents.add_job_termination_event(termination_time, job)
         return newEvents
     
     def handleTerminationOfJobEvent(self, job, time):
@@ -254,7 +254,7 @@ class ConservativeScheduler(Scheduler):
             self.cpu_snapshot.assignJob(job, start_time_of_job)
             if prev_start_to_run_at_time > job.start_to_run_at_time:
                 new_termination_time = job.start_to_run_at_time + job.actual_duration
-                newEvents.add_termination_event(new_termination_time, job)               
+                newEvents.add_job_termination_event(new_termination_time, job)               
         return newEvents
     
 
@@ -287,7 +287,7 @@ class EasyBackfillScheduler(Scheduler):
                 print "JOB CAN BE BACKFILLED!!!! LA LA LA"
                 self.cpu_snapshot.assignJob(just_arrived_job, time)
                 termination_time = time + just_arrived_job.actual_duration
-                newEvents.add_termination_event(termination_time, just_arrived_job)
+                newEvents.add_job_termination_event(termination_time, just_arrived_job)
                 return newEvents  
 
             else:
@@ -303,7 +303,7 @@ class EasyBackfillScheduler(Scheduler):
                  print "cannot be backfilled  333333"
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
                  termination_time = time + just_arrived_job.actual_duration
-                 newEvents.add_termination_event(termination_time, just_arrived_job)
+                 newEvents.add_job_termination_event(termination_time, just_arrived_job)
                  return newEvents
              else:
                  print "cannot be backfilled  444444"
@@ -334,7 +334,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(first_job)
                 self.cpu_snapshot.assignJob(first_job, time)
                 termination_time = time + first_job.actual_duration
-                newEvents.add_termination_event(termination_time, first_job) 
+                newEvents.add_job_termination_event(termination_time, first_job) 
             else:
                 break
 
@@ -347,7 +347,7 @@ class EasyBackfillScheduler(Scheduler):
                     start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
                     self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
                     termination_time = next_job.start_to_run_at_time + next_job.actual_duration
-                    newEvents.add_termination_event(termination_time, next_job)                    
+                    newEvents.add_job_termination_event(termination_time, next_job)                    
         return newEvents
 
     
