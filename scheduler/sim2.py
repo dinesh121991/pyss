@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.4
 
 from sim import *
-from sim1 import * 
-
+from sim1 import *
+import sys
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -56,8 +56,8 @@ class Simulator:
 
     def startSimulation(self):
         
-        self.events.add_end_of_simulation_event(10000000)
-        
+        self.events.add_end_of_simulation_event(sys.maxint) #generates end of simulation event at "maxint" time
+         
         end_of_simulation_event_has_not_occured = True 
 
         while end_of_simulation_event_has_not_occured and len(self.events.collection) > 0:
