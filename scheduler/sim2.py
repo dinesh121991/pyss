@@ -362,22 +362,21 @@ class EasyBackfillScheduler(Scheduler):
             return False
     
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "shadow time, the start time of the first job: ", shadow_time, first_job.id
-        
+        print "shadow time, the reserved start time of the first job: ", shadow_time, first_job.id
         
         # TODO: shouldn't this method not change the state?
-        self.cpu_snapshot.assignJob(second_job, start_time_of_second_job)
-        start_time_of_first_job_after_assigning_the_second_job = self.cpu_snapshot.jobEarliestAssignment(first_job, start_time_of_second_job)
-        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_first_job_after_assigning_the_second_job
+        self.cpu_snapshot.assignJob(second_job, time)
+        start_time_of_1st_if_2nd_job_assigned = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_1st_if_2nd_job_assigned
         
         self.cpu_snapshot.delJobFromCpuSlices(second_job)
        
-        if start_time_of_first_job_after_assigning_the_second_job > shadow_time:
-            print "start_time_of_first_job", shadow_time
-            print "start_time_of_first_job_after_assigning_the_second_job", start_time_of_first_job_after_assigning_the_second_job
+        if start_time_of_1st_if_2nd_job_assigned > shadow_time:
+            print "reserved_start_time_of_first_job", shadow_time
+            print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
             return False 
                 #this means that assigning the second job at the earliest possible time postphones the
-                #first job in the waiting list, and so we postphone the scheduling of the second job
+                #first job in the waiting list, and so the second job cannot be back filled 
         else:
             return True 
       

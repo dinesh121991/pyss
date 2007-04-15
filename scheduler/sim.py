@@ -47,7 +47,7 @@ class CpuTimeSlice:
             num_of_active_nodes = 0
             for job in jobs: num_of_active_nodes += job.nodes
             self.free_nodes = CpuTimeSlice.total_nodes - num_of_active_nodes 
-            for job in jobs: # by value ... 
+            for job in jobs:   
                 self.jobs.append(job)
                 
            
@@ -121,34 +121,28 @@ class CpuSnapshot(object):
             feasible = end_of_this_slice > time and self.slices[t].getFreeNodes() >= job.nodes
             
             if not feasible: # then surely the job cannot be assigned to this slice
-                print "aaaaa"
                 partially_assigned = False
                 accumulated_duration = 0
                         
             elif feasible and not partially_assigned:
-                print "bbbb"
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
                 tentative_start_time =  max(time, t)
                 accumulated_duration = end_of_this_slice - tentative_start_time
 
             else:
-                print "cccc"
                 # it's a feasible slice and the job is partially_assigned:
                 accumulated_duration += self.slices[t].getDuration()
             
             if accumulated_duration >= job.user_predicted_duration:
-                print "dddddddd"
                 return tentative_start_time
     
             # end of for loop, we've examined all existing slices
             
         if partially_assigned: #and so there are not enough slices in the tail, then:
-            print "eeeeee"
             return tentative_start_time
 
         # otherwise, the job will be assigned right after the last slice or later
-        print "fffffff"
         last_slice_start_time = self._sorted_times[-1]
         last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
         return max(time, last_slice_end_time)  
