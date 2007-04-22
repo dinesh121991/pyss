@@ -290,6 +290,9 @@ class test_Machine(TestCase):
                 num_required_processors = num_required_processors
             )
 
+    def test_no_jobs_on_init(self):
+        self.assertEqual(0, len(self.machine.jobs))
+
     def test_add_job(self):
         job = self._unique_job()
         self.machine.add_job(job, current_timestamp=0)
