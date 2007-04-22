@@ -9,26 +9,64 @@
 
 class Job(object):
     def __init__(self, line):
-        fields = line.split()
-        assert len(fields) == 18
-        self.number = int(fields[0])
-        self.submit_time = int(fields[1])
-        self.wait_time = int(fields[2])
-        self.run_time = float(fields[3])
-        self.num_allocated_processors = int(fields[4])
-        self.average_cpu_time_used = int(fields[5])
-        self.used_memory = int(fields[6])
-        self.num_requested_processors = int(fields[7])
-        self.requested_time = int(fields[8])
-        self.requested_memory = int(fields[9])
-        self.status = int(fields[10]) # TODO: parse into different meanings
-        self.user_id = int(fields[11])
-        self.group_id = int(fields[12])
-        self.executable_number = int(fields[13])
-        self.queue_number = int(fields[14])
-        self.partition_number = int(fields[15])
-        self.preceding_job_number = int(fields[16])
-        self.think_time_from_preceding_job = int(fields[17])
+        self.fields = line.split()
+        assert len(self.fields) == 18
+
+    # lazy access as properties, for efficiency
+    @property
+    def number(self):
+        return int(fields[0])
+    @property
+    def submit_time(self):
+        return int(fields[1])
+    @property
+    def wait_time(self):
+        return int(fields[2])
+    @property
+    def run_time(self):
+        return float(fields[3])
+    @property
+    def num_allocated_processors(self):
+        return int(fields[4])
+    @property
+    def average_cpu_time_used(self):
+        return int(fields[5])
+    @property
+    def used_memory(self):
+        return int(fields[6])
+    @property
+    def num_requested_processors(self):
+        return int(fields[7])
+    @property
+    def requested_time(self):
+        return int(fields[8])
+    @property
+    def requested_memory(self):
+        return int(fields[9])
+    @property
+    def status(self):
+        return int(fields[10]) # TODO: parse into different meanings
+    @property
+    def user_id(self):
+        return int(fields[11])
+    @property
+    def group_id(self):
+        return int(fields[12])
+    @property
+    def executable_number(self):
+        return int(fields[13])
+    @property
+    def queue_number(self):
+        return int(fields[14])
+    @property
+    def partition_number(self):
+        return int(fields[15])
+    @property
+    def preceding_job_number(self):
+        return int(fields[16])
+    @property
+    def think_time_from_preceding_job(self):
+        return int(fields[17])
 
     def __str__(self):
         fields_str = ", ".join([
