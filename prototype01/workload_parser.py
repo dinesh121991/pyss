@@ -104,4 +104,17 @@ def _test():
     assert job.number == 59
 
 if __name__ == "__main__":
-    _test()
+    import optparse
+
+    parser = optparse.OptionParser(usage="%prog <test/performance>")
+    options, args = parser.parse_args()
+    if len(args) == 0: parser.error("no action given")
+
+    action = args[0]
+
+    if action == "test":
+        _test()
+    elif action == "performance":
+        _measure_performance()
+    else:
+        parser.error("unknown action '%s'" % action)
