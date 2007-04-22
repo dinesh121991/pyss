@@ -212,46 +212,63 @@ class test_EventQueue(TestCase):
         self.queue.add_event(event)
         self.queue.advance()
 
+# taken from LANL-CM5-1994-3.1-cln.swf
+SAMPLE_JOB_INPUT = """
+    5     4009      7   3039  128   2605  1812  128   3600  3200  1   9   8   6  1 -1 -1 -1
+    6     4031      5   6253   32 476.00  1004   32    300  1024  0   3   3   3  1 -1 -1 -1
+    7     4346     15   2412   32  64.00  6408   32    300  6400  1   6   5   3  1 -1 -1 -1
+    8     4393      5    986   32 534.00  2476   32   3300  3840  1   5   4   3  1 -1 -1 -1
+    9     4684      6     25  512     -1    -1  512   1800 32768  1   4   1   4  5 -1 -1 -1
+   10     5705      3   1105  128  53.00  1732  128   3600  4000  1   7   6   3  1 -1 -1 -1
+   11     5872  52632  23087  128  21615  7684  128  21600 32768  0  41   6  22  9 -1 -1 -1
+   12     5999      5   1609   32   1198  2476   32   1800  3840  1   5   4   3  1 -1 -1 -1
+   13     6063      4    245  512 189.00  8420  512   1800 32768  1   4   1   4  5 -1 -1 -1
+   14     6765      4   8908  256   8286  3732  256  10800 32768  1  22  18  15  2 -1 -1 -1
+   15     6796      4    300   64  66.00  4940   64    300  4800  1   6   5   3  1 -1 -1 -1
+   16     6955      7     48   32   1.00  9140   32    300  1024  1   8   7   5  1 -1 -1 -1
+   17     7071      5     23   32     -1  2344   32    300  1024  1   8   7   5  1 -1 -1 -1
+   18     7219      8     23   32     -1  2327   32    300  1024  1   8   7   5  1 -1 -1 -1
+   19     7307      3    441  128 392.00  7148  128    480  8192  1  11  10   7  1 -1 -1 -1
+""".splitlines()
+
 class test_Simulator(TestCase):
     def setUp(self):
-        self.start_time_and_jobs = list(prototype.simple_job_generator(10))
-        self.simulator = prototype.Simulator(self.start_time_and_jobs)
-        self.jobs = set(job for start_time, job in self.start_time_and_jobs)
+        import workload_parser
+        self.job_inputs = list(workload_parser.parse_lines(SAMPLE_JOB_INPUT))
+        self.simulator = prototype.Simulator(self.job_inputs)
 
     def tearDown(self):
-        del self.start_time_and_jobs, self.simulator, self.jobs
+        del self.simulator, self.job_inputs
 
     def test_init_empty(self):
         self.assertEqual(0, len(prototype.Simulator([]).jobs))
 
-    def test_init_jobs(self):
-        self.assertEqual(self.jobs, set(self.simulator.jobs.values()))
-
     def test_init_event_queue(self):
         self.assertEqual(
-            set(job.id for job in self.jobs), 
+            set(job_input.number for job_input in self.job_inputs), 
             set(event.job.id for event in self.simulator.event_queue._sorted_events)
         )
 
     def test_job_started_handler_registers_end_events(self):
         done_jobs_ids=[]
+
         def job_done_handler(event):
             done_jobs_ids.append(event.job.id)
 
-        job = prototype.Job(
-                id=0,
-                estimated_run_time=10,
-                actual_run_time=10,
-                num_required_processors=1,
-            )
+        self.simulator.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
 
-        simulator = prototype.Simulator( job_source = ((0, job),) )
-        simulator.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
+        self.simulator.run()
 
-        simulator.run()
+        self.failUnless( self.job_inputs[0].number in done_jobs_ids )
 
-        self.failUnless( job.id in done_jobs_ids )
+    def test_job_input_to_job(self):
+        job_input = self.job_inputs[0]
+        job = self.simulator._job_input_to_job(job_input)
 
+        self.assertEqual( job.id, job_input.number )
+        self.assertEqual( job.estimated_run_time, job_input.requested_time )
+        self.assertEqual( job.actual_run_time, job_input.run_time )
+        self.assertEqual( job.num_required_processors, job_input.num_requested_processors )
 
 class test_simple_job_generator(TestCase):
     def test_unique_id(self):

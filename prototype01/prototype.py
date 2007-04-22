@@ -70,18 +70,31 @@ class Machine(object):
         return sum(job.num_required_processors for job in self.jobs)
 
 class Simulator(object):
-    def __init__(self, job_source):
+    def __init__(self, job_input_source):
         from event_queue import EventQueue
         self.event_queue = EventQueue()
         self.jobs = {}
 
-        for start_time, job in job_source:
+        for job_input in job_input_source:
+            job = self._job_input_to_job(job_input)
+
             self.jobs[job.id] = job
+
             self.event_queue.add_event(
-                    JobStartEvent(timestamp = start_time, job = job)
+                    # TODO: shouldn't use the submit time, should let the scheduler decide
+                    JobStartEvent(timestamp = job_input.submit_time, job = job)
                 )
 
         self.event_queue.add_handler(JobStartEvent, self.job_started_handler)
+
+    def _job_input_to_job(self, job_input):
+        return Job(
+            id = job_input.number,
+            estimated_run_time = job_input.requested_time,
+            actual_run_time = job_input.run_time,
+            # TODO: do we want the no. of allocated processors instead of the no. requested?
+            num_required_processors = job_input.num_requested_processors,
+        )
 
     def job_started_handler(self, event):
         assert event.job.id in self.jobs
