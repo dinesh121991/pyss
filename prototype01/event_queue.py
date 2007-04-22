@@ -18,6 +18,10 @@ class EventQueue(object):
         self._sorted_events.remove(event)
 
     @property
+    def events(self):
+        return set(self._sorted_events)
+
+    @property
     def empty(self):
         return len(self) == 0
 
@@ -48,3 +52,6 @@ class EventQueue(object):
     def add_handler(self, event_type, handler):
         self._handlers.setdefault(event_type, [])
         self._handlers[event_type].append(handler)
+
+    def __str__(self):
+        return "EventQueue<num_events=%s>" % len(self._sorted_events)

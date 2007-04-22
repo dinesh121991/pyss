@@ -260,7 +260,7 @@ class test_Simulator(TestCase):
     def test_init_event_queue(self):
         self.assertEqual(
             set(job_input.number for job_input in self.job_inputs), 
-            set(event.job.id for event in self.simulator.event_queue._sorted_events)
+            set(event.job.id for event in self.simulator.event_queue.events)
         )
 
     def test_jobs_done(self):
@@ -409,7 +409,7 @@ class test_StupidScheduler(TestCase):
 
         self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
 
-        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue._sorted_events) )
+        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue.events) )
 
     def test_job_submit_event_registers_job_start_event(self):
         job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
@@ -420,19 +420,7 @@ class test_StupidScheduler(TestCase):
 
         self.event_queue.advance()
 
-        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue._sorted_events) )
-
-    def test_registering_job_start_event(self):
-        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
-        self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
-
-        def any_start_event(events):
-            for event in events:
-                if type(event) == prototype.JobStartEvent:
-                    return True
-                return False
-
-        self.failUnless( any_start_event(self.event_queue._sorted_events) )
+        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue.events) )
 
 if __name__ == "__main__":
     try:
