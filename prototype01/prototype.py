@@ -35,10 +35,16 @@ class StupidScheduler(object):
     "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
     def __init__(self, event_queue):
         self.event_queue = event_queue
-        self.next_free_time = 0
+        self.next_free_time = None
+        self.event_queue.add_handler(JobSubmitEvent, self.job_submitted)
 
     def job_submitted(self, event):
         assert type(event) == JobSubmitEvent
+
+        # init next_free_time to the first timestamp seen
+        if self.next_free_time is None:
+            self.next_free_time = event.timestamp
+
         self.event_queue.add_event(
             JobStartEvent(timestamp=self.next_free_time, job=event.job)
         )
@@ -75,9 +81,11 @@ class Machine(object):
         return sum(job.num_required_processors for job in self.jobs)
 
 class Simulator(object):
-    def __init__(self, job_input_source, event_queue, machine):
+    def __init__(self, job_input_source, event_queue, machine, scheduler):
         self.event_queue = event_queue
         self.machine = machine
+        self.scheduler = scheduler
+
         self.jobs = {}
 
         for job_input in job_input_source:
@@ -86,8 +94,7 @@ class Simulator(object):
             self.jobs[job.id] = job
 
             self.event_queue.add_event(
-                    # TODO: shouldn't use the submit time, should let the scheduler decide
-                    JobStartEvent(timestamp = job_input.submit_time, job = job)
+                    JobSubmitEvent(timestamp = job_input.submit_time, job = job)
                 )
 
     def _job_input_to_job(self, job_input):

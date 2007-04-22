@@ -242,18 +242,20 @@ class test_Simulator(TestCase):
         self.job_inputs = list(workload_parser.parse_lines(SAMPLE_JOB_INPUT))
         self.event_queue = EventQueue()
         self.machine = prototype.Machine(num_processors=1000, event_queue=self.event_queue)
+        self.scheduler = prototype.StupidScheduler(self.event_queue)
 
         self.simulator = prototype.Simulator(
             self.job_inputs,
             event_queue = self.event_queue,
             machine = self.machine,
+            scheduler = self.scheduler,
         )
 
     def tearDown(self):
         del self.job_inputs, self.event_queue, self.machine, self.simulator
 
     def test_init_empty(self):
-        self.assertEqual(0, len(prototype.Simulator([], self.event_queue, self.machine).jobs))
+        self.assertEqual(0, len(prototype.Simulator([], self.event_queue, self.machine, self.scheduler).jobs))
 
     def test_init_event_queue(self):
         self.assertEqual(
@@ -261,13 +263,13 @@ class test_Simulator(TestCase):
             set(event.job.id for event in self.simulator.event_queue._sorted_events)
         )
 
-    def test_job_started_handler_registers_end_events(self):
+    def test_jobs_done(self):
         done_jobs_ids=[]
 
         def job_done_handler(event):
             done_jobs_ids.append(event.job.id)
 
-        self.simulator.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
+        self.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
 
         self.simulator.run()
 
@@ -383,6 +385,17 @@ class test_Machine(TestCase):
         self.event_queue.advance()
         self.assertEqual(5, self.machine.busy_processors)
 
+    def test_start_job_handler(self):
+        job = self._unique_job()
+
+        self.event_queue.add_event(
+            prototype.JobStartEvent( timestamp=0, job=job )
+        )
+        self.event_queue.advance()
+
+        assert job in self.machine.jobs
+
+
 class test_StupidScheduler(TestCase):
     def setUp(self):
         self.event_queue = EventQueue()
@@ -391,9 +404,35 @@ class test_StupidScheduler(TestCase):
     def tearDown(self):
         del self.event_queue, self.scheduler
 
-    def test_sanity(self):
+    def test_job_submitted_registers_job_start_event(self):
+        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
+
+        self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
+
+        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue._sorted_events) )
+
+    def test_job_submit_event_registers_job_start_event(self):
+        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
+
+        self.event_queue.add_event(
+            prototype.JobSubmitEvent(job=job, timestamp=0)
+        )
+
+        self.event_queue.advance()
+
+        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue._sorted_events) )
+
+    def test_registering_job_start_event(self):
         job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
         self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
+
+        def any_start_event(events):
+            for event in events:
+                if type(event) == prototype.JobStartEvent:
+                    return True
+                return False
+
+        self.failUnless( any_start_event(self.event_queue._sorted_events) )
 
 if __name__ == "__main__":
     try:
