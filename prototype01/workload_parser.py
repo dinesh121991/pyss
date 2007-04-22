@@ -7,7 +7,7 @@
 #
 # http://www.cs.huji.ac.il/labs/parallel/workload/
 
-class Job(object):
+class JobInput(object):
     def __init__(self, line):
         self.fields = line.split()
         assert len(self.fields) == 18
@@ -69,16 +69,16 @@ class Job(object):
         return int(self.fields[17])
 
     def __str__(self):
-        return "Job<number=%s>" % self.number
+        return "JobInput<number=%s>" % self.number
 
 def parse_lines(lines_iterator):
-    "returns an iterator of Job objects"
+    "returns an iterator of JobInput objects"
 
     def _is_comment(line):
         return line.lstrip().startswith(';')
 
     return (
-        Job(line)
+        JobInput(line)
         for line in lines_iterator
         if not _is_comment(line)
     )
@@ -99,8 +99,8 @@ def _measure_performance():
     print "jobs per second: %3.1f" % (float(counter) / total_time)
 
 def _test():
-    job = Job("   59    26613      0    716   32     -1    -1   -1     -1    -1 -1   4   1   3  0 -1 -1 -1")
-    assert str(job).startswith("Job")
+    job = JobInput("   59    26613      0    716   32     -1    -1   -1     -1    -1 -1   4   1   3  0 -1 -1 -1")
+    assert str(job).startswith("JobInput")
     assert job.number == 59
 
 if __name__ == "__main__":
