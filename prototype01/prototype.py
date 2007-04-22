@@ -32,7 +32,7 @@ class Job(object):
         return "Job<id=%s>" % self.id
 
 class StupidScheduler(object):
-    # TODO: this does nothing yet
+    "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
     def __init__(self, event_queue):
         self.event_queue = event_queue
         self.next_free_time = 0
