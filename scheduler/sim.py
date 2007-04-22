@@ -18,7 +18,7 @@ class Job:
         
 
     def __str__(self):
-        return str(self.id) + ", arrival=" + str(self.arrival_time) + \
+        return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
                ", dur=" + str(self.user_predicted_duration) + ",act_dur=" + str(self.actual_duration) + \
                ", #nodes=" + str(self.nodes) + \
                ", startTime=" + str(self.start_to_run_at_time)  

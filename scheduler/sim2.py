@@ -20,8 +20,10 @@ class JobArrivalEventGeneratorViaLogFile:
             print line
             if len(line) == 0: # zero length indicates end-of-file
                 break
+            if line[0] == '#':
+                continue # a line starts with the sharp symbol indicates a comment in the input_file, and so we skip it
+            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
             
-            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()            
 
             newJob = Job(job_id, int(job_duration), int(job_nodes), int(job_arrival_time), int(job_actual_duration))
 
@@ -31,32 +33,38 @@ class JobArrivalEventGeneratorViaLogFile:
 
         self.file.close()
 
-
         
-
 class Simulator:
     """ Assumption 1: The simulation clock goes only forward. Specifically,
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
         
-    def __init__(self, total_nodes=100, input_file='input', scheduler="ConservativeScheduler"):
+    def __init__(self, total_nodes=100, input_file="input", scheduler=None):
         self.total_nodes = total_nodes
         self.current_time = 0
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
 
-        #self.scheduler =  ConservativeScheduler(total_nodes)
-        self.scheduler =  EasyBackfillScheduler(total_nodes)        
-        #self.scheduler = FifoScheduler(total_nodes)
-        
+
+
+        if scheduler ==  "Conservative":
+            self.scheduler =  ConservativeScheduler(total_nodes)
+        elif scheduler ==  "EasyBackfill":
+            self.scheduler =  EasyBackfillScheduler(total_nodes)
+        elif scheduler ==  "Fcfs":
+            self.scheduler = FcfsScheduler(total_nodes)
+        else:
+            print ">>> Problem: No such scheduling Policy"
+            return 
+
         self.startSimulation()
          
    
 
     def startSimulation(self):
         
-        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end of simulation event at "maxint" time
+        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "max_int" time
          
         end_of_simulation_event_has_not_occured = True 
 
@@ -66,10 +74,10 @@ class Simulator:
 
             while len(self.events.collection[current_time]) > 0:
 
-                print "Current Known Events:"
-                for tmp_event in self.events.collection[current_time]:
-                    print current_time, str(tmp_event)
-                print
+                # print "Current Known Events:"
+                # for tmp_event in self.events.collection[current_time]:
+                    # print current_time, str(tmp_event)
+                # print
                 
                 event = self.events.collection[current_time].pop()
                 print str(event)
@@ -110,21 +118,21 @@ class Simulator:
 
     def calculate_statistics(self):
 
-        wait = sigma_wait = flow = sigma_flow = counter = 0.0
+        wait_time = sigma_wait_time = flow_time = sigma_flow_time = counter = 0.0
         for job in self.jobs:
 
             counter += 1
             
-            wait = job.start_to_run_at_time - job.arrival_time
-            sigma_wait += wait
+            wait_time = job.start_to_run_at_time - job.arrival_time
+            sigma_wait_time += wait_time
 
-            flow = wait + job.actual_duration
-            sigma_flow += flow
+            flow_time = wait_time + job.actual_duration
+            sigma_flow_time += flow_time
             
         print
         print "STATISTICS: "
-        print "Average wait time is: ", sigma_wait / counter
-        print "Average flow time is: ", sigma_flow / counter 
+        print "Average wait time is: ", sigma_wait_time / counter
+        print "Average flow time is: ", sigma_flow_time / counter 
         print "Number of jobs: ", counter
         
         
@@ -136,7 +144,7 @@ class Simulator:
         and then checks the feasibility of this schedule. """
         
 
-        print "__________ Fesibilty Test __________"
+        print ">>> Fesibilty Test >>>"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
 
         every_job_starts_after_its_arrival_time= True
@@ -179,7 +187,7 @@ class Scheduler:
    
              
 
-class FifoScheduler(Scheduler):
+class FcfsScheduler(Scheduler):
     
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
@@ -387,6 +395,8 @@ class EasyBackfillScheduler(Scheduler):
 
 ###############
 
-sim = Simulator()
+#simulation = Simulator(input_file = "./Input_files/basic_input.1", scheduler ="Conservative")
+#simulation = Simulator(scheduler ="EasyBackfill")
+#simulation = Simulator(scheduler ="Fcfs")
 
             

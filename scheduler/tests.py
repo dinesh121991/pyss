@@ -1,51 +1,68 @@
 #!/usr/bin/env python2.4
 
-import unittest
-import sim
-import sim2
+import unittest 
+from sim2 import * 
 
 
-sim.CpuTimeSlice.total_nodes = 100
-total_nodes = 100
+class test_Simulator(unittest.TestCase):
 
-class test_CpuTimeSlice(unittest.TestCase):
-    def test_initialization(self):
-        timeslice = sim.CpuTimeSlice()
-        self.assertEqual(timeslice.total_nodes, timeslice.free_nodes)
-
-    def test_addJob_free_nodes_simple(self):
-        timeslice = sim.CpuTimeSlice()
-        timeslice.addJob( sim.Job(0, 1, job_nodes=1) )
-        self.assertEqual(timeslice.total_nodes-1, timeslice.free_nodes)
-
-class test_Job(unittest.TestCase):
-    def test_init_zero_nodes(self):
-        self.assertRaises(AssertionError, sim.Job, 0, 0, job_nodes=0)
+    def test_basic_fcfs(self):
+        for num in range(23): 
+            simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_files/basic_input." + str(num))
+            for job in simulator.jobs:
+                # The job id in these test input files signifies its correct finishing time
+                # we use this idea to enable complex testing scenarios without expanding the code 
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
 
-class test_FifoScheduler(unittest.TestCase):
+    def test_basic_conservative(self):
+        for num in range(23): 
+            simulator = Simulator(scheduler ="Conservative", input_file = "./Input_files/basic_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+    
 
-    def test_simple_not_interesecting_jobs_scenario(self):
+    def test_basic_easyBackfill(self):
+        for num in range(23): 
+            simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_files/basic_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+    
 
+    def test_fcfs(self):
+        for num in range(8): 
+            simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_files/fcfs_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+
+
+
+    def test_conservative(self):
+        for num in range(9): 
+            simulator = Simulator(scheduler ="Conservative", input_file = "./Input_files/bf_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+
+        for num in range(2): 
+            simulator = Simulator(scheduler ="Conservative", input_file = "./Input_files/cons_bf_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
         
-        j_id = "j1"; j_duration = 100; j_actual_duration = 10; j_nodes = 10; j_arrival_time = 0;  
-        job1 = Job(j_id, j_duration, j_nodes, j_arrival_time, j_actual_duration)
+    
+    
+    def test_basic_easyBackfill(self):
+        for num in range(9): 
+            simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_files/bf_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
-        j_id = "j2"; j_duration = 100; j_actual_duration = 10; j_nodes = 10; j_arrival_time = 1000;  
-        job2 = Job(j_id, j_duration, j_nodes, j_arrival_time, j_actual_duration)
+        for num in range(1): 
+            simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_files/easy_bf_input." + str(num))
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+                
 
-        self.scheduler = FifoScheduler(total_nodes)
-        self.scheduler.handleArrivalOfJobEvent(job1, 0)
-        self.scheduler.handleArrivalOfJobEvent(job1, 10)
-        self.scheduler.handleArrivalOfJobEvent(job2, 1000)
-        self.scheduler.handleArrivalOfJobEvent(job2, 1010)
-        self.assertEqual(job1.id, 
-        
-        
-        
-        
-        
-     
+
 
 if __name__ == "__main__":
     unittest.main()
