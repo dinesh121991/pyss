@@ -9,8 +9,8 @@ class JobEvent(object):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
 
     def __cmp__(self, other):
-        "compare by timestamp first, job second"
-        return cmp((self.timestamp, self.job), (other.timestamp, other.job))
+        "Compare by timestamp first, job second. Also ensure only same types are equal."
+        return cmp((self.timestamp, self.job, type(self)), (other.timestamp, other.job, type(other)))
 
 class JobSubmitEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
@@ -50,6 +50,7 @@ class Machine(object):
         self.num_processors = num_processors
         self.event_queue = event_queue
         self.jobs = set()
+        self.event_queue.add_handler(JobStartEvent, self._start_job_handler)
         self.event_queue.add_handler(JobEndEvent, self._remove_job_handler)
 
     def add_job(self, job, current_timestamp):
@@ -61,6 +62,10 @@ class Machine(object):
         assert type(event) == JobEndEvent
         self.jobs.remove(event.job)
 
+    def _start_job_handler(self, event):
+        assert type(event) == JobStartEvent
+        self.add_job(event.job, event.timestamp)
+
     @property
     def free_processors(self):
         return self.num_processors - self.busy_processors
@@ -70,8 +75,9 @@ class Machine(object):
         return sum(job.num_required_processors for job in self.jobs)
 
 class Simulator(object):
-    def __init__(self, job_input_source, event_queue):
+    def __init__(self, job_input_source, event_queue, machine):
         self.event_queue = event_queue
+        self.machine = machine
         self.jobs = {}
 
         for job_input in job_input_source:
@@ -84,8 +90,6 @@ class Simulator(object):
                     JobStartEvent(timestamp = job_input.submit_time, job = job)
                 )
 
-        self.event_queue.add_handler(JobStartEvent, self.job_started_handler)
-
     def _job_input_to_job(self, job_input):
         return Job(
             id = job_input.number,
@@ -93,16 +97,6 @@ class Simulator(object):
             actual_run_time = job_input.run_time,
             # TODO: do we want the no. of allocated processors instead of the no. requested?
             num_required_processors = job_input.num_requested_processors,
-        )
-
-    def job_started_handler(self, event):
-        assert event.job.id in self.jobs
-        job = self.jobs[event.job.id]
-        self.event_queue.add_event(
-            JobEndEvent(
-                timestamp = event.timestamp + job.actual_run_time,
-                job = job,
-            )
         )
 
     def run(self):

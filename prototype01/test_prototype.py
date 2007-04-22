@@ -42,6 +42,11 @@ class test_JobEvent(TestCase):
         e2 = prototype.JobEvent(timestamp=10, job="def")
         self.assertNotEqual(e1, e2)
 
+    def test_nonequal_type(self):
+        e1 = prototype.JobEvent(timestamp=10, job="abc")
+        e2 = prototype.JobStartEvent(timestamp=10, job="abc") # different type
+        self.assertNotEqual(e1, e2)
+
     def test_sort_order(self):
         e1 = prototype.JobEvent(timestamp=10, job="abc")
         e2 = prototype.JobEvent(timestamp=22, job="abc")
@@ -236,13 +241,19 @@ class test_Simulator(TestCase):
         import workload_parser
         self.job_inputs = list(workload_parser.parse_lines(SAMPLE_JOB_INPUT))
         self.event_queue = EventQueue()
-        self.simulator = prototype.Simulator(self.job_inputs, self.event_queue)
+        self.machine = prototype.Machine(num_processors=1000, event_queue=self.event_queue)
+
+        self.simulator = prototype.Simulator(
+            self.job_inputs,
+            event_queue = self.event_queue,
+            machine = self.machine,
+        )
 
     def tearDown(self):
-        del self.simulator, self.job_inputs
+        del self.job_inputs, self.event_queue, self.machine, self.simulator
 
     def test_init_empty(self):
-        self.assertEqual(0, len(prototype.Simulator([], self.event_queue).jobs))
+        self.assertEqual(0, len(prototype.Simulator([], self.event_queue, self.machine).jobs))
 
     def test_init_event_queue(self):
         self.assertEqual(
