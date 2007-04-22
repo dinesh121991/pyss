@@ -36,7 +36,12 @@ class JobInput(object):
         return int(self.fields[6])
     @property
     def num_requested_processors(self):
-        return int(self.fields[7])
+        result = int(self.fields[7])
+        if result >= 0:
+            return result
+        else:
+            # a negative value means this is the same as the no. of allocated processors
+            return self.num_allocated_processors
     @property
     def requested_time(self):
         return int(self.fields[8])
@@ -74,13 +79,18 @@ class JobInput(object):
 def parse_lines(lines_iterator):
     "returns an iterator of JobInput objects"
 
-    def _is_comment(line):
-        return line.lstrip().startswith(';')
+    def _should_skip(line):
+        return (
+            # comment
+            line.lstrip().startswith(';') or
+            # empty line
+            (len(line.strip()) == 0)
+        )
 
     return (
         JobInput(line)
         for line in lines_iterator
-        if not _is_comment(line)
+        if not _should_skip(line)
     )
 
 def _measure_performance():
