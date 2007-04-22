@@ -360,7 +360,8 @@ class test_StupidScheduler(TestCase):
         del self.event_queue, self.scheduler
 
     def test_sanity(self):
-        self.scheduler.job_submitted(prototype.JobSubmitEvent(job="x", timestamp=0))
+        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
+        self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
 
 if __name__ == "__main__":
     try:

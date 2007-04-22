@@ -42,7 +42,7 @@ class StupidScheduler(object):
         self.event_queue.add_event(
             JobStartEvent(timestamp=self.next_free_time, job=event.job)
         )
-        self.next_free_time += job.estimated_run_time
+        self.next_free_time += event.job.estimated_run_time
 
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
