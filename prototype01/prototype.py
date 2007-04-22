@@ -29,7 +29,7 @@ class Job(object):
         self.num_required_processors = num_required_processors
 
     def __str__(self):
-        return "Job(id=%s)" % self.id
+        return "Job<id=%s>" % self.id
 
 class StupidScheduler(object):
     # TODO: this does nothing yet
