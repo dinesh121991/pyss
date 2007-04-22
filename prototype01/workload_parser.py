@@ -15,84 +15,61 @@ class Job(object):
     # lazy access as properties, for efficiency
     @property
     def number(self):
-        return int(fields[0])
+        return int(self.fields[0])
     @property
     def submit_time(self):
-        return int(fields[1])
+        return int(self.fields[1])
     @property
     def wait_time(self):
-        return int(fields[2])
+        return int(self.fields[2])
     @property
     def run_time(self):
-        return float(fields[3])
+        return float(self.fields[3])
     @property
     def num_allocated_processors(self):
-        return int(fields[4])
+        return int(self.fields[4])
     @property
     def average_cpu_time_used(self):
-        return int(fields[5])
+        return int(self.fields[5])
     @property
     def used_memory(self):
-        return int(fields[6])
+        return int(self.fields[6])
     @property
     def num_requested_processors(self):
-        return int(fields[7])
+        return int(self.fields[7])
     @property
     def requested_time(self):
-        return int(fields[8])
+        return int(self.fields[8])
     @property
     def requested_memory(self):
-        return int(fields[9])
+        return int(self.fields[9])
     @property
     def status(self):
-        return int(fields[10]) # TODO: parse into different meanings
+        return int(self.fields[10]) # TODO: parse into different meanings
     @property
     def user_id(self):
-        return int(fields[11])
+        return int(self.fields[11])
     @property
     def group_id(self):
-        return int(fields[12])
+        return int(self.fields[12])
     @property
     def executable_number(self):
-        return int(fields[13])
+        return int(self.fields[13])
     @property
     def queue_number(self):
-        return int(fields[14])
+        return int(self.fields[14])
     @property
     def partition_number(self):
-        return int(fields[15])
+        return int(self.fields[15])
     @property
     def preceding_job_number(self):
-        return int(fields[16])
+        return int(self.fields[16])
     @property
     def think_time_from_preceding_job(self):
-        return int(fields[17])
+        return int(self.fields[17])
 
     def __str__(self):
-        fields_str = ", ".join([
-            field_name + " = " + str(getattr(self, field_name))
-            for field_name in (
-                "number",
-                "submit_time",
-                "wait_time",
-                "run_time",
-                "num_allocated_processors",
-                "average_cpu_time_used",
-                "used_memory",
-                "num_requested_processors",
-                "requested_time",
-                "requested_memory",
-                "status",
-                "user_id",
-                "group_id",
-                "executable_number",
-                "queue_number",
-                "partition_number",
-                "preceding_job_number",
-                "think_time_from_preceding_job",
-            )
-        ])
-        return "Jobs: " + fields_str
+        return "Job<number=%s>" % self.number
 
 def parse_lines(lines_iterator):
     "returns an iterator of Job objects"
@@ -106,7 +83,7 @@ def parse_lines(lines_iterator):
         if not _is_comment(line)
     )
 
-if __name__ == "__main__":
+def _measure_performance():
     import sys
     import time
     print "reading from stdin"
@@ -120,3 +97,11 @@ if __name__ == "__main__":
     print "no. of jobs:", counter
     print "total time (seconds):", total_time
     print "jobs per second: %3.1f" % (float(counter) / total_time)
+
+def _test():
+    job = Job("   59    26613      0    716   32     -1    -1   -1     -1    -1 -1   4   1   3  0 -1 -1 -1")
+    assert str(job).startswith("Job")
+    assert job.number == 59
+
+if __name__ == "__main__":
+    _test()
