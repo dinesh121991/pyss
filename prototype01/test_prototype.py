@@ -5,6 +5,8 @@ import random
 
 import prototype
 
+from event_queue import EventQueue
+
 def _gen_random_timestamp_events():
     return [
         prototype.JobEvent(timestamp=random.randrange(0,100), job=str(i))
@@ -53,7 +55,7 @@ class test_JobEvent(TestCase):
 
 class test_EventQueue(TestCase):
     def setUp(self):
-        self.queue = prototype.EventQueue()
+        self.queue = EventQueue()
         self.event = prototype.JobEvent(timestamp=0, job=None)
         self.events = [
                 prototype.JobEvent(timestamp=i, job=None)
@@ -121,7 +123,7 @@ class test_EventQueue(TestCase):
             assert self.queue.pop() is event
 
     def test_pop_empty(self):
-        self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.pop)
+        self.assertRaises(EventQueue.EmptyQueue, self.queue.pop)
 
     def test_empty_true(self):
         self.failUnless( self.queue.empty )
@@ -147,7 +149,7 @@ class test_EventQueue(TestCase):
         )
 
     def test_advance_empty_queue(self):
-        self.assertRaises(prototype.EventQueue.EmptyQueue, self.queue.advance)
+        self.assertRaises(EventQueue.EmptyQueue, self.queue.advance)
 
     def test_advance_eats_event(self):
         self._add_event_and_advance(self.event)
@@ -273,7 +275,7 @@ class UniqueNumbers(object):
 
 class test_Machine(TestCase):
     def setUp(self):
-        self.event_queue = prototype.EventQueue()
+        self.event_queue = EventQueue()
         self.machine = prototype.Machine(50, self.event_queue)
         self.unique_numbers = UniqueNumbers()
 
@@ -351,7 +353,7 @@ class test_Machine(TestCase):
 
 class test_StupidScheduler(TestCase):
     def setUp(self):
-        self.event_queue = prototype.EventQueue()
+        self.event_queue = EventQueue()
         self.scheduler = prototype.StupidScheduler(self.event_queue)
 
     def tearDown(self):
