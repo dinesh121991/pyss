@@ -235,13 +235,14 @@ class test_Simulator(TestCase):
     def setUp(self):
         import workload_parser
         self.job_inputs = list(workload_parser.parse_lines(SAMPLE_JOB_INPUT))
-        self.simulator = prototype.Simulator(self.job_inputs)
+        self.event_queue = EventQueue()
+        self.simulator = prototype.Simulator(self.job_inputs, self.event_queue)
 
     def tearDown(self):
         del self.simulator, self.job_inputs
 
     def test_init_empty(self):
-        self.assertEqual(0, len(prototype.Simulator([]).jobs))
+        self.assertEqual(0, len(prototype.Simulator([], self.event_queue).jobs))
 
     def test_init_event_queue(self):
         self.assertEqual(

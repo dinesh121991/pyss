@@ -70,9 +70,8 @@ class Machine(object):
         return sum(job.num_required_processors for job in self.jobs)
 
 class Simulator(object):
-    def __init__(self, job_input_source):
-        from event_queue import EventQueue
-        self.event_queue = EventQueue()
+    def __init__(self, job_input_source, event_queue):
+        self.event_queue = event_queue
         self.jobs = {}
 
         for job_input in job_input_source:
