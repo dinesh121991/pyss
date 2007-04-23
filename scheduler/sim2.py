@@ -84,20 +84,24 @@ class Simulator:
 
                 if isinstance(event, JobArrivalEvent):
                     newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
                     print "TERMINATION EVENT", event
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 
                 elif isinstance(event, EndOfSimulationEvent):
                     end_of_simulation_event_has_not_occured = False
-                    self.scheduler.handleEndOfSimulationEvent()
+                    # print "______________ last snapshot, before the simulation ends ________" 
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    self.scheduler.handleEndOfSimulationEvent(current_time)
+                    self.feasibilty_check_of_jobs_data(current_time)
+ 
                     break
 
                 else:
@@ -105,13 +109,7 @@ class Simulator:
                 
             
             del self.events.collection[current_time] #removing the events that were just handled
-            
-
-        print "______________ last snapshot, before the simulation ends ________" 
-        self.scheduler.cpu_snapshot.printCpuSlices()
-
-        self.feasibilty_check_of_jobs_data()
-        
+          
         self.calculate_statistics()  
 
 
@@ -138,11 +136,13 @@ class Simulator:
         
 
             
-    def feasibilty_check_of_jobs_data(self):
+    def feasibilty_check_of_jobs_data(self, current_time):
         """ Reconstructs a schedule from the jobs (using the values:
         job.arrival time, job.start_to_run_at_time, job_actual_duration for each job),
         and then checks the feasibility of this schedule. """
-        
+
+        if current_time < sys.maxint:
+            return
 
         print ">>> Fesibilty Test >>>"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
@@ -181,7 +181,7 @@ class Scheduler:
      def handleTerminationOfJobEvent(self, job, time):
          pass
      
-     def handleEndOfSimulationEvent(self):
+     def handleEndOfSimulationEvent(self, time):
          pass
      
    
@@ -218,9 +218,12 @@ class FcfsScheduler(Scheduler):
                 first_failure_has_not_occured = False
         return newEvents
 
-    def handleEndOfSimulationEvent(self):
-        self.cpu_snapshot.CpuSlicesTestFeasibility()            
-                
+    def handleEndOfSimulationEvent(self, current_time):
+        if current_time == sys.maxint:
+            # otherewise, it might be the case that the simulation stoped
+            # before some jobs were scheduled properly 
+            self.cpu_snapshot.CpuSlicesTestFeasibility()            
+        
 
     
 
@@ -266,8 +269,12 @@ class ConservativeScheduler(Scheduler):
         return newEvents
     
 
-    def handleEndOfSimulationEvent(self):
-        self.cpu_snapshot.CpuSlicesTestFeasibility()            
+    def handleEndOfSimulationEvent(self, current_time):
+        if current_time == sys.maxint:
+            # otherewise, it might be the case that the simulation stoped
+            # before some jobs were scheduled properly 
+            self.cpu_snapshot.CpuSlicesTestFeasibility()      
+
                 
 
 
@@ -389,13 +396,16 @@ class EasyBackfillScheduler(Scheduler):
             return True 
       
 
-    def handleEndOfSimulationEvent(self):
-        self.cpu_snapshot.CpuSlicesTestFeasibility()
+    def handleEndOfSimulationEvent(self, current_time):
+        if current_time == sys.maxint:
+            # otherewise, it might be the case that the simulation stoped
+            # before some jobs were scheduled properly 
+            self.cpu_snapshot.CpuSlicesTestFeasibility()      
         
 
 ###############
 simulation = Simulator(scheduler ="Conservative")
-#simulation = Simulator(input_file = "./Input_files/basic_input.1", scheduler ="Conservative")
+#simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="EasyBackfill")
 #simulation = Simulator(scheduler ="Fcfs")
 
