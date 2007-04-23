@@ -11,7 +11,7 @@ class JobArrivalEventGeneratorViaLogFile:
 
         and the amount of nodes requested by the job is never more than the total available nodes"""
         
-        self.file = file(input_file) # open the specified file for reading 
+        self.file = file(input_file) # openning of the specified file for reading 
         self.events = Events()
         self.jobs = []
         
@@ -21,7 +21,7 @@ class JobArrivalEventGeneratorViaLogFile:
             if len(line) == 0: # zero length indicates end-of-file
                 break
             if line.startswith('#'):
-                continue # we should skip a comment in the input_file 
+                continue # skipping a comment in the input_file 
             (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
             
 
@@ -64,7 +64,7 @@ class Simulator:
 
     def startSimulation(self):
         
-        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "max_int" time
+        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "maxint" time
          
         end_of_simulation_event_has_not_occured = True 
 
@@ -89,8 +89,8 @@ class Simulator:
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
-                    print "TERMINATION EVENT", event
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
+                    # print "TERMINATION EVENT", event
                     # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
@@ -108,7 +108,7 @@ class Simulator:
                     assert False # should never reach here
                 
             
-            del self.events.collection[current_time] #removing the events that were just handled
+            del self.events.collection[current_time] # removing the current events 
           
         self.calculate_statistics()  
 
@@ -142,6 +142,7 @@ class Simulator:
         and then checks the feasibility of this schedule. """
 
         if current_time < sys.maxint:
+            print ">>> Simulation ends perhaps before all the jobs were scheduled properly"
             return
 
         print ">>> Fesibilty Test >>>"
@@ -173,15 +174,15 @@ class Simulator:
         
 
 class Scheduler:
-     """" Assumption: every handler returns a (possibly empty) collection of new events"""
-    
-     def handleArrivalOfJobEvent(self, job, time):
+     """ Assumption: every handler returns a (possibly empty) collection of new events """
+
+     def handleArrivalOfJobEvent(self, job, current_time):
+         pass
+
+     def handleTerminationOfJobEvent(self, job, current_time):
          pass
      
-     def handleTerminationOfJobEvent(self, job, time):
-         pass
-     
-     def handleEndOfSimulationEvent(self, time):
+     def handleEndOfSimulationEvent(self, current_time):
          pass
      
    
