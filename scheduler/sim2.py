@@ -22,8 +22,7 @@ class JobArrivalEventGeneratorViaLogFile:
                 break
             if line.startswith('#'):
                 continue # skipping a comment in the input_file 
-            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
-            
+            (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()            
 
             newJob = Job(job_id, int(job_duration), int(job_nodes), int(job_arrival_time), int(job_actual_duration))
 
@@ -97,9 +96,12 @@ class Simulator:
 
                 elif isinstance(event, EndOfSimulationEvent):
                     end_of_simulation_event_has_not_occured = False
-                    # print "______________ last snapshot, before the simulation ends ________" 
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    print "______________ snapshot, before handling the EndOfSimu last event ________" 
+                    self.scheduler.cpu_snapshot.printCpuSlices()
+
                     self.scheduler.handleEndOfSimulationEvent(current_time)
+                    print "______________ last snapshot, before the simulation ends ________" 
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.feasibilty_check_of_jobs_data(current_time)
  
                     break
@@ -108,8 +110,15 @@ class Simulator:
                     assert False # should never reach here
                 
             
-            del self.events.collection[current_time] # removing the current events 
-          
+            del self.events.collection[current_time] # removing the current events
+            print "______________ before calling to archive removal________" 
+            self.scheduler.cpu_snapshot.printCpuSlices()
+
+            self.scheduler.cpu_snapshot.archive_old_slices(current_time)
+
+            print "______________ right after calling to archive removal________" 
+            self.scheduler.cpu_snapshot.printCpuSlices()
+
         self.calculate_statistics()  
 
 

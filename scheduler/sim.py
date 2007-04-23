@@ -99,7 +99,7 @@ class CpuSnapshot(object):
         self.total_nodes = total_nodes
         self.slices={} # initializing the main structure of this class 
         self.slices[0] = CpuTimeSlice() # Assumption: the snapshot always has at least one slice 
-        
+        self.archive_of_old_slices={}
                
     def jobEarliestAssignment(self, job, time=0):
         """ returns the earliest time right after the given time for which the job can be assigned
@@ -292,8 +292,6 @@ class CpuSnapshot(object):
         if job.actual_duration ==  job.user_predicted_duration: 
             return
         
-        accumulated_duration = 0
-
         job_finish_time = job.start_to_run_at_time + job.actual_duration
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         self._ensure_a_slice_starts_at(job_finish_time) 
@@ -305,10 +303,35 @@ class CpuSnapshot(object):
                 self.slices[t].delJob(job) 
             else:
                 return
+
             
+            
+    def archive_old_slices(self, current_time):
+        """ This method restores the old slices."""
+    
+        if current_time < 3:
+            return
+        
+        self._ensure_a_slice_starts_at(current_time) 
+
+        for t in self._sorted_times:
+            if t < current_time:
+                self.archive_of_old_slices[t] = self.slices[t]
+                del self.slices[t]
+            else:
+                return
+     
+    def restore_old_slices(self):
+        for t, v in self.archive_of_old_slices.iteritems(): 
+            self.slices[t]=v
+            
+        self.archive_of_old_slices.clear()
+    
+
 
             
     def CpuSlicesTestFeasibility(self):
+        self.restore_old_slices()
         duration = 0
         time = 0
         scheduled_jobs_start_slice = {}
