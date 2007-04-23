@@ -309,7 +309,7 @@ class CpuSnapshot(object):
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""
     
-        if current_time < 3:
+        if current_time < 100:
             return
         
         self._ensure_a_slice_starts_at(current_time) 
@@ -321,6 +321,7 @@ class CpuSnapshot(object):
             else:
                 return
      
+
     def restore_old_slices(self):
         for t, v in self.archive_of_old_slices.iteritems(): 
             self.slices[t]=v

@@ -3,6 +3,7 @@
 from sim import *
 from sim1 import *
 import sys
+import random 
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -43,8 +44,7 @@ class Simulator:
         self.current_time = 0
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
-        self.jobs = events_generated_by_input_file.jobs
-
+        self.jobs = events_generated_by_input_file.jobs 
 
 
         if scheduler ==  "Conservative":
@@ -111,13 +111,13 @@ class Simulator:
                 
             
             del self.events.collection[current_time] # removing the current events
-            print "______________ before calling to archive removal________" 
-            self.scheduler.cpu_snapshot.printCpuSlices()
 
-            self.scheduler.cpu_snapshot.archive_old_slices(current_time)
 
-            print "______________ right after calling to archive removal________" 
-            self.scheduler.cpu_snapshot.printCpuSlices()
+            if random.choice(range(25)) == 1: # tossing a coin to decide whether to restore old slices in the archive
+                self.scheduler.cpu_snapshot.archive_old_slices(current_time)
+                
+                print "______________ right after calling to archive removal________" 
+                self.scheduler.cpu_snapshot.printCpuSlices()
 
         self.calculate_statistics()  
 
@@ -127,12 +127,11 @@ class Simulator:
 
         wait_time = sigma_wait_time = flow_time = sigma_flow_time = counter = 0.0
         for job in self.jobs:
-
             counter += 1
             
             wait_time = job.start_to_run_at_time - job.arrival_time
             sigma_wait_time += wait_time
-
+            
             flow_time = wait_time + job.actual_duration
             sigma_flow_time += flow_time
             
