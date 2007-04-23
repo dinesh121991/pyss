@@ -20,8 +20,8 @@ class JobArrivalEventGeneratorViaLogFile:
             print line
             if len(line) == 0: # zero length indicates end-of-file
                 break
-            if line[0] == '#':
-                continue # a line starts with the sharp symbol indicates a comment in the input_file, and so we skip it
+            if line.startswith('#'):
+                continue # we should skip a comment in the input_file 
             (job_arrival_time, job_id, job_duration, job_nodes, job_actual_duration ) = line.split()
             
 
