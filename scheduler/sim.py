@@ -293,9 +293,9 @@ class CpuSnapshot(object):
             return
         
         accumulated_duration = 0
-        critical_point_is_found = False 
-        
-        self._ensure_a_slice_starts_at(job.start_to_run_at_time + job.actual_duration) 
+
+        job_finish_time = job.start_to_run_at_time + job.actual_duration
+        self._ensure_a_slice_starts_at(job_finish_time) 
 
         for t in self._sorted_times:
             duration_of_this_slice = self.slices[t].getDuration()
