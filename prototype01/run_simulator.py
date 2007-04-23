@@ -11,7 +11,7 @@ def main():
 
     job_inputs = workload_parser.parse_lines( sys.stdin )
     event_queue = EventQueue()
-    machine = Machine(num_processors=1000, event_queue=event_queue)
+    machine = Machine(num_processors=10000, event_queue=event_queue)
     scheduler = StupidScheduler(event_queue)
 
     simulator = Simulator(
