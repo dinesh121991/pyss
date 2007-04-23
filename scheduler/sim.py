@@ -295,21 +295,17 @@ class CpuSnapshot(object):
         accumulated_duration = 0
 
         job_finish_time = job.start_to_run_at_time + job.actual_duration
+        job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         self._ensure_a_slice_starts_at(job_finish_time) 
 
         for t in self._sorted_times:
-            duration_of_this_slice = self.slices[t].getDuration()
-            
-            if self.slices[t].isMemeber(job):
-                accumulated_duration += duration_of_this_slice
-
-            # the job should be removed entirly from this slice (because the preprocesssing: _ensures_a_slice_starts_at())
-            if accumulated_duration > job.actual_duration:
+            if t < job_finish_time:
+                continue
+            elif t + self.slices[t].getDuration() <= job_predicted_finish_time:  
                 self.slices[t].delJob(job) 
-                  
-            if accumulated_duration >= job.user_predicted_duration:
+            else:
                 return
-
+            
 
             
     def CpuSlicesTestFeasibility(self):
