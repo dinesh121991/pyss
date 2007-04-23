@@ -303,11 +303,8 @@ class CpuSnapshot(object):
             if self.slices[t].isMemeber(job):
                 accumulated_duration += duration_of_this_slice
 
-            if accumulated_duration == job.actual_duration:
-                critical_point_is_found = True                   
-                
             # the job should be removed entirly from this slice (because the preprocesssing: _ensures_a_slice_starts_at())
-            elif accumulated_duration > job.actual_duration and critical_point_is_found:
+            if accumulated_duration > job.actual_duration:
                 self.slices[t].delJob(job) 
                   
             if accumulated_duration >= job.user_predicted_duration:
