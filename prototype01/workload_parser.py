@@ -87,11 +87,11 @@ def parse_lines(lines_iterator):
             (len(line.strip()) == 0)
         )
 
-    return (
-        JobInput(line)
-        for line in lines_iterator
-        if not _should_skip(line)
-    )
+    for line in lines_iterator:
+        if _should_skip(line):
+            continue # skipping
+
+        yield JobInput(line)
 
 def _measure_performance():
     import sys
