@@ -33,3 +33,7 @@ Maui scheduler
 Dror's code: ~feit/src/sim/maui.c
 
 ----------------------------------------------- 
+
+Test ---
+handle the case where the end_of_simulation event occured before all jobs
+have been scheduled and thus messes up the feasibilty_check_of_jobs_data()

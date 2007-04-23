@@ -168,7 +168,7 @@ class Simulator:
         if every_job_starts_after_its_arrival_time and cpu_snapshot_is_feasible:  
             print "Feasibility Test is OK!!!!!"
         else: 
-            print "There was a problem with the feasibilty of the simulator/schedule !!!!!!!!"
+            print "There was a problem with the feasibilty of the simulator/schedule!!!!!!!!"
 
         
 
@@ -394,7 +394,7 @@ class EasyBackfillScheduler(Scheduler):
         
 
 ###############
-
+simulation = Simulator(scheduler ="Conservative")
 #simulation = Simulator(input_file = "./Input_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="EasyBackfill")
 #simulation = Simulator(scheduler ="Fcfs")
