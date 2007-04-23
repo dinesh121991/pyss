@@ -149,22 +149,26 @@ class CpuSnapshot(object):
 
 
 
-    def _ensure_a_slice_starts_at(self, assignment_time):
-        """ A preprocessing stage: to ensure that the assignment time of the new added job will start at a begining of a slice """
+    def _ensure_a_slice_starts_at(self, start_time):
+        """ A preprocessing stage. Usage: 
+        First, to ensure that the assignment time of the new added job will start at a begining of a slice.
+        Second, to ensure that the actual end time of the job will end at the ending of slice.
+        we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
+        duration. """
 
-        if assignment_time in self.slices:
+        if start_time in self.slices:
             return # we already have such a slice 
         
         last_slice_start_time = self._sorted_times[-1]
         last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].getDuration()
 
-        if last_slice_end_time < assignment_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            self._add_slice( CpuTimeSlice(last_slice_end_time, assignment_time - last_slice_end_time, {}) )
-            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
+        if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
+            self._add_slice( CpuTimeSlice(last_slice_end_time, start_time - last_slice_end_time, {}) )
+            self._add_slice( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
             return
         
-        if last_slice_end_time == assignment_time:
-            self._add_slice( CpuTimeSlice(assignment_time, duration=1, jobs={}) ) # duration is arbitrary here
+        if last_slice_end_time == start_time:
+            self._add_slice( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
             return
 
 
@@ -173,13 +177,13 @@ class CpuSnapshot(object):
             end_of_this_slice = t +  self.slices[t].getDuration()
             duration_of_this_slice = self.slices[t].getDuration()
 
-            if end_of_this_slice < assignment_time:
+            if end_of_this_slice < start_time:
                 continue
 
-            # splitting slice t with respect to the assignment time
+            # splitting slice t with respect to the start time
             jobs = self.slices[t].getJobs()
-            self._add_slice( CpuTimeSlice(t, assignment_time - t, jobs) )
-            self._add_slice( CpuTimeSlice(assignment_time, end_of_this_slice - assignment_time, jobs) )
+            self._add_slice( CpuTimeSlice(t, start_time - t, jobs) )
+            self._add_slice( CpuTimeSlice(start_time, end_of_this_slice - start_time, jobs) )
             return 
 
 
@@ -291,6 +295,7 @@ class CpuSnapshot(object):
         accumulated_duration = 0
         critical_point_is_found = False 
         
+        self._ensure_a_slice_starts_at(job.start_to_run_at_time + job.actual_duration) 
 
         for t in self._sorted_times:
             duration_of_this_slice = self.slices[t].getDuration()
@@ -300,28 +305,11 @@ class CpuSnapshot(object):
 
             if accumulated_duration == job.actual_duration:
                 critical_point_is_found = True                   
-
-            # when we just found the critical point 
-            elif accumulated_duration > job.actual_duration and not critical_point_is_found:
                 
-                critical_point_is_found = True 
-                # split current slice with respect to delta and remove the job from the later slice
-                delta = accumulated_duration - job.actual_duration
-                jobs = self.slices[t].getJobs()
-
-                newslice = CpuTimeSlice(t, duration_of_this_slice - delta, jobs)
-                self._add_slice(newslice)
-                
-                split_time = t + duration_of_this_slice - delta
-                newslice = CpuTimeSlice(split_time, delta, jobs)
-                newslice.delJob(job)
-                self._add_slice(newslice)
-                
-            #we already found the critical point, so the job should be removed entirly from this slice
+            # the job should be removed entirly from this slice (because the preprocesssing: _ensures_a_slice_starts_at())
             elif accumulated_duration > job.actual_duration and critical_point_is_found:
                 self.slices[t].delJob(job) 
-  
-                
+                  
             if accumulated_duration >= job.user_predicted_duration:
                 return
 
@@ -417,48 +405,3 @@ class CpuSnapshot(object):
 
 
 
-"""
-job10 = Job('job10', 1000, 50, 0)
-job15 = Job('job15', 1000, 10, 10)
-job18 = Job('job18', 1000, 50, 20)
-job19 = Job('job19', 1000, 10, 30)
-
-
-print "start_time, duration, free_nodes, jobs"
-print
-print
-print
-
-scheduler = ConservativeScheduler(100)
-scheduler.cpu_snapshot.printCpuSlices()
-
-scheduler.addJob(job10, job10.arrival_time)
-scheduler.cpu_snapshot.printCpuSlices()
-
-print
-
-
-scheduler.addJob(job15, job15.arrival_time)
-scheduler.cpu_snapshot.printCpuSlices()
-
-print
-
-
-scheduler.addJob(job18, job18.arrival_time)
-scheduler.cpu_snapshot.printCpuSlices()
-
-print
-
-scheduler.addJob(job19, job19.arrival_time)
-scheduler.cpu_snapshot.printCpuSlices()
-
-print
-
-
-cs.delJobFromCpuSlices(job15)
-
-cs.printCpuSlices()
-print
-
-
-"""
