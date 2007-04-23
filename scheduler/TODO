@@ -1,29 +1,11 @@
 
 ----------------------------------------------- 
-Cpu - History 
-Remove old slices from the cpusnapshot (in order to save "sorting" times) 
-
-
------------------------------------------------ 
-Docummentation of the code
-
-
-
------------------------------------------------ 
-
-class Event: 
-	self.time // curently the only date member we have is a job
-
------------------------------------------------ 
-
 
 UnitTesters
 example of unitesthttp://www.python.org/doc/2.3.2/lib/minimal-example.html
 assertEqual() checks for an expected result. 
 assert_() verifies a condition.
 assertRaises() to verify that an expected exception gets raised.
-
-
 /cs/par/users/ouaknine/simus/sim_orig
 
 ----------------------------------------------- 
@@ -34,3 +16,15 @@ Dror's code: ~feit/src/sim/maui.c
 
 ----------------------------------------------- 
 
+
+Checking running time on real data: 
+
+% time runfcfs -s ~/par/logs/l_lanl_cm5_cln.swf
+1.028u 0.048s 0:01.19 89.0%     0+0k 0+0io 0pf+0w
+
+%time runeasy -s ~/par/logs/l_lanl_cm5_cln.swf
+0.892u 0.060s 0:00.97 97.9%     0+0k 0+0io 0pf+0w
+
+
+-----------------------------------------------
+Combining with Ori's code
