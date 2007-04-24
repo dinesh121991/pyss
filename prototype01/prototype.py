@@ -20,9 +20,9 @@ class Job(object):
     def __init__(self,
             id, estimated_run_time, actual_run_time, num_required_processors
         ):
-        assert num_required_processors > 0
-        assert actual_run_time > 0
-        assert estimated_run_time > 0
+        assert num_required_processors > 0, "job_id=%s"%id
+        assert actual_run_time > 0, "job_id=%s"%id
+        assert estimated_run_time > 0, "job_id=%s"%id
         self.id = id
         self.estimated_run_time = estimated_run_time
         self.actual_run_time = actual_run_time
@@ -97,7 +97,8 @@ class Simulator(object):
                     JobSubmitEvent(timestamp = job_input.submit_time, job = job)
                 )
 
-    def _job_input_to_job(self, job_input):
+    @staticmethod
+    def _job_input_to_job(job_input):
         return Job(
             id = job_input.number,
             estimated_run_time = job_input.requested_time,
