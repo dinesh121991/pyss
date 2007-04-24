@@ -6,6 +6,10 @@ from event_queue import EventQueue
 from prototype import Simulator, Machine, StupidScheduler
 import workload_parser
 
+if __debug__:
+    import warnings
+    warnings.warn("Running in debug mode, this will be slow... try 'python2.4 -O %s'" % sys.argv[0])
+
 def main():
     print "Reading input from stdin..."
 
