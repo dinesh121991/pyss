@@ -1,9 +1,10 @@
-import heapq
+from simple_heap import Heap
+
 class EventQueue(object):
     class EmptyQueue(Exception): pass
 
     def __init__(self):
-        self._events_heap = []
+        self._events_heap = Heap()
         self._handlers = {}
         self._latest_handled_timestamp = -1
 
@@ -12,12 +13,11 @@ class EventQueue(object):
         assert event.timestamp >= self._latest_handled_timestamp
 
         # insert into heap
-        heapq.heappush(self._events_heap, event)
+        self._events_heap.push(event)
 
     def remove_event(self, event):
         assert event in self._events_heap
         self._events_heap.remove(event)
-        heapq.heapify(self._events_heap)
 
     @property
     def events(self):
@@ -42,7 +42,7 @@ class EventQueue(object):
 
     def pop(self):
         self._assert_not_empty()
-        return heapq.heappop(self._events_heap)
+        return self._events_heap.pop()
 
     def _get_event_handlers(self, event_type):
         if event_type in self._handlers:
