@@ -19,7 +19,13 @@ class EventQueue(object):
 
     @property
     def events(self):
+        "All events, used for testing"
         return set(self._sorted_events)
+
+    @property
+    def sorted_events(self):
+        "Sorted events, used for testing"
+        return self._sorted_events
 
     @property
     def empty(self):

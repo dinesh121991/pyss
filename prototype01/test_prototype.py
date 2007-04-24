@@ -85,7 +85,7 @@ class test_EventQueue(TestCase):
 
     def test_add_event_single_event(self):
         self.queue.add_event(self.event)
-        self.assertEqual( [self.event], self.queue._sorted_events )
+        self.assertEqual( [self.event], self.queue.sorted_events )
 
     def test_add_same_event_fails(self):
         self.queue.add_event(self.event)
@@ -94,13 +94,13 @@ class test_EventQueue(TestCase):
     def test_add_event_simple(self):
         for event in self.events:
             self.queue.add_event(event)
-        self.assertEqual( self.events, list(self.queue._sorted_events) )
+        self.assertEqual( self.events, list(self.queue.sorted_events) )
 
     def test_add_event_sorting(self):
         random_events = _gen_random_timestamp_events()
         for event in random_events:
             self.queue.add_event(event)
-        self.assertEqual( sorted(random_events), self.queue._sorted_events )
+        self.assertEqual( sorted(random_events), self.queue.sorted_events )
 
     def test_remove_event_fails_on_empty(self):
         self.assertRaises(Exception, self.queue.remove_event, self.event)
