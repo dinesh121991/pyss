@@ -1,4 +1,4 @@
-from lazy_heap import Heap
+from simple_heap import Heap
 
 class EventQueue(object):
     class EmptyQueue(Exception): pass
@@ -9,25 +9,25 @@ class EventQueue(object):
         self._latest_handled_timestamp = -1
 
     def add_event(self, event):
-        assert event not in self._events_heap # TODO: slow assert, disable for production
+        assert (event.timestamp, event) not in self._events_heap # TODO: slow assert, disable for production
         assert event.timestamp >= self._latest_handled_timestamp
 
         # insert into heap
-        self._events_heap.push(event)
+        self._events_heap.push( (event.timestamp, event) )
 
     def remove_event(self, event):
-        assert event in self._events_heap
-        self._events_heap.remove(event)
+        assert (event.timestamp, event) in self._events_heap
+        self._events_heap.remove( (event.timestamp, event) )
 
     @property
     def events(self):
         "All events, used for testing"
-        return set(self._events_heap)
+        return set(event for (timestamp, event) in self._events_heap)
 
     @property
     def sorted_events(self):
         "Sorted events, used for testing"
-        return sorted(self._events_heap)
+        return sorted(self.events)
 
     @property
     def empty(self):
@@ -42,7 +42,8 @@ class EventQueue(object):
 
     def pop(self):
         self._assert_not_empty()
-        return self._events_heap.pop()
+        timestamp, event = self._events_heap.pop()
+        return event
 
     def _get_event_handlers(self, event_type):
         if event_type in self._handlers:
