@@ -1,4 +1,4 @@
-from simple_heap import Heap
+from lazy_heap import Heap
 
 class EventQueue(object):
     class EmptyQueue(Exception): pass
