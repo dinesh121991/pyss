@@ -350,7 +350,7 @@ class CpuSnapshot(object):
                 return False
             
             if free_nodes > self.total_nodes:
-                print ">>> PROBLEM: free nodes exceeds number of available nodes ...."
+                print ">>> PROBLEM: free nodes exceeds the number of available nodes ...."
                 return False
 
             num_of_active_nodes = 0
@@ -361,7 +361,7 @@ class CpuSnapshot(object):
                 if scheduled_jobs_start_slice.has_key(job.id):
                     scheduled_jobs_last_slice[job.id] = t
                     scheduled_jobs_accumulated_duration[job.id] += self.slices[t].getDuration() 
-                else:
+                else: # the first time this job is encountered  
                     if t != job.start_to_run_at_time:
                         print ">>> PROBLEM: start time: ", job.start_to_run_at_time, " of job", job.id, "is:", t
                         return False
@@ -375,7 +375,7 @@ class CpuSnapshot(object):
                 return False
             
             if t != prev_t + prev_duration:
-                print ">>> PROBLEM: non scuccessive slices", t, prev_t 
+                print ">>> PROBLEM: non successive slices", t, prev_t 
                 return False
                 
             duration = self.slices[t].getDuration()
@@ -388,12 +388,12 @@ class CpuSnapshot(object):
                 print ">>>PROBLEM: with actual duration of job: ", \
                       job.actual_duration, "vs.", duration_of_job,  " of job", job_id
                 return False
-            """
-            if duration_of_job != scheduled_jobs_accumulated_duration[job.id]:
+        
+            if scheduled_jobs_accumulated_duration[job.id] != scheduled_jobs[job.id].actual_duration:
                 print ">>>PROBLEM: with actual duration of job:", \
-                      scheduled_jobs_accumulated_duration[job.id], "vs.", duration_of_job,  " of job", job_id
+                      scheduled_jobs_accumulated_duration[job.id], "vs.",  scheduled_jobs[job.id].actual_duration, " of job", job_id
                 return False
-            """
+            
 
         print "TEST is OK!!!!" 
         return True

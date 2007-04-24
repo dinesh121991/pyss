@@ -7,7 +7,7 @@ from sim2 import *
 class test_Simulator(unittest.TestCase):
 
     def test_basic_fcfs(self):
-        for i in range(23): 
+        for i in range(24): 
             simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_test_files/basic_input." + str(i))
             for job in simulator.jobs:
                 # The job id in these test input files signifies its correct finishing time
@@ -16,14 +16,14 @@ class test_Simulator(unittest.TestCase):
 
 
     def test_basic_conservative(self):
-        for i in range(23): 
+        for i in range(24): 
             simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input." + str(i))
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
     
 
     def test_basic_easyBackfill(self):
-        for i in range(23): 
+        for i in range(24): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_test_files/basic_input." + str(i))
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
