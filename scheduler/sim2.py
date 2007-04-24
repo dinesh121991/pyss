@@ -122,42 +122,9 @@ class EasyBackfillScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
-           
-        if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
-            first_job = just_arrived_job
-        else: 
-            first_job = self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[0]
-            
-        newEvents = Events()
-        
-        if first_job.id != just_arrived_job.id: # two distinct jobs
-            if self.canBeBackfilled(first_job, just_arrived_job, time):
-                print "JOB CAN BE BACKFILLED!!!! LA LA LA"
-                self.cpu_snapshot.assignJob(just_arrived_job, time)
-                termination_time = time + just_arrived_job.actual_duration
-                newEvents.add_job_termination_event(termination_time, just_arrived_job)
-                return newEvents  
-            else:
-                print "cannot be backfilled  111111"
-                self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
-                return newEvents 
- 
-        
-        else: # the just arrived job is the only job (to be scheduled soon) that we now have in the waiting list
-             print "222222, this is the only job in the waiting list"
-             start_time_of_just_arrived_job = self.cpu_snapshot.jobEarliestAssignment(just_arrived_job, time)
-             if start_time_of_just_arrived_job == time:
-                 print "333333, and it's ready to run"
-                 self.cpu_snapshot.assignJob(just_arrived_job, time)
-                 termination_time = time + just_arrived_job.actual_duration
-                 newEvents.add_job_termination_event(termination_time, just_arrived_job)
-                 return newEvents
-             else:
-                 print "and it cannot be backfilled now 444444"
-                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
-                 return newEvents
+         self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
+         return self._schedule_jobs(time)  
              
-                 
 
     def handleTerminationOfJobEvent(self, job, time):
         """ this handler deletes the tail of job.
@@ -222,7 +189,7 @@ class EasyBackfillScheduler(Scheduler):
             print "reserved_start_time_of_first_job", shadow_time
             print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
             return False 
-                #this means that assigning the second job at the earliest possible time postphones the
+                #this means that assigning the second job at current time postphones the
                 #first job in the waiting list, and so the second job cannot be back filled 
         else:
             return True 
