@@ -8,9 +8,7 @@ class EventQueue(object):
         self._latest_handled_timestamp = -1
 
     def add_event(self, event):
-        # first assert commented out for efficiency
-        # TODO: enable this for development, disable for production
-        #assert event not in self._sorted_events
+        assert event not in self._sorted_events # TODO: slow assert, disable for production
         assert event.timestamp >= self._latest_handled_timestamp
         # insert mainting sort
         bisect.insort(self._sorted_events, event)
