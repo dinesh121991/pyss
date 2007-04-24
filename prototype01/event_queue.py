@@ -1,38 +1,40 @@
-import bisect
+import heapq
 class EventQueue(object):
     class EmptyQueue(Exception): pass
 
     def __init__(self):
-        self._sorted_events = []
+        self._events_heap = []
         self._handlers = {}
         self._latest_handled_timestamp = -1
 
     def add_event(self, event):
-        assert event not in self._sorted_events # TODO: slow assert, disable for production
+        assert event not in self._events_heap # TODO: slow assert, disable for production
         assert event.timestamp >= self._latest_handled_timestamp
-        # insert mainting sort
-        bisect.insort(self._sorted_events, event)
+
+        # insert into heap
+        heapq.heappush(self._events_heap, event)
 
     def remove_event(self, event):
-        assert event in self._sorted_events
-        self._sorted_events.remove(event)
+        assert event in self._events_heap
+        self._events_heap.remove(event)
+        heapq.heapify(self._events_heap)
 
     @property
     def events(self):
         "All events, used for testing"
-        return set(self._sorted_events)
+        return set(self._events_heap)
 
     @property
     def sorted_events(self):
         "Sorted events, used for testing"
-        return self._sorted_events
+        return sorted(self._events_heap)
 
     @property
     def empty(self):
         return len(self) == 0
 
     def __len__(self):
-        return len(self._sorted_events)
+        return len(self._events_heap)
 
     def _assert_not_empty(self):
         if self.empty:
@@ -40,7 +42,7 @@ class EventQueue(object):
 
     def pop(self):
         self._assert_not_empty()
-        return self._sorted_events.pop(0)
+        return heapq.heappop(self._events_heap)
 
     def _get_event_handlers(self, event_type):
         if event_type in self._handlers:
@@ -60,4 +62,4 @@ class EventQueue(object):
         self._handlers[event_type].append(handler)
 
     def __str__(self):
-        return "EventQueue<num_events=%s>" % len(self._sorted_events)
+        return "EventQueue<num_events=%s>" % len(self)
