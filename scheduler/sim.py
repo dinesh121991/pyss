@@ -3,7 +3,7 @@
 class Job:
 
     def __init__(self, job_id, user_predicted_duration, job_nodes, \
-                 job_arrival_time=0, job_actual_duration=0):
+                 job_arrival_time=0, job_actual_duration=0, job_admin_QoS=0, job_user_QoS=0):
 
         assert job_nodes > 0
         assert user_predicted_duration >= 0
@@ -16,6 +16,10 @@ class Job:
         self.start_to_run_at_time = -1 
         self.actual_duration = job_actual_duration
         
+        self.admin_QoS = job_admin_QoS # the priority given by the system administration  
+        self.user_QoS = job_user_QoS # the priority given by the user
+
+        
 
     def __str__(self):
         return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
@@ -26,7 +30,7 @@ class Job:
         
 
 class CpuTimeSlice:
-    ''' represents a "tenatative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
+    ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
         It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
         for nodes ba all the jobs assigned to this slice never exceeds the amount of the total nodes available.
         Assumption: the duration of the slice is never changed. We can replace this slice with a new slice with shorter duration.'''
@@ -151,7 +155,7 @@ class CpuSnapshot(object):
 
     def _ensure_a_slice_starts_at(self, start_time):
         """ A preprocessing stage. Usage: 
-        First, to ensure that the assignment time of the new added job will start at a begining of a slice.
+        First, to ensure that the assignment time of the new added job will start at a beginning of a slice.
         Second, to ensure that the actual end time of the job will end at the ending of slice.
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration. """

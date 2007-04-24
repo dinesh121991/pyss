@@ -196,8 +196,7 @@ class EasyBackfillScheduler(Scheduler):
       
 
     def handleEndOfSimulationEvent(self, current_time):
-        if current_time == sys.maxint:
+         if current_time == sys.maxint:
             # otherewise, it might be the case that the simulation stoped
             # before some jobs were scheduled properly 
-            self.cpu_snapshot.CpuSlicesTestFeasibility()      
-        
+            self.cpu_snapshot.CpuSlicesTestFeasibility()
