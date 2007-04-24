@@ -4,6 +4,8 @@ from sim import *
 from sim1 import *
 import sys
 
+
+
 class Scheduler:
      """ Assumption: every handler returns a (possibly empty) collection of new events """
 
@@ -82,8 +84,7 @@ class ConservativeScheduler(Scheduler):
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)  
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._reschedule_jobs(time, newEvents)
-
-
+   
 
     def _reschedule_jobs(self, time, newEvents):
         for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
@@ -121,7 +122,7 @@ class EasyBackfillScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
-             
+           
         if len(self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times) == 0:
             first_job = just_arrived_job
         else: 
@@ -136,7 +137,6 @@ class EasyBackfillScheduler(Scheduler):
                 termination_time = time + just_arrived_job.actual_duration
                 newEvents.add_job_termination_event(termination_time, just_arrived_job)
                 return newEvents  
-
             else:
                 print "cannot be backfilled  111111"
                 self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
@@ -144,16 +144,16 @@ class EasyBackfillScheduler(Scheduler):
  
         
         else: # the just arrived job is the only job (to be scheduled soon) that we now have in the waiting list
-             print "cannot be backfilled  22222 (this is the only job in the waiting list)"
+             print "222222, this is the only job in the waiting list"
              start_time_of_just_arrived_job = self.cpu_snapshot.jobEarliestAssignment(just_arrived_job, time)
              if start_time_of_just_arrived_job == time:
-                 print "cannot be backfilled  333333"
+                 print "333333, and it's ready to run"
                  self.cpu_snapshot.assignJob(just_arrived_job, time)
                  termination_time = time + just_arrived_job.actual_duration
                  newEvents.add_job_termination_event(termination_time, just_arrived_job)
                  return newEvents
              else:
-                 print "cannot be backfilled  444444"
+                 print "and it cannot be backfilled now 444444"
                  self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.append(just_arrived_job)
                  return newEvents
              
@@ -191,9 +191,9 @@ class EasyBackfillScheduler(Scheduler):
             for next_job in self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times[1:] : 
                 if self.canBeBackfilled(first_job, next_job, time):
                     self.waiting_list_of_unscheduled_jobs_arranged_by_arrival_times.remove(next_job)
-                    start_time_of_next_job = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
-                    self.cpu_snapshot.assignJob(next_job, start_time_of_next_job)
-                    termination_time = next_job.start_to_run_at_time + next_job.actual_duration
+                    time = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
+                    self.cpu_snapshot.assignJob(next_job, time)
+                    termination_time = time + next_job.actual_duration
                     newEvents.add_job_termination_event(termination_time, next_job)                    
         return newEvents
 
