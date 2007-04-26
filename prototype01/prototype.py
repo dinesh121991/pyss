@@ -86,12 +86,8 @@ class Simulator(object):
         self.machine = machine
         self.scheduler = scheduler
 
-        self.jobs = {}
-
         for job_input in job_input_source:
             job = self._job_input_to_job(job_input)
-
-            self.jobs[job.id] = job
 
             self.event_queue.add_event(
                     JobSubmitEvent(timestamp = job_input.submit_time, job = job)

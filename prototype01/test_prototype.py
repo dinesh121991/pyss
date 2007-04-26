@@ -254,9 +254,6 @@ class test_Simulator(TestCase):
     def tearDown(self):
         del self.job_inputs, self.event_queue, self.machine, self.simulator
 
-    def test_init_empty(self):
-        self.assertEqual(0, len(prototype.Simulator([], self.event_queue, self.machine, self.scheduler).jobs))
-
     def test_init_event_queue(self):
         self.assertEqual(
             set(job_input.number for job_input in self.job_inputs), 
