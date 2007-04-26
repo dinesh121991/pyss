@@ -1,8 +1,6 @@
 from simple_heap import Heap
 
 class EventQueue(object):
-    class EmptyQueue(Exception): pass
-
     def __init__(self):
         self._events_heap = Heap()
         self._handlers = {}
@@ -36,12 +34,8 @@ class EventQueue(object):
     def __len__(self):
         return len(self._events_heap)
 
-    def _assert_not_empty(self):
-        if self.empty:
-            raise self.EmptyQueue()
-
     def pop(self):
-        self._assert_not_empty()
+        assert not self.empty
         timestamp, event = self._events_heap.pop()
         return event
 
@@ -52,7 +46,7 @@ class EventQueue(object):
             return []
 
     def advance(self):
-        self._assert_not_empty()
+        assert not self.empty
         event = self.pop()
         for handler in self._get_event_handlers( type(event) ):
             handler(event)

@@ -128,7 +128,7 @@ class test_EventQueue(TestCase):
             assert self.queue.pop() is event
 
     def test_pop_empty(self):
-        self.assertRaises(EventQueue.EmptyQueue, self.queue.pop)
+        self.assertRaises(AssertionError, self.queue.pop)
 
     def test_empty_true(self):
         self.failUnless( self.queue.empty )
@@ -154,7 +154,7 @@ class test_EventQueue(TestCase):
         )
 
     def test_advance_empty_queue(self):
-        self.assertRaises(EventQueue.EmptyQueue, self.queue.advance)
+        self.assertRaises(AssertionError, self.queue.advance)
 
     def test_advance_eats_event(self):
         self._add_event_and_advance(self.event)
