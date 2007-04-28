@@ -234,29 +234,28 @@ SAMPLE_JOB_INPUT = """
    17     7071      5     23   32     -1  2344   32    300  1024  1   8   7   5  1 -1 -1 -1
    18     7219      8     23   32     -1  2327   32    300  1024  1   8   7   5  1 -1 -1 -1
    19     7307      3    441  128 392.00  7148  128    480  8192  1  11  10   7  1 -1 -1 -1
-""".splitlines()
+""".strip().splitlines()
 
 class test_Simulator(TestCase):
     def setUp(self):
-        import workload_parser
-        self.job_inputs = list(workload_parser.parse_lines(SAMPLE_JOB_INPUT))
+        self.job_source = list(prototype.parse_job_lines_quick_and_dirty(SAMPLE_JOB_INPUT))
         self.event_queue = EventQueue()
         self.machine = prototype.Machine(num_processors=1000, event_queue=self.event_queue)
         self.scheduler = prototype.StupidScheduler(self.event_queue)
 
         self.simulator = prototype.Simulator(
-            self.job_inputs,
+            job_source = self.job_source,
             event_queue = self.event_queue,
             machine = self.machine,
             scheduler = self.scheduler,
         )
 
     def tearDown(self):
-        del self.job_inputs, self.event_queue, self.machine, self.simulator
+        del self.job_source, self.event_queue, self.machine, self.simulator
 
     def test_init_event_queue(self):
         self.assertEqual(
-            set(job_input.number for job_input in self.job_inputs), 
+            set(job.id for timestamp, job in self.job_source), 
             set(event.job.id for event in self.simulator.event_queue.events)
         )
 
@@ -270,10 +269,14 @@ class test_Simulator(TestCase):
 
         self.simulator.run()
 
-        self.failUnless( self.job_inputs[0].number in done_jobs_ids )
+        self.assertEqual(
+            set(job.id for timestamp, job in self.job_source), 
+            set(done_jobs_ids),
+        )
 
     def test_job_input_to_job(self):
-        job_input = self.job_inputs[0]
+        import workload_parser
+        job_input = workload_parser.JobInput(SAMPLE_JOB_INPUT[0])
         job = self.simulator._job_input_to_job(job_input)
 
         self.assertEqual( job.id, job_input.number )
