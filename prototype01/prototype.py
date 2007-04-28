@@ -80,17 +80,41 @@ class Machine(object):
     def busy_processors(self):
         return sum(job.num_required_processors for job in self.jobs)
 
+def parse_job_lines_quick_and_dirty(lines):
+    """
+    parses lines in Standard Workload Format, yielding pairs of (submit_time, <Job instance>)
+
+    This should have been:
+
+      for job_input in workload_parser.parse_lines(lines):
+        yield job_input.submit_time, Simulator._job_input_to_job(job_input)
+
+    But instead everything is hard-coded (also hard to read and modify) for
+    performance reasons.
+
+    Pay special attention to the indices and see that you're using what you
+    expect, check out the workload_parser.JobInput properties and
+    Simulator._job_input_to_job comments to see extra logic that isn't
+    represented here.
+    """
+    for line in lines:
+        x = line.split()
+        yield int(x[1]), Job(
+            id = int(x[0]),
+            estimated_run_time = int(x[8]),
+            actual_run_time = int(x[3]),
+            num_required_processors = int(x[7]),
+        )
+
 class Simulator(object):
-    def __init__(self, job_input_source, event_queue, machine, scheduler):
+    def __init__(self, job_source, event_queue, machine, scheduler):
         self.event_queue = event_queue
         self.machine = machine
         self.scheduler = scheduler
 
-        for job_input in job_input_source:
-            job = self._job_input_to_job(job_input)
-
+        for submit_time, job in job_source:
             self.event_queue.add_event(
-                    JobSubmitEvent(timestamp = job_input.submit_time, job = job)
+                    JobSubmitEvent(timestamp = submit_time, job = job)
                 )
 
     @staticmethod

@@ -3,7 +3,7 @@ import sys
 import time
 
 from event_queue import EventQueue
-from prototype import Simulator, Machine, StupidScheduler
+from prototype import Simulator, Machine, StupidScheduler, parse_job_lines_quick_and_dirty
 import workload_parser
 
 if __debug__:
@@ -13,13 +13,12 @@ if __debug__:
 def main():
     print "Reading input from stdin..."
 
-    job_inputs = workload_parser.parse_lines( sys.stdin )
     event_queue = EventQueue()
     machine = Machine(num_processors=10000, event_queue=event_queue)
     scheduler = StupidScheduler(event_queue)
 
     simulator = Simulator(
-        job_inputs,
+        job_source = parse_job_lines_quick_and_dirty(sys.stdin),
         event_queue = event_queue,
         machine = machine,
         scheduler = scheduler,
