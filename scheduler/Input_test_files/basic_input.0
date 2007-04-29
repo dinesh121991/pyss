@@ -1,0 +1,13 @@
+#basic_input.0
+### the instance below is applicable to the schedulers: fifo, easy, conservative, 
+### in each of these policies we expect a similar scheduling decision.  
+#
+# The instance: a single job that arrives at time 0 
+# with user estimated duartion euqals actual duration (=600)  
+# the first 600 denotes both the id of the job 
+# and the desired finishing time of the job by all the above mentioned scheduling policies
+#
+#
+# the input variables: 
+# arrival time; job id; user estimated duration; number of required nodes; actual duration  
+0 600 600 1 600

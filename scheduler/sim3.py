@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.4
 
-from sim import *
+from sim  import *
 from sim1 import *
 from sim2 import *
 import sys
@@ -103,36 +103,7 @@ class MauiScheduler(EasyBackfillScheduler):
 
     
 
-    def canBeBackfilled(self, first_job, second_job, time):
-        print "... Let's check if the job can be backfilled"      
-        start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
-        print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
-
-        if start_time_of_second_job > time:
-            print "nop ..."
-            return False
-    
-        shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "shadow time, the reserved start time of the first job: ", shadow_time, first_job.id
-        
-        # TODO: shouldn't this method not change the state?
-        self.cpu_snapshot.assignJob(second_job, time)
-        start_time_of_1st_if_2nd_job_assigned = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_1st_if_2nd_job_assigned
-        
-        self.cpu_snapshot.delJobFromCpuSlices(second_job)
-       
-        if start_time_of_1st_if_2nd_job_assigned > shadow_time:
-            print "reserved_start_time_of_first_job", shadow_time
-            print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
-            print "nop ...."
-            return False 
-                #this means that assigning the second job at current time postphones the
-                #first job in the waiting list, and so the second job cannot be backfilled 
-        else:
-            print "sure!!!!"
-            return True
-
+  
         
       
 
