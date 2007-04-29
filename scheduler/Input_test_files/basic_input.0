@@ -10,4 +10,4 @@
 #
 # the input variables: 
 # arrival time; job id; user estimated duration; number of required nodes; actual duration  
-0 600 600 1 600
+0 600 600 1 600 0 0
