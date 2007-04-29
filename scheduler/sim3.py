@@ -6,6 +6,8 @@ from sim2 import *
 import sys
 
 
+# a first toy version 
+
 
 class MauiScheduler(EasyBackfillScheduler):
     def __init__(self, total_nodes = 100):
@@ -37,15 +39,17 @@ class MauiScheduler(EasyBackfillScheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
+        """ Here we first add the new job to the waiting list. We then try to schedule
+        the jobs in the waiting list, returning a collection of new termination events """
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
         return self._schedule_jobs(time)  
 
 
              
     def handleTerminationOfJobEvent(self, job, time):
-        """ this handler deletes the tail of job.
-        It then reschedules the remaining jobs and returns a collection of new termination events
-        (using the dictionary data structure) """
+        """ Here we first delete the tail of the just terminated job (in case it's
+        done before user estimation time). We then try to schedule the jobs in the waiting list,
+        returning a collection of new termination events """
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(time)
     
@@ -55,13 +59,14 @@ class MauiScheduler(EasyBackfillScheduler):
             print job
         print
         
+
     def _schedule_jobs(self, time):
         newEvents = Events()
                              
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents # waiting list is empty        
         
-        #first, try to schedule the head of the waiting list
+        #first, try to schedule the "head" of the waiting list ordered by the respective order
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare)
         
         while len(self.waiting_list_of_unscheduled_jobs) > 0: 
@@ -76,7 +81,7 @@ class MauiScheduler(EasyBackfillScheduler):
             else:
                 break
 
-        #then, try to backfill the tail of the waiting list
+        #then, try to backfill the "tail" of the waiting list ordered by the respective order
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs.pop(0)
             print "While trying to backfill ...."
@@ -99,8 +104,7 @@ class MauiScheduler(EasyBackfillScheduler):
     
 
     def canBeBackfilled(self, first_job, second_job, time):
-        print "... Let's check if the job can be backfilled"
-        
+        print "... Let's check if the job can be backfilled"      
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
         print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
 
@@ -124,7 +128,7 @@ class MauiScheduler(EasyBackfillScheduler):
             print "nop ...."
             return False 
                 #this means that assigning the second job at current time postphones the
-                #first job in the waiting list, and so the second job cannot be back filled 
+                #first job in the waiting list, and so the second job cannot be backfilled 
         else:
             print "sure!!!!"
             return True
