@@ -15,10 +15,11 @@ class Job:
         self.arrival_time = job_arrival_time # Assumption: arrival time is greater than zero 
         self.start_to_run_at_time = -1 
         self.actual_duration = job_actual_duration
-        
+
+        # the next are essentially for the MauiScheduler
         self.admin_QoS = job_admin_QoS # the priority given by the system administration  
         self.user_QoS = job_user_QoS # the priority given by the user
-
+        self.bypass_counter = 0;
         
 
     def __str__(self):
