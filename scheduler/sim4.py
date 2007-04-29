@@ -89,14 +89,13 @@ class Simulator:
 
                 if isinstance(event, JobArrivalEvent):
                     newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    # print "TERMINATION EVENT", event
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 

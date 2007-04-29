@@ -6,14 +6,9 @@ from sim2 import *
 import sys
 
 
-# a first toy version 
-
+# a first toy version for the maui 
 
 class MauiScheduler(EasyBackfillScheduler):
-    def __init__(self, total_nodes = 100):
-        self.cpu_snapshot = CpuSnapshot(total_nodes)
-        self.waiting_list_of_unscheduled_jobs = []
-        
         
     def waiting_list_compare(self, job_a, job_b):
         weight_a = 1000 * job_a.admin_QoS + 0 * job_a.user_QoS
@@ -55,12 +50,13 @@ class MauiScheduler(EasyBackfillScheduler):
     
 
     def print_waiting_list(self):
+        print "_______ Waiting Job in the List: _______" 
         for job in self.waiting_list_of_unscheduled_jobs:
             print job
         print
         
 
-    def _schedule_jobs(self, time):
+    def _schedule_jobs(self, current_time):
         newEvents = Events()
                              
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
@@ -68,30 +64,25 @@ class MauiScheduler(EasyBackfillScheduler):
         
         #first, try to schedule the "head" of the waiting list ordered by the respective order
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare)
+        self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
         
-        while len(self.waiting_list_of_unscheduled_jobs) > 0: 
-            first_job = self.waiting_list_of_unscheduled_jobs[0]
-            start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-            if start_time_of_first_job == time:
-                print ">>>> job has been scheduled:", first_job
-                self.waiting_list_of_unscheduled_jobs.remove(first_job)
-                self.cpu_snapshot.assignJob(first_job, time)
-                termination_time = time + first_job.actual_duration
-                newEvents.add_job_termination_event(termination_time, first_job) 
-            else:
-                break
+        self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
+        return newEvents
 
-        #then, try to backfill the "tail" of the waiting list ordered by the respective order
+    
+    def _backfill_the_tail_of_the_waiting_list(self, time, newEvents):
+        # this method is slightly different from this method in the EasyBackfill
+        # the identical part is the for loop below
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs.pop(0)
             print "While trying to backfill ...."
-            print "first job is:", first_job 
+            print "first job is:", first_job
             print ">>>> waiting list by waiting list priority:"
             self.print_waiting_list()
             self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare)
             print ">>>> waiting list by backfilling prioroty:"
             self.print_waiting_list()
-            for next_job in self.waiting_list_of_unscheduled_jobs: 
+            for next_job in self.waiting_list_of_unscheduled_jobs:
                 if self.canBeBackfilled(first_job, next_job, time):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
                     time = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
@@ -101,9 +92,7 @@ class MauiScheduler(EasyBackfillScheduler):
             self.waiting_list_of_unscheduled_jobs.append(first_job)
         return newEvents
 
-    
 
-  
         
       
 
