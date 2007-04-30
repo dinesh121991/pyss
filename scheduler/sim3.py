@@ -105,93 +105,122 @@ class EasyBackfillScheduler(Scheduler):
 
 
 
+class Weights:
+    # this class defines the configuration of weights for the MAUI 
+    def __init__(self, w_wtime=0, w_sld=0, w_uqos=0, w_bypass=0, w_admin=0, w_size=0):
+        self.wtime  = w_wtime  # weight of wait time since arrival  
+        self.sld    = w_sld    # weight of slow down  
+        self.uqos   = w_uqos   # weight of user desired quality of service 
+        self.bypass = w_bypass # weight of being skipped over in the waiting list  
+        self.admin  = w_admin  # weight of asmin desired quality of service
+        self.size   = w_size   # weight of job size (= nodes) 
+
 
 # a first toy version for the maui -- essentillay the diffrence between this simplified version of maui and easy
 # backfilling is that the maui has more degree of freedom: maui may consider the jobs
 # not necessarily by order of arrival, as opposed to the easy backfill.    
 
 class MauiScheduler(EasyBackfillScheduler):
-    def __init__(self, total_nodes = 100):
+    def __init__(self, total_nodes = 100, weights_list=None, weights_backfill=None):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_list_of_unscheduled_jobs = []
-        self.maui_global_stamp = 0
+        self.maui_timestamp = 0
+        self.maui_current_time = 0
+
+        # weights for calculation of priorities for the jobs in MAUI style
+        self.weights_list = weights_list
+        self.weights_backfill = weights_backfill
+
     
-    def handleArrivalOfJobEvent(self, just_arrived_job, time):
+    def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
-        just_arrived_job.maui_stamp = self.maui_global_stamp
-        self.maui_global_stamp += 1
+        just_arrived_job.maui_timestamp = self.maui_timestamp
+        self.maui_timestamp += 1
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
-        return self._schedule_jobs(time)  
+        return self._schedule_jobs(current_time)  
         
         
     def _schedule_jobs(self, current_time):
-        newEvents = Events()
-                             
+        # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
+        # The different lines are marked with ## + 
+
+        newEvents = Events()                  
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return newEvents # waiting list is empty        
-        
-        # schedule the "head" of the waiting list:
-        # first reorder the list by the respective order
-        # and then call the regular easy backfill's method for scheduling the head  
-        self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare)
+            return newEvents         
+        self.maui_current_time = current_time ## +
+        self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare) ## + 
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
-        # schedule the "tail": here we override/load the regular method for tail scheduling  
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
 
     
-    def _backfill_the_tail_of_the_waiting_list(self, time, newEvents):
-        # this method is based on the analogue method of EasyBackfill.
-        # however it has some modifications, see the lines that are marked with # + 
+    def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
-            first_job = self.waiting_list_of_unscheduled_jobs.pop(0) # + 
+            first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## + 
             print "While trying to backfill ...."
             print "first job is:", first_job
             print ">>>> waiting list by waiting list priority:"
             self.print_waiting_list()
-            self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) # + 
+            self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## + 
             print ">>>> waiting list by backfilling priority:"
             self.print_waiting_list()
             for next_job in self.waiting_list_of_unscheduled_jobs:
-                if self.canBeBackfilled(first_job, next_job, time):
+                if self.canBeBackfilled(first_job, next_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
-                    self.increament_bypass_counters_while_backfilling(first_job, next_job) # +  
-                    time = self.cpu_snapshot.jobEarliestAssignment(next_job, time)
-                    self.cpu_snapshot.assignJob(next_job, time)
-                    termination_time = time + next_job.actual_duration
+                    self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +  
+                    current_time = self.cpu_snapshot.jobEarliestAssignment(next_job, current_time)
+                    self.cpu_snapshot.assignJob(next_job, current_time)
+                    termination_time = current_time + next_job.actual_duration
                     newEvents.add_job_termination_event(termination_time, next_job)
             self.waiting_list_of_unscheduled_jobs.append(first_job) # + 
         return newEvents
 
+
     def increament_bypass_counters_while_backfilling(self, first_job, backfilled_job):
-        if first_job.maui_stamp < backfilled_job.maui_stamp: # and first_job has entered to the waiting list before next_job   
+        if first_job.maui_timestamp < backfilled_job.maui_timestamp:
             first_job.maui_bypass_counter += 1
+            
         for job in self.waiting_list_of_unscheduled_jobs:
-            if job.maui_stamp < backfilled_job.maui_stamp: # and first_job has entered to the waiting list before next_job   
+            if job.maui_timestamp < backfilled_job.maui_timestamp:
                 job.maui_bypass_counter += 1
             
 
+        
+    def aggregated_weight_of_job(self, weights, job):
+    
+        wait = self.maui_current_time - job.arrival_time # wait time since arrival of job
+        sld = (wait + job.user_predicted_duration) /  job.user_predicted_duration
+        
+        w = weights
+        
+        weight_job = w.wtime  * wait + \
+                     w.sld    * sld + \
+                     w.uqos   * job.user_QoS + \
+                     w.bypass * job.maui_bypass_counter + \
+                     w.admin  * job.admin_QoS + \
+                     w.size   * job.nodes  
 
-    def waiting_list_compare(self, job_a, job_b):
-        weight_a = 1 * job_a.admin_QoS + 0 * job_a.user_QoS + 0.0001 * job_a.maui_bypass_counter + 0.1 * job_a.nodes  
-        weight_b = 1 * job_b.admin_QoS + 0 * job_b.user_QoS + 0.0001 * job_b.maui_bypass_counter + 0.1 * job_a.nodes
-         
-        if weight_a > weight_b:
+
+
+    def waiting_list_compare(self, job_a, job_b): 
+        w_a = self.aggregated_weight_of_job(self.weights_list, job_a)     
+        w_b = self.aggregated_weight_of_job(self.weights_list, job_b)       
+        if w_a > w_b:
             return -1
-        elif weight_a == weight_b:
+        elif w_a == w_b:
             return  0
         else:
             return  1
         
 
     def backfilling_compare(self, job_a, job_b):
-        weight_a = 0 * job_a.admin_QoS + 1 * job_a.user_QoS + 0.0001 * job_a.maui_bypass_counter + 0.1 * job_a.nodes 
-        weight_b = 0 * job_b.admin_QoS + 1 * job_b.user_QoS + 0.0001 * job_a.maui_bypass_counter + 0.1 * job_b.nodes
+        w_a = self.aggregated_weight_of_job(self.weights_backfill, job_a)     
+        w_b = self.aggregated_weight_of_job(self.weights_backfill, job_b) 
 
-        if weight_a > weight_b:
+        if w_a > w_b:
             return -1
-        elif weight_a == weight_b:
+        elif w_a == w_b:
             return  0
         else:
             return  1

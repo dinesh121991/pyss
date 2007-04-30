@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.4
 
-from sim import *
+from sim  import *
 from sim1 import *
 from sim2 import *
 from sim3 import * 
@@ -12,9 +12,7 @@ class JobArrivalEventGeneratorViaLogFile:
     
     def __init__(self, input_file):
         """Assumption: Job details are 'correct': arrival_time, nodes and duration are non-negative, job id is unique, 
-
         and the amount of nodes requested by the job is never more than the total available nodes"""
-        
         self.file = file(input_file) # openning of the specified file for reading 
         self.events = Events()
         self.jobs = []
@@ -43,25 +41,28 @@ class Simulator:
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
         
-    def __init__(self, total_nodes=100, input_file="input", scheduler=None):
+    def __init__(self, total_nodes=100, input_file="input", scheduler=None, maui_list_weights=None, maui_backfill_weights=None):
         self.total_nodes = total_nodes
         self.current_time = 0
         events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
         self.events = events_generated_by_input_file.events
-        self.jobs = events_generated_by_input_file.jobs 
-
-
+        self.jobs = events_generated_by_input_file.jobs
+        
         if scheduler ==  "Conservative":
             self.scheduler =  ConservativeScheduler(total_nodes)
         elif scheduler ==  "EasyBackfill":
             self.scheduler =  EasyBackfillScheduler(total_nodes)
         elif scheduler ==  "Maui":
             self.scheduler =  MauiScheduler(total_nodes)
+            self.scheduler.weights_list = maui_list_weights
+            self.scheduler.weights_backfill = maui_backfill_weights
+
         elif scheduler ==  "Fcfs":
             self.scheduler = FcfsScheduler(total_nodes)
         else:
             print ">>> Problem: No such scheduling Policy"
-            return 
+            return
+        
 
         self.startSimulation()
          
@@ -188,7 +189,11 @@ class Simulator:
 
 ###############
 
-simulation = Simulator(scheduler ="Maui")
+w= Weights(1, 0, 0, 0, 0, 0)
+w = Weights(0, 0, 0, 1, 1, 0) 
+
+simulation = Simulator(scheduler ="Maui", maui_list_weights = w, maui_backfill_weights = w)
+
 #simulation = Simulator(scheduler ="Conservative")
 #simulation = Simulator(scheduler ="EasyBackfill")
 #simulation = Simulator(scheduler ="Fcfs")

@@ -10,9 +10,46 @@ assertRaises() to verify that an expected exception gets raised.
 
 ----------------------------------------------- 
 
+
 Maui scheduler 
 
 Dror's code: ~feit/src/sim/maui.c
+
+
+/*
+ * MAUI priorities depend on several factors with different weights.
+ * we just consider a subset.
+ */
+static double   w_qtime;        /* weight of time spent in queue    */
+static double   w_sld;          /* weight of slowdown (Xfactor)     */
+static double   w_qos;          /* weight of desired QoS (user pri) */
+static double   w_bypass;       /* weight of being skipped over     */
+static double   w_dir;          /* weight of direct pri (admin pri) */
+static double   w_size;         /* weight of job size (= nodes)     */
+
+
+
+
+ 
+/*
+ * calculate a job's priority MAUI style
+ */
+
+static double
+pri( int job )
+{
+    double      wait;
+
+    wait = glob_time - jobs_shaddow[job].t0;
+
+    return( w_qtime  * wait
+          + w_sld    * ((wait + jobs[job].estimate) / jobs[job].estimate)
+          + w_qos    * jobs_shaddow[job].qos
+          + w_dir    * jobs_shaddow[job].dir
+          + w_bypass * jobs_shaddow[job].bypass
+          + w_size   * jobs[job].size );
+}
+
 
 ----------------------------------------------- 
 

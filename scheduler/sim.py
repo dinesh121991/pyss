@@ -20,7 +20,7 @@ class Job:
         self.admin_QoS = job_admin_QoS # the priority given by the system administration  
         self.user_QoS = job_user_QoS # the priority given by the user
         self.maui_bypass_counter = 0
-        self.maui_stamp = 0
+        self.maui_timestamp = 0
         
 
     def __str__(self):
