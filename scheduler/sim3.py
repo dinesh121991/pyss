@@ -16,14 +16,16 @@ class EasyBackfillScheduler(Scheduler):
 
         
     def handleArrivalOfJobEvent(self, just_arrived_job, time):
+    """ Here we first add the new job to the waiting list. We then try to schedule
+        the jobs in the waiting list, returning a collection of new termination events """
          self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
          return self._schedule_jobs(time)  
              
 
     def handleTerminationOfJobEvent(self, job, time):
-        """ this handler deletes the tail of job.
-        It then reschedules the remaining jobs and returns a collection of new termination events
-        (using the dictionary data structure) """
+    """ Here we first delete the tail of the just terminated job (in case it's
+        done before user estimation time). We then try to schedule the jobs in the waiting list,
+        returning a collection of new termination events """
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(time)
 
@@ -104,67 +106,25 @@ class EasyBackfillScheduler(Scheduler):
 
 
 
-# a first toy version for the maui 
+# a first toy version for the maui -- essentillay the diffrence between (this version of) maui and easy
+# backfilling is that the maui has more degree of freedom. For instance, maui may considers the jobs
+# not necessarily by order of arrival, as opposed to the easy backfill.    
 
 class MauiScheduler(EasyBackfillScheduler):
         
-    def waiting_list_compare(self, job_a, job_b):
-        weight_a = 1000 * job_a.admin_QoS + 0 * job_a.user_QoS
-        weight_b = 1000 * job_b.admin_QoS + 0 * job_b.user_QoS
-         
-        if weight_a > weight_b:
-            return -1
-        elif weight_a == weight_b:
-            return  0
-        else:
-            return  1
         
-
-    def backfilling_compare(self, job_a, job_b):
-        weight_a = 0 * job_a.admin_QoS + 1000 * job_a.user_QoS
-        weight_b = 0 * job_b.admin_QoS + 1000 * job_b.user_QoS
-
-        if weight_a > weight_b:
-            return -1
-        elif weight_a == weight_b:
-            return  0
-        else:
-            return  1
-
-        
-    def handleArrivalOfJobEvent(self, just_arrived_job, time):
-        """ Here we first add the new job to the waiting list. We then try to schedule
-        the jobs in the waiting list, returning a collection of new termination events """
-        self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
-        return self._schedule_jobs(time)  
-
-
-             
-    def handleTerminationOfJobEvent(self, job, time):
-        """ Here we first delete the tail of the just terminated job (in case it's
-        done before user estimation time). We then try to schedule the jobs in the waiting list,
-        returning a collection of new termination events """
-        self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        return self._schedule_jobs(time)
-    
-
-    def print_waiting_list(self):
-        print "_______ Waiting Job in the List: _______" 
-        for job in self.waiting_list_of_unscheduled_jobs:
-            print job
-        print
-        
-
     def _schedule_jobs(self, current_time):
         newEvents = Events()
                              
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents # waiting list is empty        
         
-        #first, try to schedule the "head" of the waiting list ordered by the respective order
+        # schedule the "head" of the waiting list:
+        # first reorder the list by the respective order
+        # and then call the regular easy backfill's method for scheduling the head  
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare)
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
-        
+        # schedule the "tail": here we override/load the regular method for tail scheduling  
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
 
@@ -192,8 +152,35 @@ class MauiScheduler(EasyBackfillScheduler):
         return newEvents
 
 
+    def waiting_list_compare(self, job_a, job_b):
+        weight_a = 1000 * job_a.admin_QoS + 0 * job_a.user_QoS
+        weight_b = 1000 * job_b.admin_QoS + 0 * job_b.user_QoS
+         
+        if weight_a > weight_b:
+            return -1
+        elif weight_a == weight_b:
+            return  0
+        else:
+            return  1
         
-      
+
+    def backfilling_compare(self, job_a, job_b):
+        weight_a = 0 * job_a.admin_QoS + 1000 * job_a.user_QoS
+        weight_b = 0 * job_b.admin_QoS + 1000 * job_b.user_QoS
+
+        if weight_a > weight_b:
+            return -1
+        elif weight_a == weight_b:
+            return  0
+        else:
+            return  1
+        
+    
+    def print_waiting_list(self):
+        for job in self.waiting_list_of_unscheduled_jobs:
+            print job
+        print
+        
 
 
 
