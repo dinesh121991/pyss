@@ -19,7 +19,8 @@ class Job:
         # the next are essentially for the MauiScheduler
         self.admin_QoS = job_admin_QoS # the priority given by the system administration  
         self.user_QoS = job_user_QoS # the priority given by the user
-        self.bypass_counter = 0;
+        self.maui_bypass_counter = 0
+        self.maui_stamp = 0
         
 
     def __str__(self):
