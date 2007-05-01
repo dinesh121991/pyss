@@ -25,12 +25,19 @@ class JobArrivalEventGeneratorViaLogFile:
             if line.startswith('#'):
                 continue # skipping a comment in the input_file 
 
-            (j_arrival_time, j_id, j_user_predicted_duration, j_nodes, j_actual_duration, j_admin_QoS, j_user_QoS) = line.split()
-             
-            newJob = Job(j_id, int(j_user_predicted_duration), int(j_nodes), int(j_arrival_time), int(j_actual_duration), int(j_admin_QoS), int(j_user_QoS))
+            (str_j_arrival_time, j_id, str_j_user_predicted_duration, \
+             str_j_nodes, str_j_actual_duration, str_j_admin_QoS, str_j_user_QoS) = line.split()
+            j_arrival_time = int(str_j_arrival_time)
+            j_user_predicted_duration = int(str_j_user_predicted_duration)
+            j_nodes = int(str_j_nodes)
+            j_actual_duration = int(str_j_actual_duration)
+            j_admin_QoS = int(str_j_admin_QoS)
+            j_user_QoS = int(str_j_user_QoS)
 
-            self.jobs.append(newJob)
-            self.events.add_job_arrival_event(int(j_arrival_time), newJob)
+            if j_arrival_time >= 0 and j_nodes > 0 and j_user_predicted_duration >= j_actual_duration and j_actual_duration >= 0: 
+                newJob = Job(j_id, j_user_predicted_duration, j_nodes, j_arrival_time, j_actual_duration, j_admin_QoS, j_user_QoS)
+                self.jobs.append(newJob)
+                self.events.add_job_arrival_event(int(j_arrival_time), newJob)
 
         self.file.close()
 
