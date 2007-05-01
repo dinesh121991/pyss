@@ -6,9 +6,11 @@ class Job:
                  job_arrival_time=0, job_actual_duration=0, job_admin_QoS=0, job_user_QoS=0):
 
         assert job_nodes > 0
-        assert user_predicted_duration >= 0
-        assert job_actual_duration >= 0 
-
+        assert job_actual_duration >= 0
+        assert user_predicted_duration >= job_actual_duration
+        assert job_arrival_time >= 0
+        
+        
         self.id = job_id
         self.user_predicted_duration = user_predicted_duration
         self.nodes = job_nodes

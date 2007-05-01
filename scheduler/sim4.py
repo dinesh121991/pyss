@@ -24,14 +24,13 @@ class JobArrivalEventGeneratorViaLogFile:
                 break
             if line.startswith('#'):
                 continue # skipping a comment in the input_file 
-            (j_arrival_time, j_id, j_duration, j_nodes, j_actual_duration, j_admin_QoS, j_user_QoS) = line.split()            
 
-            newJob = Job(j_id, int(j_duration), int(j_nodes), \
-                         int(j_arrival_time), int(j_actual_duration), int(j_admin_QoS), int(j_user_QoS))
+            (j_arrival_time, j_id, j_user_predicted_duration, j_nodes, j_actual_duration, j_admin_QoS, j_user_QoS) = line.split()
+             
+            newJob = Job(j_id, int(j_user_predicted_duration), int(j_nodes), int(j_arrival_time), int(j_actual_duration), int(j_admin_QoS), int(j_user_QoS))
 
             self.jobs.append(newJob)
             self.events.add_job_arrival_event(int(j_arrival_time), newJob)
-
 
         self.file.close()
 
@@ -50,13 +49,21 @@ class Simulator:
         
         if scheduler ==  "Conservative":
             self.scheduler =  ConservativeScheduler(total_nodes)
+
         elif scheduler ==  "EasyBackfill":
             self.scheduler =  EasyBackfillScheduler(total_nodes)
+            
         elif scheduler ==  "Maui":
             self.scheduler =  MauiScheduler(total_nodes)
-            self.scheduler.weights_list = maui_list_weights
-            self.scheduler.weights_backfill = maui_backfill_weights
-
+            if maui_list_weights != None:  
+                self.scheduler.weights_list = maui_list_weights
+            else:
+                self.scheduler.weights_list = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of arrival
+            if maui_backfill_weights != None: 
+                self.scheduler.weights_backfill = maui_backfill_weights
+            else:
+                self.scheduler.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of arrival
+                
         elif scheduler ==  "Fcfs":
             self.scheduler = FcfsScheduler(total_nodes)
         else:
@@ -189,13 +196,13 @@ class Simulator:
 
 ###############
 
-w= Weights(1, 0, 0, 0, 0, 0)
-w = Weights(0, 0, 0, 1, 1, 0) 
+# (w_wtime, w_sld, w_user, w_bypass, w_admin, w_size)
+#w_l = Weights(0, 0, 0, 1, 1, 0) 
+#w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
-simulation = Simulator(scheduler ="Maui", maui_list_weights = w, maui_backfill_weights = w)
-
-#simulation = Simulator(scheduler ="Conservative")
-#simulation = Simulator(scheduler ="EasyBackfill")
+#simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
+#simulation = Simulator(scheduler ="Conservative", total_nodes = 100)
+#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 100)
 #simulation = Simulator(scheduler ="Fcfs")
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 

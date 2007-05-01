@@ -107,10 +107,10 @@ class EasyBackfillScheduler(Scheduler):
 
 class Weights:
     # this class defines the configuration of weights for the MAUI 
-    def __init__(self, w_wtime=0, w_sld=0, w_uqos=0, w_bypass=0, w_admin=0, w_size=0):
+    def __init__(self, w_wtime=1, w_sld=0, w_user=0, w_bypass=0, w_admin=0, w_size=0):
         self.wtime  = w_wtime  # weight of wait time since arrival  
         self.sld    = w_sld    # weight of slow down  
-        self.uqos   = w_uqos   # weight of user desired quality of service 
+        self.user  = w_user   # weight of user desired quality of service 
         self.bypass = w_bypass # weight of being skipped over in the waiting list  
         self.admin  = w_admin  # weight of asmin desired quality of service
         self.size   = w_size   # weight of job size (= nodes) 
@@ -158,8 +158,7 @@ class MauiScheduler(EasyBackfillScheduler):
     def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## + 
-            print "While trying to backfill ...."
-            print "first job is:", first_job
+            print "While trying to backfill...., first job is:", first_job
             print ">>>> waiting list by waiting list priority:"
             self.print_waiting_list()
             self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## + 
@@ -188,42 +187,42 @@ class MauiScheduler(EasyBackfillScheduler):
 
         
     def aggregated_weight_of_job(self, weights, job):
-    
         wait = self.maui_current_time - job.arrival_time # wait time since arrival of job
-        sld = (wait + job.user_predicted_duration) /  job.user_predicted_duration
-        
+        sld = (wait + job.user_predicted_duration) /  job.user_predicted_duration        
         w = weights
         
-        weight_job = w.wtime  * wait + \
+        weight_of_job = w.wtime  * wait + \
                      w.sld    * sld + \
-                     w.uqos   * job.user_QoS + \
+                     w.user   * job.user_QoS + \
                      w.bypass * job.maui_bypass_counter + \
                      w.admin  * job.admin_QoS + \
-                     w.size   * job.nodes  
+                     w.size   * job.nodes
+        return weight_of_job
+    
 
 
 
     def waiting_list_compare(self, job_a, job_b): 
         w_a = self.aggregated_weight_of_job(self.weights_list, job_a)     
         w_b = self.aggregated_weight_of_job(self.weights_list, job_b)       
-        if w_a > w_b:
-            return -1
+        if w_a < w_b:
+            return  1
         elif w_a == w_b:
             return  0
         else:
-            return  1
+            return -1
         
 
     def backfilling_compare(self, job_a, job_b):
         w_a = self.aggregated_weight_of_job(self.weights_backfill, job_a)     
         w_b = self.aggregated_weight_of_job(self.weights_backfill, job_b) 
 
-        if w_a > w_b:
-            return -1
+        if w_a < w_b:
+            return  1
         elif w_a == w_b:
             return  0
         else:
-            return  1
+            return -1
         
     
     def print_waiting_list(self):
