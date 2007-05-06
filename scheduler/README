@@ -41,6 +41,7 @@ import pdb; pdb.set_trace()
 
 _______________________
 
+Before Code Optimization: 
 
 head -500 stam2/input > ! input ; time sim4.py > ! output
 
@@ -52,3 +53,9 @@ Easy
 
 Cons: 
 7.796u 0.096s 0:09.45 83.3%     0+0k 0+0io 0pf+0w
+
+
+Tests: 
+Ran 12 tests in 3.919s
+OK
+3.548u 0.144s 0:04.37 84.2%     0+0k 0+0io 1pf+0w

@@ -16,7 +16,10 @@ class Scheduler:
         pass
     
     def handleEndOfSimulationEvent(self, current_time):
-        pass
+        if current_time == sys.maxint:
+            # otherewise, it might be the case that the simulation stoped
+            # before some jobs were scheduled properly 
+            self.cpu_snapshot.CpuSlicesTestFeasibility()
     
     
     
@@ -51,13 +54,6 @@ class FcfsScheduler(Scheduler):
             else:
                 first_failure_has_not_occured = False
         return newEvents
-
-    def handleEndOfSimulationEvent(self, current_time):
-        if current_time == sys.maxint:
-            # otherewise, it might be the case that the simulation stoped
-            # before some jobs were scheduled properly 
-            self.cpu_snapshot.CpuSlicesTestFeasibility()            
-        
 
     
 
@@ -102,14 +98,3 @@ class ConservativeScheduler(Scheduler):
         return newEvents
     
 
-    def handleEndOfSimulationEvent(self, current_time):
-        if current_time == sys.maxint:
-            # otherewise, it might be the case that the simulation stoped
-            # before some jobs were scheduled properly 
-            self.cpu_snapshot.CpuSlicesTestFeasibility()      
-
-                
-
-
-      
-    

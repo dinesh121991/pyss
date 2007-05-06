@@ -15,19 +15,19 @@ class EasyBackfillScheduler(Scheduler):
         self.waiting_list_of_unscheduled_jobs = []
 
         
-    def handleArrivalOfJobEvent(self, just_arrived_job, time):
+    def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
-        return self._schedule_jobs(time)  
+        return self._schedule_jobs(current_time)  
     
 
-    def handleTerminationOfJobEvent(self, job, time):
+    def handleTerminationOfJobEvent(self, job, current_time):
         """ Here we first delete the tail of the just terminated job (in case it's
         done before user estimation time). We then try to schedule the jobs in the waiting list,
         returning a collection of new termination events """
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        return self._schedule_jobs(time)
+        return self._schedule_jobs(current_time)
     
     
     def _schedule_jobs(self, current_time):
@@ -96,11 +96,8 @@ class EasyBackfillScheduler(Scheduler):
             return True 
       
 
-    def handleEndOfSimulationEvent(self, current_time):
-         if current_time == sys.maxint:
-            # otherewise, it might be the case that the simulation stoped
-            # before some jobs were scheduled properly 
-            self.cpu_snapshot.CpuSlicesTestFeasibility()
+
+
 
 
 
