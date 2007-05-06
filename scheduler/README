@@ -36,3 +36,19 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 # to debug at a specific line, add this:
 import pdb; pdb.set_trace()
+
+
+
+_______________________
+
+
+head -500 stam2/input > ! input ; time sim4.py > ! output
+
+FCFS: 
+7.888u 0.120s 0:08.69 92.0%     0+0k 0+0io 4pf+0w
+
+Easy
+8.036u 0.140s 0:08.80 92.8%     0+0k 0+0io 0pf+0w
+
+Cons: 
+7.796u 0.096s 0:09.45 83.3%     0+0k 0+0io 0pf+0w
