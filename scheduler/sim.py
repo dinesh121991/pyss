@@ -1,7 +1,6 @@
 
 
 class Job:
-
     def __init__(self, job_id, user_predicted_duration, job_nodes, \
                  job_arrival_time=0, job_actual_duration=0, job_admin_QoS=0, job_user_QoS=0):
 
@@ -37,7 +36,8 @@ class CpuTimeSlice:
     ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
         It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
         for nodes ba all the jobs assigned to this slice never exceeds the amount of the total nodes available.
-        Assumption: the duration of the slice is never changed. We can replace this slice with a new slice with shorter duration.'''
+        Assumption: the duration of the slice is never changed.
+        We can replace this slice with a new slice with shorter duration.'''
     
     total_nodes = 0 # a class variable
     
@@ -46,26 +46,22 @@ class CpuTimeSlice:
         self.start_time = start_time
         self.duration = duration
         self.jobs = []
-  
-        
+         
         if len(jobs) == 0:  
-            self.free_nodes = CpuTimeSlice.total_nodes
-           
+            self.free_nodes = CpuTimeSlice.total_nodes          
         else:
             num_of_active_nodes = 0
             for job in jobs: num_of_active_nodes += job.nodes
             self.free_nodes = CpuTimeSlice.total_nodes - num_of_active_nodes 
             for job in jobs:   
                 self.jobs.append(job)
-                
-           
+            
              
     def __str__(self):
         jobs_str = ""
         for job in self.jobs:
             jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"    
         return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, jobs_str)
-
 
             
     def addJob(self, job):
@@ -85,11 +81,6 @@ class CpuTimeSlice:
             return True
         else: 
             return False
-        
-
-    def getJobs(self):
-        return self.jobs 
-    
 
         
         
