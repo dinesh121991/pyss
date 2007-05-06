@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python2.3
 
 from sim  import *
 from sim1 import *
@@ -6,7 +6,7 @@ from sim2 import *
 from sim3 import * 
 
 import sys
-import random 
+import profile
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -19,7 +19,7 @@ class JobArrivalEventGeneratorViaLogFile:
         
         while True: 
             line = self.file.readline()
-            print line
+            # print line
             if len(line) == 0: # zero length indicates end-of-file
                 break
             if line.startswith('#'):
@@ -78,8 +78,8 @@ class Simulator:
             return
         
 
-        self.startSimulation()
-         
+       
+        self.startSimulation() 
    
 
     def startSimulation(self):
@@ -89,9 +89,11 @@ class Simulator:
         end_of_simulation_event_has_not_occured = True 
 
         while end_of_simulation_event_has_not_occured and len(self.events.collection) > 0:
- 
-            current_time = sorted(self.events.collection.keys()).pop(0)
-
+            
+            #current_time = sorted(self.events.collection.keys()).pop(0)
+            times = self.events.collection.keys()
+            times.sort()
+            current_time = times.pop(0)
             while len(self.events.collection[current_time]) > 0:
 
                 # print "Current Known Events:"
@@ -100,30 +102,31 @@ class Simulator:
                 # print
                 
                 event = self.events.collection[current_time].pop()
-                print str(event)
+                # print str(event)
 
                 if isinstance(event, JobArrivalEvent):
                     newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
+                    if event.job.start_to_run_at_time + event.job.actual_duration < current_time:
+                      continue # redundant JobTerminationEvent 
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 
                 elif isinstance(event, EndOfSimulationEvent):
                     end_of_simulation_event_has_not_occured = False
-                    print "______________ snapshot, before handling the EndOfSimu last event ________" 
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    #print "______________ snapshot, before handling the EndOfSimu last event ________" 
+                    #self.scheduler.cpu_snapshot.printCpuSlices()
 
                     self.scheduler.handleEndOfSimulationEvent(current_time)
-                    print "______________ last snapshot, before the simulation ends ________" 
-                    self.scheduler.cpu_snapshot.printCpuSlices()
-                    self.feasibilty_check_of_jobs_data(current_time)
- 
+                    # print "______________ last snapshot, before the simulation ends ________" 
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.feasibilty_check_of_jobs_data(current_time)
                     break
 
                 else:
@@ -133,11 +136,10 @@ class Simulator:
             del self.events.collection[current_time] # removing the current events
 
 
-            if random.choice(range(25)) == 1: # tossing a coin to decide whether to restore old slices in the archive
-                self.scheduler.cpu_snapshot.archive_old_slices(current_time)
-                
-                print "______________ right after calling to archive removal________" 
-                self.scheduler.cpu_snapshot.printCpuSlices()
+            if (current_time % 16) > 8: # tossing a coin to decide whether to restore old slices in the archive
+              self.scheduler.cpu_snapshot.archive_old_slices(current_time)  
+            # print "______________ right after calling to archive removal________" 
+            # self.scheduler.cpu_snapshot.printCpuSlices()
 
         self.calculate_statistics()  
 
@@ -194,11 +196,11 @@ class Simulator:
             if job.actual_duration > 0:
                 new_job = Job(job.id, job.actual_duration, job.nodes, job.arrival_time, job.actual_duration)
                 cpu_snapshot.assignJob(new_job, job.start_to_run_at_time)
-                cpu_snapshot.printCpuSlices()
+                # cpu_snapshot.printCpuSlices()
                 
-        cpu_snapshot.printCpuSlices()
         
         cpu_snapshot_is_feasible = cpu_snapshot.CpuSlicesTestFeasibility()
+        # cpu_snapshot.printCpuSlices()
         
         if every_job_starts_after_its_arrival_time and cpu_snapshot_is_feasible:  
             print "Feasibility Test is OK!!!!!"
@@ -214,10 +216,12 @@ class Simulator:
 #w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
+simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
 #simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
-#simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
+#simulation.startSimulation()
+profile.run('simulation.startSimulation()')
 
+#simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")
             

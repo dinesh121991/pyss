@@ -39,8 +39,9 @@ class Events:
         self._addEvent(time, event)
         
     def add_job_termination_event(self, time, job):
-        #makes sure that there will be a single termination event for this job
-        assert time >= 0
+        # makes sure that there will be a single termination event for this job
+        # assert time >= 0
+        """
         found = False
         for t, list_of_events_at_this_time in self.collection.iteritems():
             if found:
@@ -50,13 +51,14 @@ class Events:
                     list_of_events_at_this_time.remove(event)
                     found = True
                     break
+        """
         event = JobTerminationEvent(job)
         self._addEvent(time, event)
 
 
     def add_end_of_simulation_event(self, time):
-        #makes sure that there will be a single end of simulation event
-        assert time >= 0
+        # makes sure that there will be a single end of simulation event
+        # assert time >= 0
         found = False
         for t, list_of_events_at_this_time in self.collection.iteritems():
             if found:

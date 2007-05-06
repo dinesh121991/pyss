@@ -82,27 +82,27 @@ class EasyBackfillScheduler(Scheduler):
     
 
     def canBeBackfilled(self, first_job, second_job, time):
-        print "... Let's check if the job can be backfilled"
+        # print "... Let's check if the job can be backfilled"
         
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
-        print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
+        # print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
 
         if start_time_of_second_job > time:
             return False
     
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "shadow time, the reserved start time of the first job: ", shadow_time, first_job.id
+        # print "shadow time, the reserved start time of the first job: ", shadow_time, first_job.id
         
         # TODO: shouldn't this method not change the state?
         self.cpu_snapshot.assignJob(second_job, time)
         start_time_of_1st_if_2nd_job_assigned = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        print "start time of the 1st job after assigning the 2nd: ",  start_time_of_1st_if_2nd_job_assigned
+        # print "start time of the 1st job after assigning the 2nd: ",  start_time_of_1st_if_2nd_job_assigned
         
         self.cpu_snapshot.delJobFromCpuSlices(second_job)
        
         if start_time_of_1st_if_2nd_job_assigned > shadow_time:
-            print "reserved_start_time_of_first_job", shadow_time
-            print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
+            # print "reserved_start_time_of_first_job", shadow_time
+            # print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
             return False 
                 #this means that assigning the second job at current time postphones the
                 #first job in the waiting list, and so the second job cannot be back filled 
@@ -169,12 +169,12 @@ class MauiScheduler(EasyBackfillScheduler):
     def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## + 
-            print "While trying to backfill...., first job is:", first_job
-            print ">>>> waiting list by waiting list priority:"
-            self.print_waiting_list()
+            # print "While trying to backfill...., first job is:", first_job
+            # print ">>>> waiting list by waiting list priority:"
+            # self.print_waiting_list()
             self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## + 
-            print ">>>> waiting list by backfilling priority:"
-            self.print_waiting_list()
+            # print ">>>> waiting list by backfilling priority:"
+            # self.print_waiting_list()
             for next_job in self.waiting_list_of_unscheduled_jobs:
                 if self.canBeBackfilled(first_job, next_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)

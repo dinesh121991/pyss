@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python2.3
 
 import unittest 
 from sim2 import * 

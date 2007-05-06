@@ -108,7 +108,6 @@ class CpuSnapshot(object):
         accumulated_duration = 0
         
         assert time >= 0
-        assert time >= job.arrival_time
         
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
@@ -179,7 +178,7 @@ class CpuSnapshot(object):
 
             # splitting slice s with respect to the start time
             jobs = s.jobs
-            self.slices.remove(s)
+            del self.slices[index-1]
             self.slices.insert( index-1, CpuTimeSlice(s.start_time, start_time - s.start_time, jobs) )
             self.slices.insert( index, CpuTimeSlice(start_time, end_of_this_slice - start_time, jobs) )
             return 
@@ -191,10 +190,7 @@ class CpuSnapshot(object):
         remained_duration = job.user_predicted_duration
 
         index = 0
-        print
-        print 
         for s in self.slices:
-            print s
             index += 1
             if s.start_time < assignment_time:
                 continue
@@ -209,7 +205,7 @@ class CpuSnapshot(object):
             #else: duration_of_this_slice > remained_duration, that is the current slice
             #is longer than what we actually need, we thus split the slice, then add the job to the 1st one, and return
 
-            self.slices.remove(s)
+            del self.slices[index-1]
             self.slices.insert(index-1, 
                 CpuTimeSlice(
                     start_time = s.start_time + remained_duration,
@@ -292,9 +288,8 @@ class CpuSnapshot(object):
             
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""    
-        self._ensure_a_slice_starts_at(current_time) 
         for s in self.slices:
-            if s.start_time < current_time:
+            if s.start_time + s.duration < current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.remove(s)
             else:
@@ -387,16 +382,4 @@ class CpuSnapshot(object):
             print s
         print
         
-
-
-
-
-
-            
-        
-        
-
-
-
-
 
