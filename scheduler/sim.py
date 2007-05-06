@@ -3,12 +3,11 @@
 class Job:
     def __init__(self, job_id, user_predicted_duration, job_nodes, \
                  job_arrival_time=0, job_actual_duration=0, job_admin_QoS=0, job_user_QoS=0):
-
+        
         assert job_nodes > 0
         assert job_actual_duration >= 0
         assert user_predicted_duration >= job_actual_duration
         assert job_arrival_time >= 0
-        
         
         self.id = job_id
         self.user_predicted_duration = user_predicted_duration
@@ -43,6 +42,8 @@ class CpuTimeSlice:
     
     def __init__(self, start_time=0, duration=1, jobs=[]):
         assert duration > 0
+        assert start_time >= 0
+        
         self.start_time = start_time
         self.duration = duration
         self.jobs = []
@@ -55,14 +56,7 @@ class CpuTimeSlice:
             self.free_nodes = CpuTimeSlice.total_nodes - num_of_active_nodes 
             for job in jobs:   
                 self.jobs.append(job)
-            
-             
-    def __str__(self):
-        jobs_str = ""
-        for job in self.jobs:
-            jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"    
-        return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, jobs_str)
-
+                
             
     def addJob(self, job):
         assert self.free_nodes >= job.nodes
@@ -82,6 +76,14 @@ class CpuTimeSlice:
         else: 
             return False
 
+
+    def __str__(self):
+        jobs_str = ""
+        for job in self.jobs:
+            jobs_str += ", [" + str(job.id) + ", " + str(job.nodes) + "]"    
+        return '%d %d %d %s' % (self.start_time, self.duration, self.free_nodes, jobs_str)
+
+
         
         
 class CpuSnapshot(object):
@@ -90,10 +92,11 @@ class CpuSnapshot(object):
     def __init__(self, total_nodes=100):
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
-        self.slices={} # initializing the main structure of this class 
-        self.slices[0] = CpuTimeSlice() # Assumption: the snapshot always has at least one slice 
-        self.archive_of_old_slices={}
+        self.slices=[] # initializing the main structure of this class 
+        self.slices.append(CpuTimeSlice()) # Assumption: the snapshot always has at least one slice 
+        self.archive_of_old_slices=[]
                
+
     def jobEarliestAssignment(self, job, time=0):
         """ returns the earliest time right after the given time for which the job can be assigned
         enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.
@@ -107,11 +110,11 @@ class CpuSnapshot(object):
         assert time >= 0
         assert time >= job.arrival_time
         
-        for t in self._sorted_times: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
+        for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
-            end_of_this_slice = t +  self.slices[t].duration
+            end_of_this_slice = s.start_time +  s.duration
 
-            feasible = end_of_this_slice > time and self.slices[t].free_nodes >= job.nodes
+            feasible = end_of_this_slice > time and s.free_nodes >= job.nodes
             
             if not feasible: # then surely the job cannot be assigned to this slice
                 partially_assigned = False
@@ -120,12 +123,12 @@ class CpuSnapshot(object):
             elif feasible and not partially_assigned:
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
-                tentative_start_time =  max(time, t)
+                tentative_start_time =  max(time, s.start_time)
                 accumulated_duration = end_of_this_slice - tentative_start_time
 
             else:
                 # it's a feasible slice and the job is partially_assigned:
-                accumulated_duration += self.slices[t].duration
+                accumulated_duration += s.duration
             
             if accumulated_duration >= job.user_predicted_duration:
                 return tentative_start_time
@@ -136,8 +139,8 @@ class CpuSnapshot(object):
             return tentative_start_time
 
         # otherwise, the job will be assigned right after the last slice or later
-        last_slice_start_time = self._sorted_times[-1]
-        last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].duration
+        last = len(self.slices)-1
+        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
         return max(time, last_slice_end_time)  
 
 
@@ -149,34 +152,36 @@ class CpuSnapshot(object):
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration. """
 
-        if start_time in self.slices:
-            return # we already have such a slice 
+        for s in self.slices: 
+            if s.start_time == start_time:  
+                return # we already have such a slice
+            
+        last = len(self.slices)-1
+        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
         
-        last_slice_start_time = self._sorted_times[-1]
-        last_slice_end_time = last_slice_start_time +  self.slices[last_slice_start_time].duration
-
         if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            self._add_slice( CpuTimeSlice(last_slice_end_time, start_time - last_slice_end_time, {}) )
-            self._add_slice( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(last_slice_end_time, start_time - last_slice_end_time, {}) )
+            self.slices.append( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
             return
         
         if last_slice_end_time == start_time:
-            self._add_slice( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(start_time, duration=1, jobs={}) ) # duration is arbitrary here
             return
 
-
-        for t in self._sorted_times:
-        
-            end_of_this_slice = t +  self.slices[t].duration
-            duration_of_this_slice = self.slices[t].duration
+        index = 0
+        for s in self.slices:
+            index += 1
+            end_of_this_slice = s.start_time +  s.duration
+            duration_of_this_slice = s.duration
 
             if end_of_this_slice < start_time:
                 continue
 
-            # splitting slice t with respect to the start time
-            jobs = self.slices[t].jobs
-            self._add_slice( CpuTimeSlice(t, start_time - t, jobs) )
-            self._add_slice( CpuTimeSlice(start_time, end_of_this_slice - start_time, jobs) )
+            # splitting slice s with respect to the start time
+            jobs = s.jobs
+            self.slices.remove(s)
+            self.slices.insert( index-1, CpuTimeSlice(s.start_time, start_time - s.start_time, jobs) )
+            self.slices.insert( index, CpuTimeSlice(start_time, end_of_this_slice - start_time, jobs) )
             return 
 
 
@@ -185,89 +190,75 @@ class CpuSnapshot(object):
         assignment_time = job.start_to_run_at_time     
         remained_duration = job.user_predicted_duration
 
-        for slice_start_time in self._slice_start_times_beginning_at(assignment_time):
-            if  self._slice_duration(slice_start_time) <= remained_duration: # just add the job to the current slice
-                self.slices[slice_start_time].addJob(job)
-                remained_duration = remained_duration - self.slices[slice_start_time].duration
-                if remained_duration == 0:
-                    return
+        index = 0
+        print
+        print 
+        for s in self.slices:
+            print s
+            index += 1
+            if s.start_time < assignment_time:
                 continue
             
+            if  s.duration <= remained_duration: # just add the job to the current slice
+                s.addJob(job)
+                remained_duration = remained_duration - s.duration
+                if remained_duration == 0:
+                    return
+                continue            
                    
             #else: duration_of_this_slice > remained_duration, that is the current slice
             #is longer than what we actually need, we thus split the slice, then add the job to the 1st one, and return
-            
-            self._add_slice(
+
+            self.slices.remove(s)
+            self.slices.insert(index-1, 
                 CpuTimeSlice(
-                    start_time = slice_start_time + remained_duration,
-                    duration   = self._slice_duration(slice_start_time) - remained_duration,
-                    jobs       = self.slices[slice_start_time].jobs,
+                    start_time = s.start_time + remained_duration,
+                    duration   = s.duration - remained_duration,
+                    jobs       = s.jobs,
                 )
                 )
             
             newslice = CpuTimeSlice(
-                start_time = slice_start_time,
+                start_time = s.start_time,
                 duration   = remained_duration,
-                jobs       = self.slices[slice_start_time].jobs,
+                jobs       = s.jobs,
                 )
             newslice.addJob(job)
-            self._add_slice(newslice)
+            self.slices.insert(index-1, newslice)
                 
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
         # we must add a new "tail" slice for the remaining part of the job
 
-        last_slice_start_time = self._sorted_times[-1]
-        end_of_last_slice = last_slice_start_time + self.slices[last_slice_start_time].duration
-        self.addNewJobToNewSlice(end_of_last_slice, remained_duration, job)
+        last = len(self.slices)-1
+        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
+        self.addNewJobToNewSliceaAtTheEnd(last_slice_end_time, remained_duration, job)
         return
         
 
     def assignJob(self, job, assignment_time):         
-        """ assigns the job to start at the given assignment time.
-        
+        """ assigns the job to start at the given assignment time.        
         Important assumption: assignment_time was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = assignment_time
         self._ensure_a_slice_starts_at(assignment_time)
         self._add_job_to_relevant_slices(job)
 
 
-
-    def _add_slice(self, slice):
-        self.slices[slice.start_time] = slice
-        
-        
-    def _slice_start_times_beginning_at(self, time):
-        "yields only the slice start times after the given time"
-        return (x for x in self._sorted_times if x >= time)
-
-    
-    def _slice_duration(self, start_time):
-        return self.slices[start_time].duration
-
-
-    @property
-    def _sorted_times(self):
-        return sorted(self.slices.keys())
-
-    
-    def addNewJobToNewSlice(self, time, duration, job):
+    def addNewJobToNewSliceaAtTheEnd(self, time, duration, job):
         jobs = []
         jobs.append(job)
-        self._add_slice(CpuTimeSlice(time, duration, jobs) )
+        self.slices.append(CpuTimeSlice(time, duration, jobs) )
 
-
+        
     def delJobFromCpuSlices(self, job):        
         """ Deletes an entire job from the slices.
         Assumption: job resides at consecutive slices (no preemptions) """
-
         job_found = False
-
-        for t in self._sorted_times:
-            if self.slices[t].isMemeber(job):
+        for s in self.slices:
+            if s.isMemeber(job):
                 job_found = True
-                self.slices[t].delJob(job)
+                s.delJob(job)
             else:
                 if job_found:
                     return
@@ -287,42 +278,35 @@ class CpuSnapshot(object):
         
         job_finish_time = job.start_to_run_at_time + job.actual_duration
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
+        
         self._ensure_a_slice_starts_at(job_finish_time) 
-
-        for t in self._sorted_times:
-            if t < job_finish_time:
+        for s in self.slices:
+            if s.start_time < job_finish_time:
                 continue
-            elif t + self.slices[t].duration <= job_predicted_finish_time:  
-                self.slices[t].delJob(job) 
+            elif s.start_time + s.duration <= job_predicted_finish_time:  
+                s.delJob(job) 
             else:
                 return
 
             
             
     def archive_old_slices(self, current_time):
-        """ This method restores the old slices."""
-    
-        if current_time < 100:
-            return
-        
+        """ This method restores the old slices."""    
         self._ensure_a_slice_starts_at(current_time) 
-
-        for t in self._sorted_times:
-            if t < current_time:
-                self.archive_of_old_slices[t] = self.slices[t]
-                del self.slices[t]
+        for s in self.slices:
+            if s.start_time < current_time:
+                self.archive_of_old_slices.append(s)
+                self.slices.remove(s)
             else:
                 return
      
 
     def restore_old_slices(self):
-        for t, v in self.archive_of_old_slices.iteritems(): 
-            self.slices[t]=v
-            
-        self.archive_of_old_slices.clear()
+        while (len(self.archive_of_old_slices) > 0):
+            s = self.archive_of_old_slices.pop()
+            self.slices.insert(0, s)
+
     
-
-
             
     def CpuSlicesTestFeasibility(self):
         self.restore_old_slices()
@@ -333,8 +317,8 @@ class CpuSnapshot(object):
         scheduled_jobs_accumulated_duration = {}
         scheduled_jobs = {}
         
-        for t in self._sorted_times:
-            free_nodes = self.slices[t].free_nodes
+        for s in self.slices:
+            free_nodes = s.free_nodes
             prev_duration = duration
             prev_t = time
             
@@ -348,35 +332,35 @@ class CpuSnapshot(object):
 
             num_of_active_nodes = 0
             
-            for job in self.slices[t].jobs:
+            for job in s.jobs:
                 num_of_active_nodes += job.nodes
                 
                 if scheduled_jobs_start_slice.has_key(job.id):
-                    scheduled_jobs_last_slice[job.id] = t
-                    scheduled_jobs_accumulated_duration[job.id] += self.slices[t].duration 
+                    scheduled_jobs_last_slice[job.id] = s.start_time + s.duration
+                    scheduled_jobs_accumulated_duration[job.id] += s.duration 
                 else: # the first time this job is encountered  
-                    if t != job.start_to_run_at_time:
-                        print ">>> PROBLEM: start time: ", job.start_to_run_at_time, " of job", job.id, "is:", t
+                    if s.start_time != job.start_to_run_at_time:
+                        print ">>> PROBLEM: start time: ", job.start_to_run_at_time, " of job", job.id, "is:", s.start_time
                         return False
                     scheduled_jobs[job.id] = job
-                    scheduled_jobs_start_slice[job.id] = t
-                    scheduled_jobs_last_slice[job.id] = t
-                    scheduled_jobs_accumulated_duration[job.id] = self.slices[t].duration
+                    scheduled_jobs_start_slice[job.id] = s.start_time
+                    scheduled_jobs_last_slice[job.id] = s.start_time + s.duration
+                    scheduled_jobs_accumulated_duration[job.id] = s.duration
                     
             if num_of_active_nodes != self.total_nodes - free_nodes:
-                print ">>> PROBLEM: wrong number of free nodes in slice", t 
+                print ">>> PROBLEM: wrong number of free nodes in slice", s.start_time 
                 return False
             
-            if t != prev_t + prev_duration:
-                print ">>> PROBLEM: non successive slices", t, prev_t 
+            if s.start_time != prev_t + prev_duration:
+                print ">>> PROBLEM: non successive slices", s.start_time, prev_t 
                 return False
                 
-            duration = self.slices[t].duration
-            time = t
+            duration = s.duration
+            time = s.start_time
 
         for job_id, job_start_slice in scheduled_jobs_start_slice.iteritems():
             job_last_slice =  scheduled_jobs_last_slice[job_id]
-            duration_of_job = job_last_slice + self.slices[job_last_slice].duration - job_start_slice
+            duration_of_job = job_last_slice - job_start_slice
             if duration_of_job != scheduled_jobs[job_id].actual_duration:
                 print ">>>PROBLEM: with actual duration of job: ", \
                       job.actual_duration, "vs.", duration_of_job,  " of job", job_id
@@ -384,7 +368,8 @@ class CpuSnapshot(object):
         
             if scheduled_jobs_accumulated_duration[job.id] != scheduled_jobs[job.id].actual_duration:
                 print ">>>PROBLEM: with actual duration of job:", \
-                      scheduled_jobs_accumulated_duration[job.id], "vs.",  scheduled_jobs[job.id].actual_duration, " of job", job_id
+                      scheduled_jobs_accumulated_duration[job.id], "vs.",  scheduled_jobs[job.id].actual_duration, \
+                      " of job", job_id
                 return False
             
 
@@ -398,8 +383,8 @@ class CpuSnapshot(object):
     def printCpuSlices(self):
 
         print "start time | duration | #free nodes | { job.id : #job.nodes }"            
-        for t in self._sorted_times: 
-            print self.slices[t]
+        for s in self.slices: 
+            print s
         print
         
 
