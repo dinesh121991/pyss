@@ -25,6 +25,7 @@ class Events:
     
     def __init__(self):
         self.collection = {}
+        self.endOfSimulationFlag = False
 
     def _addEvent(self, time, event): 
          if self.collection.has_key(time):
@@ -41,17 +42,6 @@ class Events:
     def add_job_termination_event(self, time, job):
         # makes sure that there will be a single termination event for this job
         # assert time >= 0
-        """
-        found = False
-        for t, list_of_events_at_this_time in self.collection.iteritems():
-            if found:
-                break 
-            for event in self.collection[t]:
-                if isinstance(event, JobTerminationEvent) and event.job.id == job.id:
-                    list_of_events_at_this_time.remove(event)
-                    found = True
-                    break
-        """
         event = JobTerminationEvent(job)
         self._addEvent(time, event)
 
@@ -59,6 +49,12 @@ class Events:
     def add_end_of_simulation_event(self, time):
         # makes sure that there will be a single end of simulation event
         # assert time >= 0
+        if self.endOfSimulationFlag == False:
+            event = EndOfSimulationEvent()
+            self._addEvent(time, event)     
+            self.endOfSimulationFlag = True
+            return 	
+         
         found = False
         for t, list_of_events_at_this_time in self.collection.iteritems():
             if found:
@@ -72,8 +68,7 @@ class Events:
         self._addEvent(time, event)     
    
 
-    def addEvents(self, new_events): # combines a new collection of events with the self collection
-        
+    def addEvents(self, new_events): # combines a new collection of events with the self collection        
          for time, new_list_of_events_at_this_time in new_events.collection.iteritems():
              for new_event in new_list_of_events_at_this_time:         
                  if isinstance(new_event, JobTerminationEvent):

@@ -122,10 +122,9 @@ class Simulator:
                     end_of_simulation_event_has_not_occured = False
                     #print "______________ snapshot, before handling the EndOfSimu last event ________" 
                     #self.scheduler.cpu_snapshot.printCpuSlices()
-
                     self.scheduler.handleEndOfSimulationEvent(current_time)
-                    # print "______________ last snapshot, before the simulation ends ________" 
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    print "______________ last snapshot, before the simulation ends ________" 
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     # self.feasibilty_check_of_jobs_data(current_time)
                     break
 
@@ -135,9 +134,6 @@ class Simulator:
             
             del self.events.collection[current_time] # removing the current events
 
-
-            if (current_time % 16) > 8: # tossing a coin to decide whether to restore old slices in the archive
-              self.scheduler.cpu_snapshot.archive_old_slices(current_time)  
             # print "______________ right after calling to archive removal________" 
             # self.scheduler.cpu_snapshot.printCpuSlices()
 
@@ -224,4 +220,3 @@ profile.run('simulation.startSimulation()')
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")
-            

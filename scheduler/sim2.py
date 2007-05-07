@@ -36,9 +36,10 @@ class FcfsScheduler(Scheduler):
         newEvents = self._schedule_jobs(time)
         return newEvents
 
-    def handleTerminationOfJobEvent(self, job, time):
+    def handleTerminationOfJobEvent(self, job, current_time):
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        newEvents = self._schedule_jobs(time)
+        newEvents = self._schedule_jobs(current_time)
         return newEvents
 
     def _schedule_jobs(self, time):
@@ -73,14 +74,15 @@ class ConservativeScheduler(Scheduler):
         newEvents.add_job_termination_event(termination_time, job)
         return newEvents
     
-    def handleTerminationOfJobEvent(self, job, time):
+    def handleTerminationOfJobEvent(self, job, current_time):
         """ Here we delete the tail of job if it was ended before the duration declaration.
         It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
-        newEvents = Events()
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)  
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        return self._reschedule_jobs(time, newEvents)
+        newEvents = Events()
+        return self._reschedule_jobs(current_time, newEvents)
    
 
     def _reschedule_jobs(self, time, newEvents):

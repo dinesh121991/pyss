@@ -41,6 +41,7 @@ class EasyBackfillScheduler(Scheduler):
         """ Here we first delete the tail of the just terminated job (in case it's
         done before user estimation time). We then try to schedule the jobs in the waiting list,
         returning a collection of new termination events """
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(current_time)
     

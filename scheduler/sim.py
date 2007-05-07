@@ -288,12 +288,23 @@ class CpuSnapshot(object):
             
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""    
-        for s in self.slices:
+        while True:
+            s = self.slices[0]  
             if s.start_time + s.duration < current_time:
                 self.archive_of_old_slices.append(s)
-                self.slices.remove(s)
+                self.slices.pop(0)
             else:
+                break
+            
+        while True:
+            s = self.slices.pop()
+            if s.free_nodes == self.total_nodes and len(self.slices) > 0:
+                continue
+            else:
+                self.slices.append(s)
                 return
+    
+            
      
 
     def restore_old_slices(self):
