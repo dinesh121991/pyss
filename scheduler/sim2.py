@@ -89,10 +89,8 @@ class ConservativeScheduler(Scheduler):
 
     def _reschedule_jobs(self, time, newEvents):
         for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
-
             if job.start_to_run_at_time <= time:
                 continue # job started to run before, so it cannot be rescheduled (preemptions are not allowed)
-
             prev_start_to_run_at_time = job.start_to_run_at_time
             self.cpu_snapshot.delJobFromCpuSlices(job)
             start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)

@@ -29,10 +29,10 @@ class Events:
 
     def _addEvent(self, time, event): 
          if self.collection.has_key(time):
-             self.collection[time].append(event)
+             self.collection[time].insert(0, event)
          else:
              self.collection[time] = []
-             self.collection[time].append(event)
+             self.collection[time].insert(0, event)
 
 
     def add_job_arrival_event(self, time, job): # adds a single arrival event to the collection
@@ -71,10 +71,8 @@ class Events:
     def addEvents(self, new_events): # combines a new collection of events with the self collection        
          for time, new_list_of_events_at_this_time in new_events.collection.iteritems():
              for new_event in new_list_of_events_at_this_time:         
-                 if isinstance(new_event, JobTerminationEvent):
-                     self.add_job_termination_event(time, new_event.job)
-                 elif isinstance(new_event, JobArrivalEvent): 
-                     self.add_job_arrival_event(time, new_event.job)                     
+                 if isinstance(new_event, JobTerminationEvent) or isinstance(new_event, JobArrivalEvent): 
+                     self._addEvent(time, new_event)                     
                  else:
                      self.add_end_of_simulation_event(time)
 
