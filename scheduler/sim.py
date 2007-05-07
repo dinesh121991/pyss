@@ -118,8 +118,8 @@ class CpuSnapshot(object):
             return tentative_start_time
 
         # otherwise, the job will be assigned right after the last slice or later
-        last = len(self.slices)-1
-        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
+        last = self.slices[len(self.slices)-1]
+        last_slice_end_time =  last.start_time + last.duration
         return max(time, last_slice_end_time)  
 
 
@@ -131,12 +131,14 @@ class CpuSnapshot(object):
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration. """
 
-        for s in self.slices: 
+        for s in self.slices:
+            if s.start_time > start_time:
+                break
             if s.start_time == start_time:  
                 return # we already have such a slice
 
-        last = len(self.slices)-1
-        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
+        last = self.slices[len(self.slices)-1]
+        last_slice_end_time =  last.start_time + last.duration
         
 
         if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
@@ -179,7 +181,7 @@ class CpuSnapshot(object):
             
             if  s.duration <= remained_duration: # just add the job to the current slice
                 s.addJob(job.nodes)
-                remained_duration = remained_duration - s.duration
+                remained_duration -= s.duration
                 if remained_duration == 0:
                     return
                 continue            
@@ -201,14 +203,13 @@ class CpuSnapshot(object):
                 )
             newslice.addJob(job.nodes)
             self.slices.insert(index-1, newslice)
-                
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
         # we must add a new "tail" slice for the remaining part of the job
 
-        last = len(self.slices)-1
-        last_slice_end_time =  self.slices[last].start_time + self.slices[last].duration
+        last = self.slices[len(self.slices)-1]
+        last_slice_end_time =  last.start_time + last.duration
         self.slices.append(CpuTimeSlice(self.total_nodes - job.nodes, last_slice_end_time, remained_duration))
         return
         
