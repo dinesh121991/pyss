@@ -226,6 +226,7 @@ class CpuSnapshot(object):
     def delJobFromCpuSlices(self, job):        
         """ Deletes an entire job from the slices. 
         Assumption: job resides at consecutive slices (no preemptions) """
+
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         job_start = job.start_to_run_at_time
         
@@ -263,7 +264,9 @@ class CpuSnapshot(object):
             
             
     def archive_old_slices(self, current_time):
-        """ This method restores the old slices."""    
+        """ This method restores the old slices."""
+        if len(self.slices) < 5:
+            return
         while True:
             s = self.slices[0]  
             if s.start_time + s.duration < current_time:
@@ -273,9 +276,9 @@ class CpuSnapshot(object):
                 return
             
     def clean_empty_slices_from_the_tail(self, current_time):        
-        while True:
+        while len(self.slices) > 3:
             s = self.slices.pop()
-            if s.free_nodes == self.total_nodes and len(self.slices) > 0:
+            if  s.free_nodes == self.total_nodes:
                 continue
             else:
                 self.slices.append(s)
