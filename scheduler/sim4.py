@@ -212,8 +212,8 @@ class Simulator:
 #w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
+#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
+simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
 #simulation.startSimulation()
 profile.run('simulation.startSimulation()')

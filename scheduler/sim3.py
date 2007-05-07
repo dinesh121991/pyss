@@ -43,6 +43,7 @@ class EasyBackfillScheduler(Scheduler):
         returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        self.cpu_snapshot.clean_empty_slices_from_the_tail(current_time)
         return self._schedule_jobs(current_time)
     
     

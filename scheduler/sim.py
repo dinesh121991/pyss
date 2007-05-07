@@ -294,8 +294,9 @@ class CpuSnapshot(object):
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
             else:
-                break
+                return
             
+    def clean_empty_slices_from_the_tail(self, current_time):        
         while True:
             s = self.slices.pop()
             if s.free_nodes == self.total_nodes and len(self.slices) > 0:

@@ -38,13 +38,22 @@ Type "help", "copyright", "credits" or "license" for more information.
 import pdb; pdb.set_trace()
 
 
+code optimization sunday evening 
+
+head -10000 stam2/input > ! input ; time sim4.py > ! output
+
+Cons
+104.926u 0.180s 3:14.90 53.9%   0+0k 0+0io 0pf+0w
+103.258u 0.380s 2:21.06 73.4%   0+0k 0+0io 0pf+0w
+104.122u 0.236s 2:00.55 86.5%   0+0k 0+0io 0pf+0w
+
 
 _______________________
 
 Code Optimization: 
 
-Sunday  
-
+Sunday morning - evening  
+500 input lines  
 
 head -500 stam2/input > ! input ; time sim4.py > ! output
 
@@ -62,7 +71,7 @@ FCFS:
 0.504u 0.032s 0:00.63 84.1%     0+0k 0+0io 0pf+0w
 
 
-Easy
+Easy:
 8.036u 0.140s 0:08.80 92.8%     0+0k 0+0io 0pf+0w
 7.920u 0.108s 0:08.47 94.6%     0+0k 0+0io 0pf+0w
 7.596u 0.104s 0:08.13 94.5%     0+0k 0+0io 0pf+0w
@@ -90,7 +99,7 @@ Cons:
 0.512u 0.060s 0:00.71 80.2%     0+0k 0+0io 0pf+0w
 0.504u 0.044s 0:00.61 88.5%     0+0k 0+0io 0pf+0w
 0.576u 0.048s 0:00.64 95.3%     0+0k 0+0io 0pf+0w
-
+0.476u 0.040s 0:00.55 92.7%     0+0k 0+0io 0pf+0w
 
 Tests: 
 Ran 12 tests in 3.919s
@@ -117,11 +126,23 @@ Ran 12 tests in 1.161s
 -------------------------
 -------------------------
 -------------------------
-Monday 
+Monday
 
-head -10000 stam2/input > ! input ; time sim4.py > ! output
+5000 input lines with profiler
+head -5000 stam2/input > ! input ; time sim4.py > ! output 
 
-Cons
-104.926u 0.180s 3:14.90 53.9%   0+0k 0+0io 0pf+0w
-103.258u 0.380s 2:21.06 73.4%   0+0k 0+0io 0pf+0w
-104.122u 0.236s 2:00.55 86.5%   0+0k 0+0io 0pf+0w
+FCFS
+20.621u 0.100s 0:21.59 95.9%    0+0k 0+0io 0pf+0w
+
+Easy
+20.893u 0.100s 0:22.16 94.7%    0+0k 0+0io 0pf+0w 
+
+Cons 
+21.205u 0.108s 0:22.62 94.1%    0+0k 0+0io 2pf+0w
+
+
+
+
+ 
+
+

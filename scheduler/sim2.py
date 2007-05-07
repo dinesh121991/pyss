@@ -39,6 +39,7 @@ class FcfsScheduler(Scheduler):
     def handleTerminationOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        self.cpu_snapshot.clean_empty_slices_from_the_tail(current_time)
         newEvents = self._schedule_jobs(current_time)
         return newEvents
 
@@ -81,6 +82,7 @@ class ConservativeScheduler(Scheduler):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)  
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
+        self.cpu_snapshot.clean_empty_slices_from_the_tail(current_time)
         newEvents = Events()
         return self._reschedule_jobs(current_time, newEvents)
    
