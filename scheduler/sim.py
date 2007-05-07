@@ -130,11 +130,6 @@ class CpuSnapshot(object):
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration. """
 
-        for s in self.slices:
-            if s.start_time > start_time:
-                break
-            if s.start_time == start_time:  
-                return # we already have such a slice
 
         last = self.slices[len(self.slices)-1]
         last_slice_end_time =  last.start_time + last.duration
@@ -148,6 +143,12 @@ class CpuSnapshot(object):
         if last_slice_end_time == start_time:
             self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 1) ) # duration is arbitrary here
             return
+
+        for s in self.slices:
+            if s.start_time > start_time:
+                break
+            if s.start_time == start_time:  
+                return # we already have such a slice
 
 
         index = 0
