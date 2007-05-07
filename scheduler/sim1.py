@@ -36,14 +36,12 @@ class Events:
 
 
     def add_job_arrival_event(self, time, job): # adds a single arrival event to the collection
-        event = JobArrivalEvent(job)
-        self._addEvent(time, event)
+        self._addEvent(time, JobArrivalEvent(job))
         
     def add_job_termination_event(self, time, job):
         # makes sure that there will be a single termination event for this job
         # assert time >= 0
-        event = JobTerminationEvent(job)
-        self._addEvent(time, event)
+        self._addEvent(time, JobTerminationEvent(job))
 
 
     def add_end_of_simulation_event(self, time):

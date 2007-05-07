@@ -76,13 +76,11 @@ class Simulator:
         else:
             print ">>> Problem: No such scheduling Policy"
             return
-        
-
        
         # self.startSimulation() 
    
 
-    def startSimulation(self):
+    # def startSimulation(self):
         
         self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "maxint" time
          
@@ -94,6 +92,7 @@ class Simulator:
             times = self.events.collection.keys()
             times.sort()
             current_time = times.pop(0)
+            
             while len(self.events.collection[current_time]) > 0:
 
                 # print "Current Known Events:"
@@ -212,11 +211,11 @@ class Simulator:
 #w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
+# simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
+#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
 #simulation.startSimulation()
-profile.run('simulation.startSimulation()')
+#profile.run('simulation.startSimulation()')
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")

@@ -31,9 +31,10 @@ class FcfsScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_queue_of_jobs = []
         
-    def handleArrivalOfJobEvent(self, job, time):
+    def handleArrivalOfJobEvent(self, job, current_time):
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_queue_of_jobs.append(job)
-        newEvents = self._schedule_jobs(time)
+        newEvents = self._schedule_jobs(current_time)
         return newEvents
 
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -66,10 +67,11 @@ class ConservativeScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.list_of_unfinished_jobs_arranged_by_arrival_times = []    
         
-    def handleArrivalOfJobEvent(self, job, time):
+    def handleArrivalOfJobEvent(self, job, current_time):
         newEvents = Events()
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.list_of_unfinished_jobs_arranged_by_arrival_times.append(job)        
-        start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
+        start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
         termination_time = job.start_to_run_at_time + job.actual_duration
         newEvents.add_job_termination_event(termination_time, job)

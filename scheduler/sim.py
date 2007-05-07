@@ -84,10 +84,9 @@ class CpuSnapshot(object):
         Assumption: time >=  the arrival time of the job >= 0."""
         
         partially_assigned = False         
-        tentative_start_time = 0 
-        accumulated_duration = 0
+        tentative_start_time = accumulated_duration = 0
         
-        assert time >= 0
+        # assert time >= 0
         
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
@@ -253,7 +252,8 @@ class CpuSnapshot(object):
         job_finish_time = job.start_to_run_at_time + job.actual_duration
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         
-        self._ensure_a_slice_starts_at(job_finish_time) 
+        self._ensure_a_slice_starts_at(job_finish_time)
+
         for s in self.slices:
             if s.start_time < job_finish_time:
                 continue
