@@ -18,7 +18,6 @@ class EasyBackfillScheduler(Scheduler):
     def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
-        self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
         newEvents = Events()
         if len(self.waiting_list_of_unscheduled_jobs) == 1:  
@@ -57,7 +56,6 @@ class EasyBackfillScheduler(Scheduler):
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
 
-
     
 
     def _schedule_the_head_of_the_waiting_list(self, time, newEvents):
@@ -80,7 +78,8 @@ class EasyBackfillScheduler(Scheduler):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
                     self.cpu_snapshot.assignJob(next_job, time)
                     termination_time = time + next_job.actual_duration
-                    newEvents.add_job_termination_event(termination_time, next_job)                    
+                    newEvents.add_job_termination_event(termination_time, next_job)
+            self.cpu_snapshot.unify_slices_in_the_head(time)                           
  
     
 

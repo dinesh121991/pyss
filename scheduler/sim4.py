@@ -76,9 +76,10 @@ class Simulator:
         else:
             print ">>> Problem: No such scheduling Policy"
             return
-       
+
         self.startSimulation() 
    
+       
 
     def startSimulation(self):
         
@@ -110,10 +111,11 @@ class Simulator:
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     if event.job.start_to_run_at_time + event.job.actual_duration < current_time:
                       continue # redundant JobTerminationEvent 
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    self.scheduler.cpu_snapshot.printCpuSlices()
+                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 
@@ -211,11 +213,12 @@ class Simulator:
 #w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-# simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
+#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
-#simulation.startSimulation()
+#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #profile.run('simulation.startSimulation()')
+#simulation.startSimulation()
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")
+#simulation = Simulator(scheduler ="Conservative")

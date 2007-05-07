@@ -268,6 +268,7 @@ class CpuSnapshot(object):
         """ This method restores the old slices."""
         if len(self.slices) < 5:
             return
+        # self.unify_slices_in_the_head(current_time)                              
         while True:
             s = self.slices[0]  
             if s.start_time + s.duration < current_time:
@@ -277,7 +278,6 @@ class CpuSnapshot(object):
                 return
             
     def clean_empty_slices_from_the_tail(self, current_time):
-        # self.unify_slices_in_the_head(current_time)
         while len(self.slices) > 3:
             s = self.slices.pop()
             if  s.free_nodes == self.total_nodes:
@@ -288,7 +288,7 @@ class CpuSnapshot(object):
 
     
     def unify_slices_in_the_head(self, current_time):        
-        while len(self.slices) > 3:
+        while len(self.slices) > 7:
             if self.slices[1].free_nodes == self.slices[2].free_nodes:
                 self.slices[1].duration += self.slices[2].duration
                 del self.slices[2]
@@ -378,7 +378,6 @@ class CpuSnapshot(object):
     
              
     def printCpuSlices(self):
-
         print "start time | duration | #free nodes | { job.id : #job.nodes }"            
         for s in self.slices: 
             print s
