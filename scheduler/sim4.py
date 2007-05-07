@@ -77,10 +77,10 @@ class Simulator:
             print ">>> Problem: No such scheduling Policy"
             return
        
-        # self.startSimulation() 
+        self.startSimulation() 
    
 
-    # def startSimulation(self):
+    def startSimulation(self):
         
         self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "maxint" time
          
@@ -113,7 +113,7 @@ class Simulator:
                     if event.job.start_to_run_at_time + event.job.actual_duration < current_time:
                       continue # redundant JobTerminationEvent 
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 

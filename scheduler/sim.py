@@ -276,13 +276,23 @@ class CpuSnapshot(object):
             else:
                 return
             
-    def clean_empty_slices_from_the_tail(self, current_time):        
+    def clean_empty_slices_from_the_tail(self, current_time):
+        # self.unify_slices_in_the_head(current_time)
         while len(self.slices) > 3:
             s = self.slices.pop()
             if  s.free_nodes == self.total_nodes:
                 continue
             else:
                 self.slices.append(s)
+                return
+
+    
+    def unify_slices_in_the_head(self, current_time):        
+        while len(self.slices) > 3:
+            if self.slices[1].free_nodes == self.slices[2].free_nodes:
+                self.slices[1].duration += self.slices[2].duration
+                del self.slices[2]
+            else:
                 return
     
             
