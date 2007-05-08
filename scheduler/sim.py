@@ -192,6 +192,7 @@ class CpuSnapshot(object):
             if  s.duration <= remained_duration: # just add the job to the current slice
                 s.addJob(job.nodes)
                 remained_duration -= s.duration
+                
                 if remained_duration == 0:
                     return
                 continue            
@@ -269,7 +270,7 @@ class CpuSnapshot(object):
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""
 
-        while len(self.slices) > 3:
+        while len(self.slices) > 5:
             s = self.slices[0]  
             if s.start_time + s.duration < current_time:
                 self.archive_of_old_slices.append(s)

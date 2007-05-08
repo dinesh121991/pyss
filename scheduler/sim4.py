@@ -115,7 +115,7 @@ class Simulator:
                     if event.job.start_to_run_at_time + event.job.actual_duration < current_time:
                       continue # redundant JobTerminationEvent 
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
+                    #self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents)
                     continue
 
@@ -126,7 +126,7 @@ class Simulator:
                     self.scheduler.handleEndOfSimulationEvent(current_time)
                     print "______________ last snapshot, before the simulation ends ________" 
                     self.scheduler.cpu_snapshot.printCpuSlices()
-                    # self.feasibilty_check_of_jobs_data(current_time)
+                    #self.feasibilty_check_of_jobs_data(current_time)
                     break
 
                 else:
