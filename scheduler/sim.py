@@ -121,7 +121,7 @@ class CpuSnapshot(object):
         last_slice_end_time =  last.start_time + last.duration
         return max(time, last_slice_end_time)  
 
-
+            
 
     def _ensure_a_slice_starts_at(self, start_time):
         """ A preprocessing stage. Usage: 
@@ -149,8 +149,6 @@ class CpuSnapshot(object):
                 break
             if s.start_time == start_time:  
                 return # we already have such a slice
-
-
         index = 0
         for s in self.slices:
             index += 1
@@ -162,11 +160,23 @@ class CpuSnapshot(object):
                 continue
             
             # splitting slice s with respect to the start time
+            s = self.slices[index-1]
             del self.slices[index-1]
-            self.slices.insert( index-1, CpuTimeSlice(s.free_nodes, s.start_time, start_time - s.start_time) )
-            self.slices.insert( index, CpuTimeSlice(s.free_nodes, start_time, end_of_this_slice - start_time) )
+            s.duration = start_time - s.start_time
+            self.slices.insert(index-1, s)
+            self._add_slice(index, s.free_nodes, start_time, end_of_this_slice - start_time)
             return
 
+
+    def _add_slice(self, index, free_nodes, start_time, duration):
+        if self.slices[-1].free_nodes == self.total_nodes:
+            s = self.slices.pop()
+            s.free_nodes = free_nodes
+            s.start_time = start_time
+            s.duration = duration
+            self.slices.insert(index, s)
+        else:
+            self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
 
       
     def _add_job_to_relevant_slices(self, job):
@@ -188,21 +198,12 @@ class CpuSnapshot(object):
                    
             #else: duration_of_this_slice > remained_duration, that is the current slice
             #is longer than what we actually need, we thus split the slice, then add the job to the 1st one, and return
-
             del self.slices[index-1]
-            self.slices.insert(index-1, 
-                CpuTimeSlice(free_nodes = s.free_nodes,
-                    start_time = s.start_time + remained_duration,
-                    duration   = s.duration - remained_duration,
-                )
-                )
-            
-            newslice = CpuTimeSlice(free_nodes = s.free_nodes,
-                start_time = s.start_time,
-                duration   = remained_duration,
-                )
-            newslice.addJob(job.nodes)
-            self.slices.insert(index-1, newslice)
+            tmp_start_time = s.start_time
+            s.start_time = tmp_start_time + remained_duration
+            s.duration = s.duration - remained_duration
+            self.slices.insert(index-1, s) 
+            self._add_slice(index-1, s.free_nodes - job.nodes, tmp_start_time, remained_duration)
             return
             
         # end of for loop, we've examined all existing slices and if this point is reached
@@ -267,37 +268,15 @@ class CpuSnapshot(object):
             
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""
-        if len(self.slices) < 5:
-            return
-        # self.unify_slices_in_the_head(current_time)                              
-        while True:
+
+        while len(self.slices) > 3:
             s = self.slices[0]  
             if s.start_time + s.duration < current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
             else:
                 return
-            
-    def clean_empty_slices_from_the_tail(self, current_time):
-        while len(self.slices) > 3:
-            s = self.slices.pop()
-            if  s.free_nodes == self.total_nodes:
-                continue
-            else:
-                self.slices.append(s)
-                return
-
-    
-    def unify_slices_in_the_head(self, current_time):        
-        while len(self.slices) > 7:
-            if self.slices[1].free_nodes == self.slices[2].free_nodes:
-                self.slices[1].duration += self.slices[2].duration
-                del self.slices[2]
-            else:
-                return
-    
-            
-     
+                
 
     def restore_old_slices(self):
         while (len(self.archive_of_old_slices) > 0):

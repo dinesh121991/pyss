@@ -72,5 +72,14 @@ handle the event of end of simulation more carefully
 
 ------------------------------------------------
 
+Test the new CpuTimeSlice 
+
+_____________________________
+
+unify similar slices
+
+------------------------------
+
+ensure_slice_starts_At .....
 
 

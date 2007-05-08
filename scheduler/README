@@ -50,6 +50,10 @@ Cons
 93.905u 0.228s 1:46.65 88.2%    0+0k 0+0io 0pf+0w (without profiling)
 
 
+head -20000 stam2/input > ! input ; time sim4.py > ! output
+Easy without profiling
+422.086u 0.492s 7:08.70 98.5%   0+0k 0+0io 0pf+0w
+
 _______________________
 
 Code Optimization: 
@@ -163,6 +167,15 @@ Cons
 25.561u 0.504s 0:27.65 94.2%    0+0k 0+0io 0pf+0w
 
 
+-------------------------
+-------------------------
+-------------------------
+Tuesday 
+
+5000 input lines with profiler
+head -5000 stam2/input > ! input ; time sim4.py > ! output 
  
-
-
+Easy 
+26.125u 0.456s 0:27.95 95.0%    0+0k 0+0io 0pf+0w
+25.945u 0.508s 0:32.42 81.5%    0+0k 0+0io 0pf+0w
+25.969u 0.380s 0:27.29 96.5%    0+0k 0+0io 0pf+0w
