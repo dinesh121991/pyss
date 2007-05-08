@@ -117,7 +117,7 @@ class CpuSnapshot(object):
             return tentative_start_time
 
         # otherwise, the job will be assigned right after the last slice or later
-        last = self.slices[len(self.slices)-1]
+        last = self.slices[-1]
         last_slice_end_time =  last.start_time + last.duration
         return max(time, last_slice_end_time)  
 
@@ -131,17 +131,16 @@ class CpuSnapshot(object):
         duration. """
 
 
-        last = self.slices[len(self.slices)-1]
+        last = self.slices[-1]
         last_slice_end_time =  last.start_time + last.duration
         
-
         if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
             self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, start_time - last_slice_end_time) )
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 1) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 10000) ) # duration is arbitrary here
             return
         
         if last_slice_end_time == start_time:
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 1) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 10000) ) # duration is arbitrary here
             return
 
         for s in self.slices:
@@ -210,7 +209,7 @@ class CpuSnapshot(object):
         # end of for loop, we've examined all existing slices and if this point is reached
         # we must add a new "tail" slice for the remaining part of the job
 
-        last = self.slices[len(self.slices)-1]
+        last = self.slices[-1]
         last_slice_end_time =  last.start_time + last.duration
         self.slices.append(CpuTimeSlice(self.total_nodes - job.nodes, last_slice_end_time, remained_duration))
         return
@@ -270,7 +269,7 @@ class CpuSnapshot(object):
     def archive_old_slices(self, current_time):
         """ This method restores the old slices."""
 
-        while len(self.slices) > 5:
+        while len(self.slices) > 6:
             s = self.slices[0]  
             if s.start_time + s.duration < current_time:
                 self.archive_of_old_slices.append(s)
