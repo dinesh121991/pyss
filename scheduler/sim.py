@@ -130,14 +130,13 @@ class CpuSnapshot(object):
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration. """
 
-
         last = self.slices[-1]
         last_slice_end_time =  last.start_time + last.duration
         
         if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
             self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, start_time - last_slice_end_time) )
             self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 10000) ) # duration is arbitrary here
-            return
+            return 0
         
         if last_slice_end_time == start_time:
             self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 10000) ) # duration is arbitrary here
@@ -148,6 +147,7 @@ class CpuSnapshot(object):
                 break
             if s.start_time == start_time:  
                 return # we already have such a slice
+            
         index = 0
         for s in self.slices:
             index += 1
@@ -165,17 +165,6 @@ class CpuSnapshot(object):
             self.slices.insert(index-1, s)
             self._add_slice(index, s.free_nodes, start_time, end_of_this_slice - start_time)
             return
-
-
-    def _add_slice(self, index, free_nodes, start_time, duration):
-        if self.slices[-1].free_nodes == self.total_nodes:
-            s = self.slices.pop()
-            s.free_nodes = free_nodes
-            s.start_time = start_time
-            s.duration = duration
-            self.slices.insert(index, s)
-        else:
-            self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
 
       
     def _add_job_to_relevant_slices(self, job):
@@ -253,9 +242,19 @@ class CpuSnapshot(object):
         
         job_finish_time = job.start_to_run_at_time + job.actual_duration
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
-        
-        self._ensure_a_slice_starts_at(job_finish_time)
 
+        index = 0
+        for s in self.slices:
+            index += 1 
+            if s.start_time + s.duration == job_finish_time:
+                break
+            if s.start_time + s.duration > job_finish_time:
+                slice_duartion = s.duration
+                delta = s.start_time + s.duration - job_finish_time
+                s.duration -= delta
+                self._add_slice(index, s.free_nodes, s.start_time + s.duration, delta)
+                break 
+                
         for s in self.slices:
             if s.start_time < job_finish_time:
                 continue
@@ -264,6 +263,16 @@ class CpuSnapshot(object):
             else:
                 return
 
+
+    def _add_slice(self, index, free_nodes, start_time, duration):
+        if self.slices[-1].free_nodes == self.total_nodes:
+            s = self.slices.pop()
+            s.free_nodes = free_nodes
+            s.start_time = start_time
+            s.duration = duration
+            self.slices.insert(index, s)
+        else:
+            self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
             
             
     def archive_old_slices(self, current_time):
