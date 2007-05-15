@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.3
 
 import unittest 
-from sim2 import * 
 from sim3 import *
 from simulator import * 
 

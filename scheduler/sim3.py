@@ -2,11 +2,6 @@
 
 from sim  import *
 from events import *
-from sim2 import *
-import sys
-
-
-
 
 class EasyBackfillScheduler(Scheduler):
     

@@ -2,8 +2,10 @@
 
 from sim  import *
 from events import *
-from sim2 import *
 from sim3 import * 
+
+from conservative_scheduler import ConservativeScheduler
+from fcfs_scheduler import FcfsScheduler
 
 import sys
 #import profile
