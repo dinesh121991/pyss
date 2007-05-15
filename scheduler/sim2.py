@@ -2,11 +2,7 @@
 
 from sim import *
 from events import *
-import sys
 
-
-
-    
 class FcfsScheduler(Scheduler):
         
     def __init__(self, total_nodes = 100):
@@ -38,7 +34,6 @@ class FcfsScheduler(Scheduler):
             else:
                 first_failure_has_not_occured = False
         return newEvents
-
     
 
 class ConservativeScheduler(Scheduler):
@@ -81,4 +76,3 @@ class ConservativeScheduler(Scheduler):
                 newEvents.add_job_termination_event(new_termination_time, job)               
         return newEvents
     
-
