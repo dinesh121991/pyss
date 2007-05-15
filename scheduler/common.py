@@ -322,8 +322,8 @@ class Scheduler:
     """ Assumption: every handler returns a (possibly empty) collection of new events """
     
     def handleArrivalOfJobEvent(self, job, current_time):
-        pass
+        raise NotImplementedError()
     
     def handleTerminationOfJobEvent(self, job, current_time):
-        pass
+        raise NotImplementedError()
     
