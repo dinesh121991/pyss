@@ -37,7 +37,7 @@ class JobInput(object):
     @property
     def num_requested_processors(self):
         result = int(self.fields[7])
-        if result >= 0:
+        if result > 0:
             return result
         else:
             # a negative value means this is the same as the no. of allocated processors
