@@ -103,7 +103,7 @@ def parse_job_lines_quick_and_dirty(lines):
             id = int(x[0]),
             estimated_run_time = int(x[8]),
             actual_run_time = int(x[3]),
-            num_required_processors = int(x[7]),
+            num_required_processors = max(int(x[7]), int(x[4])), # max(num_requested,max_allocated)
         )
 
 class Simulator(object):
