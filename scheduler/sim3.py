@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.4
 
 from sim  import *
-from sim1 import *
+from events import *
 from sim2 import *
 import sys
 
