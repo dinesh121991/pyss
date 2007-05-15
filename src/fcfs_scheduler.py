@@ -1,34 +1,37 @@
-from common import *
-from events import *
+from schedulers.common import CpuSnapshot
+from base.prototype import JobSubmitEvent, JobStartEvent, JobEndEvent
 
-class FcfsScheduler(Scheduler):
-        
-    def __init__(self, total_nodes = 100):
-        self.cpu_snapshot = CpuSnapshot(total_nodes)
+class FcfsScheduler(object):
+    def __init__(self, machine, event_queue):
+        self.machine = machine
+        self.event_queue = event_queue
+        # TODO: remove cpu_snapshot, FCFS can be implemented just with the machine
+        self.cpu_snapshot = CpuSnapshot(machine.num_processors)
         self.waiting_queue_of_jobs = []
+
+        # register event handlers
+        self.event_queue.add_handler(JobSubmitEvent, self.handleArrivalOfJobEvent)
+        self.event_queue.add_handler(JobEndEvent, self.handleTerminationOfJobEvent)
         
-    def handleArrivalOfJobEvent(self, job, current_time):
-        self.cpu_snapshot.archive_old_slices(current_time)
-        self.waiting_queue_of_jobs.append(job)
-        return self._schedule_jobs(current_time)
+    def handleArrivalOfJobEvent(self, event):
+        self.cpu_snapshot.archive_old_slices(event.timestamp)
+        self.waiting_queue_of_jobs.append(event.job)
+        return self._schedule_jobs(event.timestamp)
 
-    def handleTerminationOfJobEvent(self, job, current_time):
-        self.cpu_snapshot.archive_old_slices(current_time)
-        self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        return self._schedule_jobs(current_time)
-
+    def handleTerminationOfJobEvent(self, event):
+        self.cpu_snapshot.archive_old_slices(event.timestamp)
+        self.cpu_snapshot.delTailofJobFromCpuSlices(event.job)
+        return self._schedule_jobs(event.timestamp)
  
-    def _schedule_jobs(self, time):
-        newEvents = Events()
+    def _schedule_jobs(self, current_time):
         first_failure_has_not_occured = True
         while len(self.waiting_queue_of_jobs) > 0 and first_failure_has_not_occured:
             job = self.waiting_queue_of_jobs[0]
-            earliest_possible_time = self.cpu_snapshot.jobEarliestAssignment(job, time)
-            if earliest_possible_time == time:
+            earliest_possible_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
+            if earliest_possible_time == current_time:
                 del self.waiting_queue_of_jobs[0]
-                self.cpu_snapshot.assignJob(job, time)     
-                termination_time = time + job.actual_duration
-                newEvents.add_job_termination_event(termination_time, job)
+                self.cpu_snapshot.assignJob(job, current_time)     
+
+                self.event_queue.add_event( JobStartEvent(timestamp=current_time, job=job) )
             else:
                 first_failure_has_not_occured = False
-        return newEvents
