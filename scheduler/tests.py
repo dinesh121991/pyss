@@ -3,7 +3,7 @@
 import unittest 
 from sim2 import * 
 from sim3 import *
-from sim4 import * 
+from simulator import * 
 
 
 class test_Simulator(unittest.TestCase):
