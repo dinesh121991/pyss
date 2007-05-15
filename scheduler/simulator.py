@@ -2,10 +2,11 @@
 
 from sim  import *
 from events import *
-from sim3 import * 
 
-from conservative_scheduler import ConservativeScheduler
 from fcfs_scheduler import FcfsScheduler
+from conservative_scheduler import ConservativeScheduler
+from easy_scheduler import EasyBackfillScheduler
+from maui_scheduler import MauiScheduler, Weights
 
 import sys
 #import profile
