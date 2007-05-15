@@ -93,15 +93,9 @@ class Simulator:
         self.events = events_generated_by_input_file.events
         self.jobs = events_generated_by_input_file.jobs
         
-        
-        self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "maxint" time
-         
-        end_of_simulation_event_has_not_occured = True 
-
-        while end_of_simulation_event_has_not_occured and len(self.events.collection) > 0:
+        while len(self.events.collection) > 0:
             
             current_time = min(self.events.collection.keys())
-
             
             while len(self.events.collection[current_time]) > 0:
 
@@ -128,22 +122,18 @@ class Simulator:
                     self.events.addEvents(newEvents)
                     continue
 
-                elif isinstance(event, EndOfSimulationEvent):
-                    end_of_simulation_event_has_not_occured = False
-                    self.scheduler.handleEndOfSimulationEvent(current_time)
-                    print "______________ last snapshot, before the simulation ends ________" 
-                    self.scheduler.cpu_snapshot.printCpuSlices()
-                    # self.feasibilty_check_of_jobs_data(current_time)
-                    break
-
                 else:
                     assert False # should never reach here
                 
-            
             del self.events.collection[current_time] # removing the current events
 
             # print "______________ right after calling to archive removal________" 
             # self.scheduler.cpu_snapshot.printCpuSlices()
+
+        # simulation is done
+        print "______________ last snapshot, before the simulation ends ________" 
+        self.scheduler.cpu_snapshot.printCpuSlices()
+        # self.feasibilty_check_of_jobs_data(current_time)
 
         self.calculate_statistics()  
 
