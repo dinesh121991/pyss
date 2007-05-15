@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.3
 
-from sim  import *
+from common  import *
 from events import *
 
 from fcfs_scheduler import FcfsScheduler

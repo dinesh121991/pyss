@@ -1,4 +1,4 @@
-from sim  import *
+from common  import *
 from events import *
 
 class Weights:

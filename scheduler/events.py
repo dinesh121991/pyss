@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.4
 
-from sim import * 
+from common import * 
  
 
 class Event:
