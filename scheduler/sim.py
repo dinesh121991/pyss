@@ -1,4 +1,4 @@
-
+import sys
 
 class Job:
     def __init__(self, job_id, user_predicted_duration, job_nodes, \
@@ -318,6 +318,20 @@ class CpuSnapshot(object):
         return True
     
             
-            
+class Scheduler:
+    """ Assumption: every handler returns a (possibly empty) collection of new events """
+    
+    def handleArrivalOfJobEvent(self, job, current_time):
+        pass
+    
+    def handleTerminationOfJobEvent(self, job, current_time):
+        pass
+    
+    def handleEndOfSimulationEvent(self, current_time):
+        if current_time == sys.maxint:
+            # otherewise, it might be the case that the simulation stoped
+            # before some jobs were scheduled properly          
+            # self.cpu_snapshot.CpuSlicesTestFeasibility()
+            pass 
     
              
