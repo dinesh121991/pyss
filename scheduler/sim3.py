@@ -18,6 +18,7 @@ class EasyBackfillScheduler(Scheduler):
     def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
+        self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
         newEvents = Events()
         if len(self.waiting_list_of_unscheduled_jobs) == 1:  
@@ -46,11 +47,10 @@ class EasyBackfillScheduler(Scheduler):
         return self._schedule_jobs(current_time)
     
     
-    def _schedule_jobs(self, current_time):
+    def _schedule_jobs(self, current_time):       
         newEvents = Events()
-        
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return newEvents # waiting list is empty
+            return newEvents
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
@@ -82,30 +82,19 @@ class EasyBackfillScheduler(Scheduler):
     
 
     def canBeBackfilled(self, first_job, second_job, time):
-        # print "... Let's check if the job can be backfilled"
-        
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
-        # print "start time of the 2nd job: ", start_time_of_second_job, second_job.id
 
         if start_time_of_second_job > time:
             return False
-    
+
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        # print "shadow time, the reserved start time of the first job: ", shadow_time, first_job.id
-        
-        # TODO: shouldn't this method not change the state?
         self.cpu_snapshot.assignJob(second_job, time)
         start_time_of_1st_if_2nd_job_assigned = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        # print "start time of the 1st job after assigning the 2nd: ",  start_time_of_1st_if_2nd_job_assigned
         
         self.cpu_snapshot.delJobFromCpuSlices(second_job)
        
         if start_time_of_1st_if_2nd_job_assigned > shadow_time:
-            # print "reserved_start_time_of_first_job", shadow_time
-            # print "strat_time_of_1st_if_2nd_job_assigned", start_time_of_1st_if_2nd_job_assigned
             return False 
-                #this means that assigning the second job at current time postphones the
-                #first job in the waiting list, and so the second job cannot be back filled 
         else:
             return True 
       
@@ -146,6 +135,7 @@ class MauiScheduler(EasyBackfillScheduler):
     def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
+        self.cpu_snapshot.archive_old_slices(current_time)
         just_arrived_job.maui_timestamp = self.maui_timestamp
         self.maui_timestamp += 1
         self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)

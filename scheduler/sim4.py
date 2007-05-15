@@ -6,7 +6,7 @@ from sim2 import *
 from sim3 import * 
 
 import sys
-import profile
+#import profile
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -27,14 +27,16 @@ class JobArrivalEventGeneratorViaLogFile:
 
             (str_j_arrival_time, j_id, str_j_user_predicted_duration, \
              str_j_nodes, str_j_actual_duration, str_j_admin_QoS, str_j_user_QoS) = line.split()
+
             j_arrival_time = int(str_j_arrival_time)
             j_user_predicted_duration = int(str_j_user_predicted_duration)
-            j_nodes = int(str_j_nodes)
             j_actual_duration = int(str_j_actual_duration)
-            j_admin_QoS = int(str_j_admin_QoS)
-            j_user_QoS = int(str_j_user_QoS)
-
-            if j_arrival_time >= 0 and j_nodes > 0 and j_user_predicted_duration >= j_actual_duration and j_actual_duration >= 0: 
+            j_nodes = int(str_j_nodes)
+  
+ 
+            if j_user_predicted_duration >= j_actual_duration and j_arrival_time >= 0 and j_nodes > 0 and j_actual_duration >= 0:
+                j_admin_QoS = int(str_j_admin_QoS)
+                j_user_QoS = int(str_j_user_QoS)
                 newJob = Job(j_id, j_user_predicted_duration, j_nodes, j_arrival_time, j_actual_duration, j_admin_QoS, j_user_QoS)
                 self.jobs.append(newJob)
                 self.events.add_job_arrival_event(int(j_arrival_time), newJob)
@@ -50,9 +52,10 @@ class Simulator:
     def __init__(self, total_nodes=100, input_file="input", scheduler=None, maui_list_weights=None, maui_backfill_weights=None):
         self.total_nodes = total_nodes
         self.current_time = 0
-        events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(input_file)
-        self.events = events_generated_by_input_file.events
-        self.jobs = events_generated_by_input_file.jobs
+        self.events = None
+        self.jobs = None
+        self.input_file = input_file
+        
         
         if scheduler ==  "Conservative":
             self.scheduler =  ConservativeScheduler(total_nodes)
@@ -77,11 +80,16 @@ class Simulator:
             print ">>> Problem: No such scheduling Policy"
             return
 
-        self.startSimulation() 
+        # self.startSimulation() 
    
        
 
     def startSimulation(self):
+        
+        events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(self.input_file)
+        self.events = events_generated_by_input_file.events
+        self.jobs = events_generated_by_input_file.jobs
+        
         
         self.events.add_end_of_simulation_event(sys.maxint) #generates a deafult end_of_simulation_event at "maxint" time
          
@@ -89,10 +97,8 @@ class Simulator:
 
         while end_of_simulation_event_has_not_occured and len(self.events.collection) > 0:
             
-            #current_time = sorted(self.events.collection.keys()).pop(0)
-            times = self.events.collection.keys()
-            times.sort()
-            current_time = times.pop(0)
+            current_time = min(self.events.collection.keys())
+
             
             while len(self.events.collection[current_time]) > 0:
 
@@ -121,12 +127,10 @@ class Simulator:
 
                 elif isinstance(event, EndOfSimulationEvent):
                     end_of_simulation_event_has_not_occured = False
-                    #print "______________ snapshot, before handling the EndOfSimu last event ________" 
-                    #self.scheduler.cpu_snapshot.printCpuSlices()
                     self.scheduler.handleEndOfSimulationEvent(current_time)
                     print "______________ last snapshot, before the simulation ends ________" 
                     self.scheduler.cpu_snapshot.printCpuSlices()
-                    #self.feasibilty_check_of_jobs_data(current_time)
+                    # self.feasibilty_check_of_jobs_data(current_time)
                     break
 
                 else:
@@ -147,10 +151,12 @@ class Simulator:
         if len(self.jobs) == 0:
             print
             print "STATISTICS: "
-            print "Input file is prbably empty"
+            print "Input file is probably empty"
             return
         
-        wait_time = sigma_wait_time = flow_time = sigma_flow_time = counter = 0.0
+        wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0 
+        counter = 0
+        
         for job in self.jobs:
             counter += 1
             
@@ -178,14 +184,14 @@ class Simulator:
             print ">>> Simulation ends perhaps before all the jobs were scheduled properly"
             return
 
-        print ">>> Fesibilty Test >>>"
+        print "@@@ Fesibilty Test"
         cpu_snapshot = CpuSnapshot(self.total_nodes)
 
         every_job_starts_after_its_arrival_time= True
         cpu_snapshot_is_feasible = True
         
         for job in self.jobs:
-            print str(job)
+            # print str(job)
             if job.arrival_time > job.start_to_run_at_time:
                 print ">>> PROBLEM: job starts before arrival...."
                 every_job_starts_after_its_arrival_time = False
@@ -202,7 +208,7 @@ class Simulator:
         if every_job_starts_after_its_arrival_time and cpu_snapshot_is_feasible:  
             print "Feasibility Test is OK!!!!!"
         else: 
-            print "There was a problem with the feasibilty of the simulator/schedule!!!!!!!!"
+            print ">>> There was a problem with the feasibilty of the simulator/schedule!!!!!!!!"
 
         
 
@@ -213,11 +219,11 @@ class Simulator:
 #w_b = Weights(0, 1.0, 0, 0, 0, 0) 
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
+simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
 #simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #profile.run('simulation.startSimulation()')
-#simulation.startSimulation()
+simulation.startSimulation()
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")

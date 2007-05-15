@@ -18,11 +18,9 @@ class Scheduler:
     def handleEndOfSimulationEvent(self, current_time):
         if current_time == sys.maxint:
             # otherewise, it might be the case that the simulation stoped
-            # before some jobs were scheduled properly
-             
+            # before some jobs were scheduled properly          
             # self.cpu_snapshot.CpuSlicesTestFeasibility()
-            pass
-    
+            pass 
     
     
 class FcfsScheduler(Scheduler):
@@ -34,15 +32,14 @@ class FcfsScheduler(Scheduler):
     def handleArrivalOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_queue_of_jobs.append(job)
-        newEvents = self._schedule_jobs(current_time)
-        return newEvents
+        return self._schedule_jobs(current_time)
 
     def handleTerminationOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        newEvents = self._schedule_jobs(current_time)
-        return newEvents
+        return self._schedule_jobs(current_time)
 
+ 
     def _schedule_jobs(self, time):
         newEvents = Events()
         first_failure_has_not_occured = True
@@ -67,8 +64,8 @@ class ConservativeScheduler(Scheduler):
         self.list_of_unfinished_jobs_arranged_by_arrival_times = []    
         
     def handleArrivalOfJobEvent(self, job, current_time):
-        newEvents = Events()
         self.cpu_snapshot.archive_old_slices(current_time)
+        newEvents = Events()
         self.list_of_unfinished_jobs_arranged_by_arrival_times.append(job)        
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
