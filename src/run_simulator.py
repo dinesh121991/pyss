@@ -2,9 +2,9 @@
 import sys
 import time
 
-from event_queue import EventQueue
-from prototype import Simulator, Machine, StupidScheduler, parse_job_lines_quick_and_dirty
-import workload_parser
+from base.event_queue import EventQueue
+from base.prototype import Simulator, Machine, StupidScheduler, parse_job_lines_quick_and_dirty
+from base import workload_parser
 
 if __debug__:
     import warnings
