@@ -288,3 +288,5 @@ Cons
 
 
 
+
+python2.4 -O ./run_simulator.py < ../l_ctc_sp2_cln.swf
