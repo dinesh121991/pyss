@@ -6,6 +6,8 @@ from base.event_queue import EventQueue
 from base.prototype import Simulator, Machine, StupidScheduler, parse_job_lines_quick_and_dirty
 from base import workload_parser
 
+from fcfs_scheduler import FcfsScheduler
+
 if __debug__:
     import warnings
     warnings.warn("Running in debug mode, this will be slow... try 'python2.4 -O %s'" % sys.argv[0])
@@ -15,7 +17,7 @@ def main():
 
     event_queue = EventQueue()
     machine = Machine(num_processors=10000, event_queue=event_queue)
-    scheduler = StupidScheduler(event_queue)
+    scheduler = FcfsScheduler(event_queue=event_queue, machine=machine)
 
     simulator = Simulator(
         job_source = parse_job_lines_quick_and_dirty(sys.stdin),
