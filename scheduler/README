@@ -1,4 +1,4 @@
-Python 2.3.5 (#2, Aug 30 2005, 15:50:26) 
+ Python 2.3.5 (#2, Aug 30 2005, 15:50:26) 
 [GCC 4.0.2 20050821 (prerelease) (Debian 4.0.1-6)] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import sim
@@ -51,8 +51,11 @@ Cons
 
 
 head -20000 stam2/input > ! input ; time sim4.py > ! output
-Easy without profiling
+Easy without profiling monday evening
 422.086u 0.492s 7:08.70 98.5%   0+0k 0+0io 0pf+0w
+Easy without profiling tuesday evening
+452.036u 0.756s 7:52.51 95.8%   0+0k 0+0io 30pf+0w
+
 
 _______________________
 
@@ -138,6 +141,8 @@ Ran 12 tests in 0.624s
 0.644u 0.108s 0:00.86 86.0%     0+0k 0+0io 2pf+0w
 Ran 12 tests in 0.670s
 0.668u 0.108s 0:00.87 87.3%     0+0k 0+0io 0pf+0w
+Ran 12 tests in 0.674s
+0.688u 0.092s 0:00.88 87.5%     0+0k 0+0io 0pf+0w
 
 
 -------------------------
@@ -190,3 +195,96 @@ Easy
 25.769u 0.444s 0:26.82 97.6%    0+0k 0+0io 0pf+0w
 25.501u 0.460s 0:28.08 92.4%    0+0k 0+0io 0pf+0w
 27.153u 0.552s 0:30.20 91.7%    0+0k 0+0io 4pf+0w
+26.953u 0.452s 0:27.63 99.1%    0+0k 0+0io 3pf+0w
+26.905u 0.440s 0:28.44 96.1%    0+0k 0+0io 3pf+0w
+26.861u 0.364s 0:28.53 95.4%    0+0k 0+0io 0pf+0w
+26.957u 0.512s 0:32.35 84.8%    0+0k 0+0io 0pf+0w
+27.213u 0.456s 0:28.73 96.2%    0+0k 0+0io 0pf+0w
+
+
+Cons 
+27.465u 0.488s 0:27.98 99.8%    0+0k 0+0io 0pf+0w
+27.861u 0.492s 0:33.18 85.4%    0+0k 0+0io 0pf+0w
+
+FCFS 
+25.093u 0.456s 0:27.24 93.7%    0+0k 0+0io 4pf+0w
+
+-------------------------
+-------------------------
+
+Sunday 13/5 
+
+head -5000 stam2/input > ! input ; time sim4.py > ! output 
+
+Easy without profiler python 2.3 
+18.069u 0.076s 0:19.15 94.6%    0+0k 0+0io 0pf+0w
+
+Easy without profiler python 2.4
+17.677u 0.044s 0:18.21 97.2%    0+0k 0+0io 0pf+0w
+17.813u 0.048s 0:17.88 99.8%    0+0k 0+0io 0pf+0w
+changing the min of sorted to min ... 
+4.808u 0.060s 0:04.88 99.5%     0+0k 0+0io 0pf+0w
+4.708u 0.068s 0:05.27 90.3%     0+0k 0+0io 0pf+0w
+
+Cons
+4.932u 0.076s 0:05.28 94.6%     0+0k 0+0io 0pf+0w
+
+FCFS
+4.656u 0.064s 0:04.90 96.1%     0+0k 0+0io 0pf+0w
+-------------------------
+-------------------------
+Sunday 13/5 
+
+head -10000 stam2/input > ! input ; time sim4.py > ! output
+Easy without profiler 
+31.141u 0.124s 0:31.91 97.9%    0+0k 0+0io 0pf+0w
+36.126u 0.088s 0:36.23 99.9%    0+0k 0+0io 0pf+0w
+36.342u 0.084s 0:36.70 99.2%    0+0k 0+0io 0pf+0w
+
+-------------------------
+-------------------------
+Sunday&Monday
+Easy without profiler on pentium 4 -- cmos
+
+head -10000 stam2/input > ! input ; time sim4.py > ! output
+5.796u 0.036s 0:05.86 99.3%     0+0k 0+0io 0pf+0w
+
+
+head -20000 stam2/input > ! input ; time sim4.py > ! output
+
+python 2.3 with feasibility check of the schedule 
+161.010u 0.488s 2:42.36 99.4%   0+0k 0+0io 0pf+0w
+
+python 2.3
+22.261u 0.040s 0:22.47 99.2%    0+0k 0+0io 0pf+0w
+25.749u 1.108s 0:29.79 90.0%    0+0k 0+0io 32pf+0w
+23.033u 0.052s 0:26.50 87.0%    0+0k 0+0io 0pf+0w
+22.833u 0.104s 0:23.06 99.4%    0+0k 0+0io 0pf+0w
+22.585u 0.092s 0:22.70 99.8%    0+0k 0+0io 0pf+0w
+
+python 2.4
+22.417u 0.836s 0:23.44 99.1%    0+0k 0+0io 0pf+0w
+25.745u 3.012s 0:30.20 95.1%    0+0k 0+0io 0pf+0w
+23.849u 2.688s 0:28.07 94.4%    0+0k 0+0io 9pf+0w
+22.941u 0.096s 0:23.17 99.3%    0+0k 0+0io 0pf+0w
+
+
+
+
+Cons without profiler on pentium 4 -- cmos
+head -20000 stam2/input > ! input ; time sim4.py > ! output
+23.077u 0.636s 0:28.44 83.3%    0+0k 0+0io 29pf+0w
+
+
+cat stam2/input > ! input ; time sim4.py > ! output
+Easy 
+1922.732u 28.725s 32:31.41 100.0%       0+0k 0+0io 0pf+0w
+1561.857u 25.565s 26:31.93 99.7%        0+0k 0+0io 0pf+0w
+
+Cons 
+2368.384u 33.434s 40:02.29 99.9%        0+0k 0+0io 0pf+0w
+1742.380u 27.741s 29:31.56 99.9%        0+0k 0+0io 0pf+0w
+
+
+
+
