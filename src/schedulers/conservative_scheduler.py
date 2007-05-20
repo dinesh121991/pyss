@@ -28,15 +28,15 @@ class ConservativeScheduler(Scheduler):
         return self._reschedule_jobs(current_time, newEvents)
    
 
-    def _reschedule_jobs(self, time, newEvents):
+    def _reschedule_jobs(self, current_time, newEvents):
         for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
-            if job.start_to_run_at_time <= time:
+            if job.start_to_run_at_time <= current_time:
                 continue # job started to run before, so it cannot be rescheduled (preemptions are not allowed)
             prev_start_to_run_at_time = job.start_to_run_at_time
             self.cpu_snapshot.delJobFromCpuSlices(job)
-            start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, time)
+            start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
             self.cpu_snapshot.assignJob(job, start_time_of_job)
-            if prev_start_to_run_at_time > job.start_to_run_at_time:
+            if prev_start_to_run_at_time != job.start_to_run_at_time:
                 new_termination_time = job.start_to_run_at_time + job.actual_duration
-                newEvents.add_job_termination_event(new_termination_time, job)               
+                newEvents.add_job_termination_event(new_termination_time, job)
         return newEvents

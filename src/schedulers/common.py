@@ -29,7 +29,18 @@ class Job:
                ", #nodes=" + str(self.nodes) + \
                ", startTime=" + str(self.start_to_run_at_time)  
     
-        
+
+
+class Scheduler:
+    """ Assumption: every handler returns a (possibly empty) collection of new events """
+    
+    def handleArrivalOfJobEvent(self, job, current_time):
+        raise NotImplementedError()
+    
+    def handleTerminationOfJobEvent(self, job, current_time):
+        raise NotImplementedError()
+     
+
 
 class CpuTimeSlice:
     ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
@@ -74,7 +85,6 @@ class CpuSnapshot(object):
         self.slices.append(CpuTimeSlice(self.total_nodes)) # Assumption: the snapshot always has at least one slice 
         self.archive_of_old_slices=[]
 
-        
     
     def jobEarliestAssignment(self, job, time=0):
         """ returns the earliest time right after the given time for which the job can be assigned
@@ -141,15 +151,15 @@ class CpuSnapshot(object):
         
         if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
             self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, start_time - last_slice_end_time) )
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 1024) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 9999) ) # duration is arbitrary here
             return 
         
         elif last_slice_end_time == start_time:
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 1024) ) # duration is arbitrary here
+            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 9999) ) # duration is arbitrary here
             return
 
         else:  # just to make sure that always there's a last slice 
-            self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, 1024) )
+            self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, 9999) )
 
 
         index = -1
@@ -225,11 +235,13 @@ class CpuSnapshot(object):
         """ Deletes an _entire_ job from the slices. 
         Assumption: job resides at consecutive slices (no preemptions) """
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
-        job_start = job.start_to_run_at_time        
+        job_start = job.start_to_run_at_time
+        self._ensure_a_slice_starts_at(job_start)
+        self._ensure_a_slice_starts_at(job_predicted_finish_time)
         for s in self.slices:
             if s.start_time < job_start:
                 continue
-            elif s.start_time + s.duration <= job_predicted_finish_time:  
+            elif s.start_time < job_predicted_finish_time:  
                 s.delJob(job.nodes) 
             else:
                 return
@@ -244,7 +256,6 @@ class CpuSnapshot(object):
 
         if job.actual_duration ==  job.user_predicted_duration: 
             return
-        
         job_finish_time = job.start_to_run_at_time + job.actual_duration
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
 
@@ -265,7 +276,6 @@ class CpuSnapshot(object):
             if s.start_time + s.duration >= job_predicted_finish_time:  
                 return
 
-
             
     def archive_old_slices(self, current_time):
         for s in self.slices[ : -1] :
@@ -273,18 +283,30 @@ class CpuSnapshot(object):
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
             else:
+                self.unify_some_slices()
                 return
-                
 
+
+    def unify_some_slices(self):
+        prev = self.slices[0]
+        for s in self.slices[1: -5]:
+            if prev.free_nodes == s.free_nodes:
+                prev.duration += s.duration
+                self.slices.remove(s)
+            else: 
+                prev = s
+            
+        
+        
     def _restore_old_slices(self):
         size = len(self.archive_of_old_slices)                   
         while size > 0:
             size -= 1
             s = self.archive_of_old_slices.pop()
             self.slices.insert(0, s)
-    
 
-            
+
+
     def printCpuSlices(self):
         print "start time | duration | #free nodes "            
         for s in self.slices: 
@@ -318,12 +340,4 @@ class CpuSnapshot(object):
         return True
     
             
-class Scheduler:
-    """ Assumption: every handler returns a (possibly empty) collection of new events """
-    
-    def handleArrivalOfJobEvent(self, job, current_time):
-        raise NotImplementedError()
-    
-    def handleTerminationOfJobEvent(self, job, current_time):
-        raise NotImplementedError()
-    
+

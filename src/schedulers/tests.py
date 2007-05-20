@@ -7,11 +7,10 @@ from simulator import *
 class test_Simulator(unittest.TestCase):
 
     def test_basic_cons_junk(self):
-        simulator = Simulator(scheduler ="Conservative", \
-        input_file = "./Input_test_files/basic_input.18")
+        simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input.18")
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
-
+                       
     def test_basic_fcfs(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_test_files/basic_input." + str(i))
@@ -119,6 +118,7 @@ class test_Simulator(unittest.TestCase):
                               input_file = "./Input_test_files/maui.bypass_vs_sld")
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
+
 
 ###########
 
