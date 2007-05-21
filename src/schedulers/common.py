@@ -142,19 +142,9 @@ class CpuSnapshot(object):
         duration. """
 
         last = self.slices[-1]
-        last_slice_end_time =  last.start_time + last.duration
-        
-        if last_slice_end_time < start_time: #we add an intermediate "empty" slice to maintain the "continuity" of slices
-            self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, start_time - last_slice_end_time) )
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 9999) ) # duration is arbitrary here
-            return 
-        
-        elif last_slice_end_time == start_time:
-            self.slices.append( CpuTimeSlice(self.total_nodes, start_time, 9999) ) # duration is arbitrary here
-            return
-
-        else:  # just to make sure that always there's a last slice 
-            self.slices.append( CpuTimeSlice(self.total_nodes, last_slice_end_time, 9999) )
+        last_end_time = last.start_time + last.duration
+        self.slices.append( CpuTimeSlice(self.total_nodes, last_end_time, start_time + 1) ) # durations is huge 
+        self.slices.append( CpuTimeSlice(self.total_nodes, last_end_time + start_time + 1, 1000) ) # duration is arbitrary
 
         index = -1
         for s in self.slices:
@@ -187,7 +177,7 @@ class CpuSnapshot(object):
             self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
 
       
-        
+
      
     def assignJob(self, job, job_start):         
         """ assigns the job to start at the given job_start time.        
@@ -260,8 +250,8 @@ class CpuSnapshot(object):
 
 
     def unify_some_slices(self):
-        prev = self.slices[2]
-        for s in self.slices[3: -2]:
+        prev = self.slices[0]
+        for s in self.slices[1: -1]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
                 self.archive_of_scratch_slices.append(s)

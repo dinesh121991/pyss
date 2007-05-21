@@ -9,7 +9,7 @@ from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 
 import sys
-#import profile
+import profile
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -114,7 +114,7 @@ class Simulator:
 
                 elif isinstance(event, JobTerminationEvent):
                     # self.scheduler.cpu_snapshot.printCpuSlices()
-                    if event.job.start_to_run_at_time + event.job.actual_duration < current_time:
+                    if event.job.start_to_run_at_time + event.job.actual_duration != current_time:
                       continue # redundant JobTerminationEvent
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
                     self.events.addEvents(newEvents)
@@ -211,10 +211,10 @@ class Simulator:
 
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
 #simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
-#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
-#profile.run('simulation.startSimulation()')
-simulation.startSimulation()
+#simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
+simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
+profile.run('simulation.startSimulation()')
+#simulation.startSimulation()
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")
