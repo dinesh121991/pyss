@@ -139,13 +139,16 @@ class CpuSnapshot(object):
         First, to ensure that the assignment time of the new added job will start at a beginning of a slice.
         Second, to ensure that the actual end time of the job will end at the ending of slice.
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
-        duration. """
+        duration.
+        The idea we first append 2 slices, just to make sure that there's a slice which ends after the start_time.
+        We add one more slice just because we actually use list.insert() when we add a new slice.
+        After that we itterate through the slices and split a slice if needed"""
 
         last = self.slices[-1]
         last_end_time = last.start_time + last.duration
-        l = len(self.slices)
-        self._add_slice(l, self.total_nodes, last_end_time, start_time + 1) # durations is huge 
-        self._add_slice(l+1, self.total_nodes, last_end_time + start_time + 1, 1000) # duration is arbitrary
+        length = len(self.slices)
+        self._add_slice(length, self.total_nodes, last_end_time, start_time + 1) # durations is huge 
+        self._add_slice(length+1, self.total_nodes, last_end_time + start_time + 1, 1000) # duration is arbitrary
 
         index = -1
         for s in self.slices:
@@ -259,7 +262,7 @@ class CpuSnapshot(object):
                 self.slices.remove(s)
             else: 
                 prev = s
-            
+
         
         
     def _restore_old_slices(self):
