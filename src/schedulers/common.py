@@ -284,7 +284,6 @@ class CpuSnapshot(object):
         time = 0
         
         for s in self.slices:
-
             prev_duration = duration
             prev_time = time
             
@@ -298,10 +297,34 @@ class CpuSnapshot(object):
                 
             duration = s.duration
             time = s.start_time
-
  
         print "TEST is OK!!!!" 
         return True
-    
+
+
+
+    def CpuSlicesTestNullFeasibility(self):
+        self._restore_old_slices()
+        duration = 0
+        time = 0
+        
+        for s in self.slices:
+            prev_duration = duration
+            prev_time = time
+            
+            if s.free_nodes != self.total_nodes:  
+                print ">>> PROBLEM: number of free nodes is not the total nodes", s
+                return False
+
+            if s.start_time != prev_time + prev_duration:
+                print ">>> PROBLEM: non successive slices", s.start_time, prev_time 
+                return False
+                
+            duration = s.duration
+            time = s.start_time
+ 
+        print "TEST NULL is OK!!!!" 
+        return True
+
             
 

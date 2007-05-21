@@ -7,13 +7,16 @@ from simulator import *
 class test_Simulator(unittest.TestCase):
 
     def test_basic_cons_junk(self):
-        simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input.18")
+        simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input.7")
+        self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
                        
+
     def test_basic_fcfs(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_test_files/basic_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 # The job id in these specific test input files signifies the job correct finishing time:  
                 # We use this basic idea to enable complex testing scenarios without much expansion of the code 
@@ -22,18 +25,21 @@ class test_Simulator(unittest.TestCase):
     def test_basic_conservative(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
     
     def test_basic_easyBackfill(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_test_files/basic_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
     def test_basic_maui(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Maui", input_file = "./Input_test_files/basic_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
     
@@ -42,6 +48,7 @@ class test_Simulator(unittest.TestCase):
     def test_fcfs(self):
         for i in range(8): 
             simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_test_files/fcfs_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
@@ -50,11 +57,13 @@ class test_Simulator(unittest.TestCase):
     def test_conservative(self):
         for i in range(9): 
             simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
         for i in range(2): 
             simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/cons_bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
         
@@ -63,11 +72,13 @@ class test_Simulator(unittest.TestCase):
     def test_easyBackfill(self):
         for i in range(9): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_test_files/bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
         for i in range(1): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = "./Input_test_files/easy_bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
                 
@@ -78,11 +89,13 @@ class test_Simulator(unittest.TestCase):
         # here we basically test that the maui with the default weights behaves as the easybackfill
         for i in range(9):
             simulator = Simulator(scheduler ="Maui", input_file = "./Input_test_files/bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
         for i in range(1): 
             simulator = Simulator(scheduler ="Maui", input_file = "./Input_test_files/easy_bf_input." + str(i))
+            self.assertEqual(True, simulator.feasibilty_check_of_data())
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
@@ -94,6 +107,7 @@ class test_Simulator(unittest.TestCase):
         
         simulator = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b, \
                               input_file = "./Input_test_files/maui.size")
+        self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
@@ -105,6 +119,7 @@ class test_Simulator(unittest.TestCase):
         
         simulator = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b, \
                               input_file = "./Input_test_files/maui.admin_vs_user")
+        self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
@@ -116,6 +131,7 @@ class test_Simulator(unittest.TestCase):
         
         simulator = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b, \
                               input_file = "./Input_test_files/maui.bypass_vs_sld")
+        self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
 
