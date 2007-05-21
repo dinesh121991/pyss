@@ -84,7 +84,7 @@ class CpuSnapshot(object):
         self.slices=[] # initializing the main structure of this class 
         self.slices.append(CpuTimeSlice(self.total_nodes)) # Assumption: the snapshot always has at least one slice 
         self.archive_of_old_slices=[]
-
+        self.archive_of_scratch_slices=[]
     
 
     def jobEarliestAssignment(self, job, time=0):
@@ -173,11 +173,12 @@ class CpuSnapshot(object):
 
 
 
+
     def _add_slice(self, index, free_nodes, start_time, duration):
         # if the last slice is empty (without any assigned job) we take this slice,
         # otherwise we allocate a new slice object
-        if self.slices[-1].free_nodes == self.total_nodes: 
-            s = self.slices.pop()
+        if len(self.archive_of_scratch_slices) > 0:  
+            s = self.archive_of_scratch_slices.pop()
             s.free_nodes = free_nodes
             s.start_time = start_time
             s.duration = duration
@@ -187,11 +188,10 @@ class CpuSnapshot(object):
 
       
         
-
      
     def assignJob(self, job, job_start):         
-        """ assigns the job to start at the given assignment time.        
-        Important assumption: assignment_time was returned by jobEarliestAssignment. """
+        """ assigns the job to start at the given job_start time.        
+        Important assumption: job_start was returned by jobEarliestAssignment. """
         job.start_to_run_at_time = job_start 
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         self._ensure_a_slice_starts_at(job_start)
@@ -206,12 +206,11 @@ class CpuSnapshot(object):
                 return
 
         
-            
+    
         
     def delJobFromCpuSlices(self, job):        
         """ Deletes an _entire_ job from the slices. 
-        Assumption: job resides at consecutive slices (no preemptions) """
-        
+        Assumption: job resides at consecutive slices (no preemptions), and nothing is archived! """
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         job_start = job.start_to_run_at_time
         self._ensure_a_slice_starts_at(job_start)
@@ -261,10 +260,11 @@ class CpuSnapshot(object):
 
 
     def unify_some_slices(self):
-        prev = self.slices[0]
-        for s in self.slices[1: -5]:
+        prev = self.slices[2]
+        for s in self.slices[3: -2]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
+                self.archive_of_scratch_slices.append(s)
                 self.slices.remove(s)
             else: 
                 prev = s
