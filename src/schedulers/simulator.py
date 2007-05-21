@@ -126,14 +126,11 @@ class Simulator:
             del self.events.collection[current_time] # removing the current events
 
         # simulation is done
+        print
+        print
         print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
         
-        test = True
-        test = self.feasibilty_check_of_data()
-        if test == False:
-            print "ERROR!!!!!!!!!!!!"
-            
         self.calculate_statistics()  
 
 
@@ -180,7 +177,6 @@ class Simulator:
         j = Job(1, 1, 1, 1, 1)
 
         for job in self.jobs:
-            # print str(job)
             if job.arrival_time > job.start_to_run_at_time:
                 print ">>> PROBLEM: job starts before arrival...."
                 return False
@@ -195,23 +191,22 @@ class Simulator:
         if not cpu_snapshot.CpuSlicesTestFeasibility():
             return False
         
-
         if not self.scheduler.cpu_snapshot.CpuSlicesTestFeasibility():
             return False
 
-        self.scheduler.cpu_snapshot.printCpuSlices()
-        new_job = Job(1, 1, 1, 1, 1)
+        # self.scheduler.cpu_snapshot.printCpuSlices()
+        
         for job in self.jobs:
-            print job
+            # print job
             j.nodes = job.nodes
             j.start_to_run_at_time = job.start_to_run_at_time
-            j.user_predicted_duration = job.actual_duration
+            j.user_predicted_duration = j.actual_duration = job.actual_duration
             self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)
     
         if not self.scheduler.cpu_snapshot.CpuSlicesTestNullFeasibility():
             return False
   
-                
+        return True                
           
         
         

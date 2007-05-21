@@ -7,7 +7,7 @@ from simulator import *
 class test_Simulator(unittest.TestCase):
 
     def test_basic_cons_junk(self):
-        simulator = Simulator(scheduler ="Conservative", input_file = "./Input_test_files/basic_input.7")
+        simulator = Simulator(scheduler ="Fcfs", input_file = "./Input_test_files/basic_input.0")
         self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_duration)
