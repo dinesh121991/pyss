@@ -36,7 +36,7 @@ class ConservativeScheduler(Scheduler):
             self.cpu_snapshot.delJobFromCpuSlices(job)
             start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
             self.cpu_snapshot.assignJob(job, start_time_of_job)
-            assert prev_start_to_run_at_time > job.start_to_run_at_time
+            assert prev_start_to_run_at_time >= job.start_to_run_at_time
             if prev_start_to_run_at_time != job.start_to_run_at_time:
                 new_termination_time = job.start_to_run_at_time + job.actual_duration
                 newEvents.add_job_termination_event(new_termination_time, job)

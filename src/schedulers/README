@@ -232,7 +232,7 @@ Easy without profiler python 2.4
 ********************************
 
 changing the min of sorted to min ... 
-
+Easy
 4.808u 0.060s 0:04.88 99.5%     0+0k 0+0io 0pf+0w
 4.708u 0.068s 0:05.27 90.3%     0+0k 0+0io 0pf+0w
 5.612u 0.080s 0:06.14 92.6%     0+0k 0+0io 0pf+0w
@@ -276,6 +276,11 @@ FCFS
 6.744u 0.052s 0:06.82 99.5%     0+0k 0+0io 0pf+0w
 7.192u 0.088s 0:07.34 99.0%     0+0k 0+0io 0pf+0w
 
+
+
+head -5000 ../../temp/stam2/input > ! input ; time simulator.py
+easy with profiler 
+16.557u 0.556s 0:17.78 96.1%    0+0k 0+0io 5pf+0w
 
 
 -------------------------
