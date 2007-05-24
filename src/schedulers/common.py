@@ -132,6 +132,16 @@ class CpuSnapshot(object):
         return
 
 
+    def free_nodes_available_at(self, time):
+        for s in self.slices:
+            if s.start_time + s.duration <= time:
+                continue
+            return s.free_nodes
+        return self.total_nodes
+        
+
+      
+
       
     def jobEarliestAssignment(self, job, time=0):
         """ returns the earliest time right after the given time for which the job can be assigned

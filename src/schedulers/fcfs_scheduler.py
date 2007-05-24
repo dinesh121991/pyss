@@ -23,8 +23,7 @@ class FcfsScheduler(Scheduler):
         first_failure_has_not_occured = True
         while len(self.waiting_queue_of_jobs) > 0 and first_failure_has_not_occured:
             job = self.waiting_queue_of_jobs[0]
-            earliest_possible_time = self.cpu_snapshot.jobEarliestAssignment(job, time)
-            if earliest_possible_time == time:
+            if self.cpu_snapshot.free_nodes_available_at(time) >= job.nodes: 
                 del self.waiting_queue_of_jobs[0]
                 self.cpu_snapshot.assignJob(job, time)     
                 termination_time = time + job.actual_duration
