@@ -90,6 +90,7 @@ class CpuSnapshot(object):
     def _add_slice(self, index, free_nodes, start_time, duration):
         # if the last slice is empty (without any assigned job) we take this slice,
         # otherwise we allocate a new slice object
+        
         if len(self.archive_of_scratch_slices) > 0:  
             s = self.archive_of_scratch_slices.pop()
             s.free_nodes = free_nodes

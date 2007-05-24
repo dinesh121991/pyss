@@ -278,9 +278,7 @@ FCFS
 5.180u 0.072s 0:05.52 95.1%     0+0k 0+0io 0pf+0w
 5.084u 0.084s 0:05.27 97.9%     0+0k 0+0io 0pf+0w
 6.744u 0.052s 0:06.82 99.5%     0+0k 0+0io 0pf+0w
-7.192u 0.088s 0:07.34 99.0%     0+0k 0+0io 0pf+0w
-
-
+6.864u 0.048s 0:06.93 99.5%     0+0k 0+0io 0pf+0w
 
 head -5000 ../../temp/stam2/input > ! input ; time simulator.py
 easy with profiler 
@@ -321,6 +319,8 @@ Cons
 
 Fcfs 
 9.912u 0.016s 0:09.94 99.7%     0+0k 0+0io 0pf+0w
+9.616u 0.032s 0:09.71 99.2%     0+0k 0+0io 0pf+0w
+
 
 
 
@@ -344,10 +344,27 @@ python 2.4
 
 
 
-
-Cons without profiler on pentium 4 -- cmos
 head -20000 stam2/input > ! input ; time sim4.py > ! output
+without profiler on pentium 4 -- cmos and then bmos 
+
+Easy 
+37.558u 0.040s 0:37.83 99.3%    0+0k 0+0io 0pf+0w
+37.494u 0.088s 0:37.83 99.3%    0+0k 0+0io 0pf+0w
+38.642u 0.116s 0:39.17 98.9%    0+0k 0+0io 0pf+0w
+
+Cons
 23.077u 0.636s 0:28.44 83.3%    0+0k 0+0io 29pf+0w
+27.433u 0.056s 0:27.55 99.7%    0+0k 0+0io 0pf+0w
+38.654u 0.052s 0:38.96 99.3%    0+0k 0+0io 0pf+0w
+
+
+Fcfs
+35.702u 0.072s 0:36.03 99.2%    0+0k 0+0io 0pf+0w
+36.742u 0.072s 0:37.02 99.4%    0+0k 0+0io 0pf+0w
+
+
+
+
 
 
 cat stam2/input > ! input ; time sim4.py > ! output
