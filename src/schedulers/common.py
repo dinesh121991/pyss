@@ -58,7 +58,8 @@ class CpuTimeSlice:
         self.free_nodes = free_nodes
         self.start_time = start_time
         self.duration = duration                
-            
+        self.end_time = start_time + duration
+        
 
     def addJob(self, job_nodes):
         # assert self.free_nodes >= job_nodes
@@ -96,6 +97,7 @@ class CpuSnapshot(object):
             s.free_nodes = free_nodes
             s.start_time = start_time
             s.duration = duration
+            s.end_time = start_time + duration
             self.slices.insert(index, s)
         else:
             self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
@@ -112,10 +114,9 @@ class CpuSnapshot(object):
         After that we itterate through the slices and split a slice if needed"""
 
         last = self.slices[-1]
-        last_end_time = last.start_time + last.duration
         length = len(self.slices)
-        self._add_slice(length, self.total_nodes, last_end_time, start_time + 1) # durations is huge 
-        self._add_slice(length+1, self.total_nodes, last_end_time + start_time + 1, 1000) # duration is arbitrary
+        self._add_slice(length, self.total_nodes, last.end_time, start_time + 1) # durations is huge 
+        self._add_slice(length+1, self.total_nodes, last.end_time + start_time + 1, 1000) # duration is arbitrary
 
         index = -1
         for s in self.slices:
@@ -127,15 +128,16 @@ class CpuSnapshot(object):
      
         # splitting slice s with respect to the start time
         s = self.slices[index-1]
-        end_of_this_slice = s.start_time +  s.duration
         s.duration = start_time - s.start_time
-        self._add_slice(index, s.free_nodes, start_time, end_of_this_slice - start_time)
+        self._add_slice(index, s.free_nodes, start_time, s.end_time - start_time)
+        s.end_time = s.start_time + s.duration
         return
+
 
 
     def free_nodes_available_at(self, time):
         for s in self.slices:
-            if s.start_time + s.duration <= time:
+            if s.end_time <= time:
                 continue
             return s.free_nodes
         return self.total_nodes
@@ -151,9 +153,8 @@ class CpuSnapshot(object):
         Assumptions: the given is greater than the arrival time of the job >= 0."""
         
         last = self.slices[-1]  
-        last_end_time = last.start_time + last.duration
         length = len(self.slices)
-        self._add_slice(length, self.total_nodes, last_end_time, time + job.user_predicted_duration + 10)
+        self._add_slice(length, self.total_nodes, last.end_time, time + job.user_predicted_duration + 10)
 
         partially_assigned = False         
         tentative_start_time = accumulated_duration = 0
@@ -162,9 +163,8 @@ class CpuSnapshot(object):
         
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
-            end_of_this_slice = s.start_time +  s.duration
 
-            feasible = end_of_this_slice > time and s.free_nodes >= job.nodes
+            feasible = s.end_time > time and s.free_nodes >= job.nodes
             
             if not feasible: # then surely the job cannot be assigned to this slice
                 partially_assigned = False
@@ -174,7 +174,7 @@ class CpuSnapshot(object):
                 # we'll check if the job can be assigned to this slice and perhaps to its successive 
                 partially_assigned = True
                 tentative_start_time =  max(time, s.start_time)
-                accumulated_duration = end_of_this_slice - tentative_start_time
+                accumulated_duration = s.end_time - tentative_start_time
 
             else:
                 # it's a feasible slice and the job is partially_assigned:
@@ -248,7 +248,7 @@ class CpuSnapshot(object):
             
     def archive_old_slices(self, current_time):
         for s in self.slices[ : -1] :
-            if s.start_time + s.duration < current_time:
+            if s.end_time < current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
             else:
@@ -261,6 +261,7 @@ class CpuSnapshot(object):
         for s in self.slices[1: ]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
+                prev.end_time += s.duration
                 self.archive_of_scratch_slices.append(s)
                 self.slices.remove(s)
             else: 
@@ -269,7 +270,9 @@ class CpuSnapshot(object):
         last = self.slices[-1]
         if last.free_nodes == self.total_nodes and last.duration > 1000:
             last.duration = 1000
+            last.end_time = last.start_time + 1000
         
+
         
     def _restore_old_slices(self):
         size = len(self.archive_of_old_slices)                   
