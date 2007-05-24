@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python2.4
 
 from common  import *
 from events import *
@@ -9,7 +9,7 @@ from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 
 import sys
-import profile
+#import profile
 
 class JobArrivalEventGeneratorViaLogFile:
     
@@ -203,7 +203,7 @@ class Simulator:
             j.user_predicted_duration = j.actual_duration = job.actual_duration
             self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)
     
-        if not self.scheduler.cpu_snapshot.CpuSlicesTestNullFeasibility():
+        if not self.scheduler.cpu_snapshot.CpuSlicesTestEmptyFeasibility():
             return False
   
         return True                

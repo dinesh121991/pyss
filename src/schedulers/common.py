@@ -115,7 +115,7 @@ class CpuSnapshot(object):
 
         last = self.slices[-1]
         length = len(self.slices)
-        self._add_slice(length, self.total_nodes, last.end_time, start_time + 1) # durations is huge 
+        self._add_slice(length, self.total_nodes, last.end_time, start_time + 1) # duration is huge 
         self._add_slice(length+1, self.total_nodes, last.end_time + start_time + 1, 1000) # duration is arbitrary
 
         index = -1
@@ -316,7 +316,7 @@ class CpuSnapshot(object):
 
 
 
-    def CpuSlicesTestNullFeasibility(self):
+    def CpuSlicesTestEmptyFeasibility(self):
         self._restore_old_slices()
         duration = 0
         time = 0
@@ -336,7 +336,7 @@ class CpuSnapshot(object):
             duration = s.duration
             time = s.start_time
  
-        print "TEST NULL is OK!!!!" 
+        print "TEST EMPTY is OK!!!!" 
         return True
 
             
