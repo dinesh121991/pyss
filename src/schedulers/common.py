@@ -87,52 +87,18 @@ class CpuSnapshot(object):
         self.archive_of_scratch_slices=[]
     
 
-    def jobEarliestAssignment(self, job, time=0):
-        """ returns the earliest time right after the given time for which the job can be assigned
-        enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.
-        Assumption: number of requested nodes is not greater than number of total nodes.
-        Assumptions: the given is greater than the arrival time of the job >= 0."""
-        
-        partially_assigned = False         
-        tentative_start_time = accumulated_duration = 0
-        
-        # assert time >= 0
-        
-        for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
-            
-            end_of_this_slice = s.start_time +  s.duration
+    def _add_slice(self, index, free_nodes, start_time, duration):
+        # if the last slice is empty (without any assigned job) we take this slice,
+        # otherwise we allocate a new slice object
+        if len(self.archive_of_scratch_slices) > 0:  
+            s = self.archive_of_scratch_slices.pop()
+            s.free_nodes = free_nodes
+            s.start_time = start_time
+            s.duration = duration
+            self.slices.insert(index, s)
+        else:
+            self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
 
-            feasible = end_of_this_slice > time and s.free_nodes >= job.nodes
-            
-            if not feasible: # then surely the job cannot be assigned to this slice
-                partially_assigned = False
-                accumulated_duration = 0
-                        
-            elif feasible and not partially_assigned:
-                # we'll check if the job can be assigned to this slice and perhaps to its successive 
-                partially_assigned = True
-                tentative_start_time =  max(time, s.start_time)
-                accumulated_duration = end_of_this_slice - tentative_start_time
-
-            else:
-                # it's a feasible slice and the job is partially_assigned:
-                accumulated_duration += s.duration
-            
-            if accumulated_duration >= job.user_predicted_duration:
-                return tentative_start_time
-    
-            # end of for loop, we've examined all existing slices
-            
-        if partially_assigned: #and so there are not enough slices in the tail, then:
-            return tentative_start_time
-
-        # otherwise, the job will be assigned right after the last slice or later
-        last = self.slices[-1]
-        last_slice_end_time =  last.start_time + last.duration
-        return max(time, last_slice_end_time)  
-
-   
-    
 
     def _ensure_a_slice_starts_at(self, start_time):
         """ A preprocessing stage. Usage: 
@@ -166,22 +132,48 @@ class CpuSnapshot(object):
         return
 
 
-
-
-    def _add_slice(self, index, free_nodes, start_time, duration):
-        # if the last slice is empty (without any assigned job) we take this slice,
-        # otherwise we allocate a new slice object
-        if len(self.archive_of_scratch_slices) > 0:  
-            s = self.archive_of_scratch_slices.pop()
-            s.free_nodes = free_nodes
-            s.start_time = start_time
-            s.duration = duration
-            self.slices.insert(index, s)
-        else:
-            self.slices.insert(index, CpuTimeSlice(free_nodes, start_time, duration))
-
       
+    def jobEarliestAssignment(self, job, time=0):
+        """ returns the earliest time right after the given time for which the job can be assigned
+        enough nodes for job.user_predicted_duration unit of times in an uninterrupted fashion.
+        Assumption: number of requested nodes is not greater than number of total nodes.
+        Assumptions: the given is greater than the arrival time of the job >= 0."""
+        
+        last = self.slices[-1]  
+        last_end_time = last.start_time + last.duration
+        length = len(self.slices)
+        self._add_slice(length, self.total_nodes, last_end_time, time + job.user_predicted_duration + 10)
 
+        partially_assigned = False         
+        tentative_start_time = accumulated_duration = 0
+        
+        # assert time >= 0
+        
+        for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
+            
+            end_of_this_slice = s.start_time +  s.duration
+
+            feasible = end_of_this_slice > time and s.free_nodes >= job.nodes
+            
+            if not feasible: # then surely the job cannot be assigned to this slice
+                partially_assigned = False
+                accumulated_duration = 0
+                        
+            elif feasible and not partially_assigned:
+                # we'll check if the job can be assigned to this slice and perhaps to its successive 
+                partially_assigned = True
+                tentative_start_time =  max(time, s.start_time)
+                accumulated_duration = end_of_this_slice - tentative_start_time
+
+            else:
+                # it's a feasible slice and the job is partially_assigned:
+                accumulated_duration += s.duration
+            
+            if accumulated_duration >= job.user_predicted_duration:
+                return tentative_start_time
+    
+
+   
      
     def assignJob(self, job, job_start):         
         """ assigns the job to start at the given job_start time.        
@@ -255,14 +247,17 @@ class CpuSnapshot(object):
 
     def unify_some_slices(self):
         prev = self.slices[0]
-        for s in self.slices[1: -1]:
+        for s in self.slices[1: ]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
                 self.archive_of_scratch_slices.append(s)
                 self.slices.remove(s)
             else: 
                 prev = s
-
+                
+        last = self.slices[-1]
+        if last.free_nodes == self.total_nodes and last.duration > 1000:
+            last.duration = 1000
         
         
     def _restore_old_slices(self):
