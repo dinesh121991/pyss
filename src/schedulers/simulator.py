@@ -28,19 +28,19 @@ class JobArrivalEventGeneratorViaLogFile:
             if line.startswith('#'):
                 continue # skipping a comment in the input_file 
 
-            (str_j_arrival_time, j_id, str_j_user_predicted_duration, \
+            (str_j_arrival_time, j_id, str_j_estimated_run_time, \
              str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
 
             j_arrival_time = int(str_j_arrival_time)
-            j_user_predicted_duration = int(str_j_user_predicted_duration)
+            j_estimated_run_time = int(str_j_estimated_run_time)
             j_actual_run_time = int(str_j_actual_run_time)
             j_nodes = int(str_j_nodes)
   
  
-            if j_user_predicted_duration >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
+            if j_estimated_run_time >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
                 j_admin_QoS = int(str_j_admin_QoS)
                 j_user_QoS = int(str_j_user_QoS)
-                newJob = Job(j_id, j_user_predicted_duration, j_nodes, j_arrival_time, j_actual_run_time, j_admin_QoS, j_user_QoS)
+                newJob = Job(j_id, j_estimated_run_time, j_nodes, j_arrival_time, j_actual_run_time, j_admin_QoS, j_user_QoS)
                 self.jobs.append(newJob)
                 self.events.add_job_arrival_event(int(j_arrival_time), newJob)
 
@@ -200,7 +200,7 @@ class Simulator:
             # print job
             j.nodes = job.nodes
             j.start_to_run_at_time = job.start_to_run_at_time
-            j.user_predicted_duration = j.actual_run_time = job.actual_run_time
+            j.estimated_run_time = j.actual_run_time = job.actual_run_time
             self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)
     
         if not self.scheduler.cpu_snapshot.CpuSlicesTestEmptyFeasibility():
