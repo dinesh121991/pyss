@@ -255,7 +255,7 @@ class CpuSnapshot(object):
 
     def unify_some_slices(self):
         prev = self.slices[0]
-        for s in self.slices[1: ]:
+        for s in self.slices[1: -5]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
                 prev.end_time += s.duration
