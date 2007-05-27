@@ -1,36 +1,9 @@
 import sys
 
-class Job:
-    def __init__(self, job_id, estimated_run_time, job_nodes, \
-                 job_arrival_time=0, job_actual_run_time=0, job_admin_QoS=0, job_user_QoS=0):
+# TODO: placeholder until everyone uses base.prototype.Job
+import sys; sys.path.append("..") # TODO: ugly hack, fix this
+from base.prototype import Job
         
-        #assert job_nodes > 0
-        #assert job_actual_run_time >= 0
-        #assert estimated_run_time >= job_actual_run_time
-        #assert job_arrival_time >= 0
-        
-        self.id = job_id
-        self.estimated_run_time = estimated_run_time
-        self.num_required_processors = job_nodes
-        self.arrival_time = job_arrival_time # Assumption: arrival time is greater than zero 
-        self.start_to_run_at_time = -1 
-        self.actual_run_time = job_actual_run_time
-
-        # the next are essentially for the MauiScheduler
-        self.admin_QoS = job_admin_QoS # the priority given by the system administration  
-        self.user_QoS = job_user_QoS # the priority given by the user
-        self.maui_bypass_counter = 0
-        self.maui_timestamp = 0
-        
-
-    def __str__(self):
-        return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
-               ", dur=" + str(self.estimated_run_time) + ",act_dur=" + str(self.actual_run_time) + \
-               ", #num_required_processors=" + str(self.num_required_processors) + \
-               ", startTime=" + str(self.start_to_run_at_time)  
-    
-
-
 class Scheduler:
     """ Assumption: every handler returns a (possibly empty) collection of new events """
     
@@ -39,8 +12,6 @@ class Scheduler:
     
     def handleTerminationOfJobEvent(self, job, current_time):
         raise NotImplementedError()
-     
-
 
 class CpuTimeSlice:
     ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
@@ -73,9 +44,6 @@ class CpuTimeSlice:
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_nodes)
 
-
-        
-        
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
     

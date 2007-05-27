@@ -31,6 +31,35 @@ class Job(object):
     def __str__(self):
         return "Job<id=%s>" % self.id
 
+class Job:
+    def __init__(self, id, estimated_run_time, actual_run_time, num_required_processors, \
+            arrival_time=0, admin_QoS=0, user_QoS=0): # TODO: are these defaults used?
+        
+        assert num_required_processors > 0, "job_id=%s"%id
+        assert actual_run_time > 0, "job_id=%s"%id
+        assert estimated_run_time > 0, "job_id=%s"%id
+        
+        self.id = id
+        self.estimated_run_time = estimated_run_time
+        self.actual_run_time = actual_run_time
+        self.num_required_processors = num_required_processors
+
+        # not used by base
+        self.arrival_time = arrival_time # Assumption: arrival time is greater than zero 
+        self.start_to_run_at_time = -1 
+
+        # the next are essentially for the MauiScheduler
+        self.admin_QoS = admin_QoS # the priority given by the system administration  
+        self.user_QoS = user_QoS # the priority given by the user
+        self.maui_bypass_counter = 0
+        self.maui_timestamp = 0
+
+    def __str__(self):
+        return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
+               ", dur=" + str(self.estimated_run_time) + ",act_dur=" + str(self.actual_run_time) + \
+               ", #num_required_processors=" + str(self.num_required_processors) + \
+               ", startTime=" + str(self.start_to_run_at_time)  
+    
 class StupidScheduler(object):
     "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
     def __init__(self, event_queue):

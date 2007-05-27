@@ -44,7 +44,7 @@ class JobArrivalEventGeneratorViaLogFile:
             if j_estimated_run_time >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
                 j_admin_QoS = int(str_j_admin_QoS)
                 j_user_QoS = int(str_j_user_QoS)
-                newJob = Job(j_id, j_estimated_run_time, j_nodes, j_arrival_time, j_actual_run_time, j_admin_QoS, j_user_QoS)
+                newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_arrival_time, j_admin_QoS, j_user_QoS)
                 self.jobs.append(newJob)
                 self.events.add_job_arrival_event(int(j_arrival_time), newJob)
 
@@ -87,7 +87,7 @@ class Simulator:
             print ">>> Problem: No such scheduling Policy"
             return
 
-        # self.startSimulation() 
+        self.startSimulation() 
    
        
 
@@ -226,9 +226,9 @@ class Simulator:
 #simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
 #simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
 #simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
+#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
 #profile.run('simulation.startSimulation()')
-simulation.startSimulation()
+#simulation.startSimulation()
 
 #simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
 #simulation = Simulator(scheduler ="Fcfs")
