@@ -66,7 +66,7 @@ class MauiScheduler(EasyBackfillScheduler):
                     self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +  
                     current_time = self.cpu_snapshot.jobEarliestAssignment(next_job, current_time)
                     self.cpu_snapshot.assignJob(next_job, current_time)
-                    termination_time = current_time + next_job.actual_duration
+                    termination_time = current_time + next_job.actual_run_time
                     newEvents.add_job_termination_event(termination_time, next_job)
             self.waiting_list_of_unscheduled_jobs.append(first_job) # + 
         return newEvents

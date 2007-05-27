@@ -29,18 +29,18 @@ class JobArrivalEventGeneratorViaLogFile:
                 continue # skipping a comment in the input_file 
 
             (str_j_arrival_time, j_id, str_j_user_predicted_duration, \
-             str_j_nodes, str_j_actual_duration, str_j_admin_QoS, str_j_user_QoS) = line.split()
+             str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
 
             j_arrival_time = int(str_j_arrival_time)
             j_user_predicted_duration = int(str_j_user_predicted_duration)
-            j_actual_duration = int(str_j_actual_duration)
+            j_actual_run_time = int(str_j_actual_run_time)
             j_nodes = int(str_j_nodes)
   
  
-            if j_user_predicted_duration >= j_actual_duration and j_arrival_time >= 0 and j_nodes > 0 and j_actual_duration >= 0:
+            if j_user_predicted_duration >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
                 j_admin_QoS = int(str_j_admin_QoS)
                 j_user_QoS = int(str_j_user_QoS)
-                newJob = Job(j_id, j_user_predicted_duration, j_nodes, j_arrival_time, j_actual_duration, j_admin_QoS, j_user_QoS)
+                newJob = Job(j_id, j_user_predicted_duration, j_nodes, j_arrival_time, j_actual_run_time, j_admin_QoS, j_user_QoS)
                 self.jobs.append(newJob)
                 self.events.add_job_arrival_event(int(j_arrival_time), newJob)
 
@@ -114,7 +114,7 @@ class Simulator:
 
                 elif isinstance(event, JobTerminationEvent):
                     # self.scheduler.cpu_snapshot.printCpuSlices()
-                    if event.job.start_to_run_at_time + event.job.actual_duration != current_time:
+                    if event.job.start_to_run_at_time + event.job.actual_run_time != current_time:
                       continue # redundant JobTerminationEvent
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
                     self.events.addEvents(newEvents)
@@ -152,7 +152,7 @@ class Simulator:
             wait_time = job.start_to_run_at_time - job.arrival_time
             sigma_wait_time += wait_time
             
-            flow_time = wait_time + job.actual_duration
+            flow_time = wait_time + job.actual_run_time
             sigma_flow_time += flow_time
             
         print
@@ -166,7 +166,7 @@ class Simulator:
             
     def feasibilty_check_of_data(self):
         """ Reconstructs a schedule from the jobs (using the values:
-        job.arrival time, job.start_to_run_at_time, job_actual_duration for each job),
+        job.arrival time, job.start_to_run_at_time, job_actual_run_time for each job),
         and then checks the feasibility of this schedule.
         Then check the actual slices of the scheduler itself. Then deletes the jobs from the
         actual scheduler expecting to see slices with free_nodes == total_nodes"""
@@ -181,11 +181,11 @@ class Simulator:
                 print ">>> PROBLEM: job starts before arrival...."
                 return False
                 
-            if job.actual_duration > 0:
+            if job.actual_run_time > 0:
                 j.id = job.id
                 j.nodes = job.nodes
                 j.arrival_time = job.arrival_time
-                j.actual_duration = job.actual_duration
+                j.actual_run_time = job.actual_run_time
                 cpu_snapshot.assignJob(j, job.start_to_run_at_time)
         
         if not cpu_snapshot.CpuSlicesTestFeasibility():
@@ -200,7 +200,7 @@ class Simulator:
             # print job
             j.nodes = job.nodes
             j.start_to_run_at_time = job.start_to_run_at_time
-            j.user_predicted_duration = j.actual_duration = job.actual_duration
+            j.user_predicted_duration = j.actual_run_time = job.actual_run_time
             self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)
     
         if not self.scheduler.cpu_snapshot.CpuSlicesTestEmptyFeasibility():

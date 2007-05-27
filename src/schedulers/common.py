@@ -2,11 +2,11 @@ import sys
 
 class Job:
     def __init__(self, job_id, user_predicted_duration, job_nodes, \
-                 job_arrival_time=0, job_actual_duration=0, job_admin_QoS=0, job_user_QoS=0):
+                 job_arrival_time=0, job_actual_run_time=0, job_admin_QoS=0, job_user_QoS=0):
         
         #assert job_nodes > 0
-        #assert job_actual_duration >= 0
-        #assert user_predicted_duration >= job_actual_duration
+        #assert job_actual_run_time >= 0
+        #assert user_predicted_duration >= job_actual_run_time
         #assert job_arrival_time >= 0
         
         self.id = job_id
@@ -14,7 +14,7 @@ class Job:
         self.nodes = job_nodes
         self.arrival_time = job_arrival_time # Assumption: arrival time is greater than zero 
         self.start_to_run_at_time = -1 
-        self.actual_duration = job_actual_duration
+        self.actual_run_time = job_actual_run_time
 
         # the next are essentially for the MauiScheduler
         self.admin_QoS = job_admin_QoS # the priority given by the system administration  
@@ -25,7 +25,7 @@ class Job:
 
     def __str__(self):
         return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
-               ", dur=" + str(self.user_predicted_duration) + ",act_dur=" + str(self.actual_duration) + \
+               ", dur=" + str(self.user_predicted_duration) + ",act_dur=" + str(self.actual_run_time) + \
                ", #nodes=" + str(self.nodes) + \
                ", startTime=" + str(self.start_to_run_at_time)  
     
@@ -230,9 +230,9 @@ class CpuSnapshot(object):
         tail of the job starts. 
         Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
 
-        if job.actual_duration ==  job.user_predicted_duration: 
+        if job.actual_run_time ==  job.user_predicted_duration: 
             return
-        job_finish_time = job.start_to_run_at_time + job.actual_duration
+        job_finish_time = job.start_to_run_at_time + job.actual_run_time
         job_predicted_finish_time = job.start_to_run_at_time + job.user_predicted_duration
         self._ensure_a_slice_starts_at(job_finish_time)
         self._ensure_a_slice_starts_at(job_predicted_finish_time)
