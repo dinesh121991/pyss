@@ -11,7 +11,7 @@ class Job:
         
         self.id = job_id
         self.estimated_run_time = estimated_run_time
-        self.nodes = job_nodes
+        self.num_required_processors = job_nodes
         self.arrival_time = job_arrival_time # Assumption: arrival time is greater than zero 
         self.start_to_run_at_time = -1 
         self.actual_run_time = job_actual_run_time
@@ -26,7 +26,7 @@ class Job:
     def __str__(self):
         return "job_id=" + str(self.id) + ", arrival=" + str(self.arrival_time) + \
                ", dur=" + str(self.estimated_run_time) + ",act_dur=" + str(self.actual_run_time) + \
-               ", #nodes=" + str(self.nodes) + \
+               ", #num_required_processors=" + str(self.num_required_processors) + \
                ", startTime=" + str(self.start_to_run_at_time)  
     
 
@@ -45,7 +45,7 @@ class Scheduler:
 class CpuTimeSlice:
     ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
         It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
-        for nodes ba all the jobs assigned to this slice never exceeds the amount of the total nodes available.
+        for processors ba all the jobs assigned to this slice never exceeds the amount of the total processors available.
         Assumption: the duration of the slice is never changed.
         We can replace this slice with a new slice with shorter duration.'''
     
@@ -77,7 +77,7 @@ class CpuTimeSlice:
         
         
 class CpuSnapshot(object):
-    """ represents the time table with the assignments of jobs to available nodes. """
+    """ represents the time table with the assignments of jobs to available processors. """
     
     def __init__(self, total_nodes=100):
         CpuTimeSlice.total_nodes = total_nodes
@@ -145,8 +145,8 @@ class CpuSnapshot(object):
       
     def jobEarliestAssignment(self, job, time=0):
         """ returns the earliest time right after the given time for which the job can be assigned
-        enough nodes for job.estimated_run_time unit of times in an uninterrupted fashion.
-        Assumption: number of requested nodes is not greater than number of total nodes.
+        enough processors for job.estimated_run_time unit of times in an uninterrupted fashion.
+        Assumption: number of requested processors is not greater than number of total processors.
         Assumptions: the given is greater than the arrival time of the job >= 0."""
         
         last = self.slices[-1]  
@@ -161,7 +161,7 @@ class CpuSnapshot(object):
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
 
-            feasible = s.end_time > time and s.free_nodes >= job.nodes
+            feasible = s.end_time > time and s.free_nodes >= job.num_required_processors
             
             if not feasible: # then surely the job cannot be assigned to this slice
                 partially_assigned = False
@@ -195,7 +195,7 @@ class CpuSnapshot(object):
             if s.start_time < job_start:
                 continue
             elif s.start_time < job_estimated_finish_time:  
-                s.addJob(job.nodes) 
+                s.addJob(job.num_required_processors) 
             else:
                 return
 
@@ -214,7 +214,7 @@ class CpuSnapshot(object):
             if s.start_time < job_start:
                 continue
             elif s.start_time < job_estimated_finish_time:  
-                s.delJob(job.nodes) 
+                s.delJob(job.num_required_processors) 
             else:
                 return
 
@@ -238,7 +238,7 @@ class CpuSnapshot(object):
             if s.start_time < job_finish_time:
                 continue
             elif s.start_time < job_estimated_finish_time:  
-                s.delJob(job.nodes) 
+                s.delJob(job.num_required_processors) 
             else:
                 return
 
@@ -281,7 +281,7 @@ class CpuSnapshot(object):
 
 
     def printCpuSlices(self):
-        print "start time | duration | #free nodes "            
+        print "start time | duration | #free processors "            
         for s in self.slices: 
             print s
         print
@@ -298,7 +298,7 @@ class CpuSnapshot(object):
             prev_time = time
             
             if s.free_nodes < 0 or s.free_nodes > self.total_nodes:  
-                print ">>> PROBLEM: number of free nodes is either negative or huge", s
+                print ">>> PROBLEM: number of free processors is either negative or huge", s
                 return False
 
             if s.start_time != prev_time + prev_duration:
@@ -323,7 +323,7 @@ class CpuSnapshot(object):
             prev_time = time
             
             if s.free_nodes != self.total_nodes:  
-                print ">>> PROBLEM: number of free nodes is not the total nodes", s
+                print ">>> PROBLEM: number of free processors is not the total processors", s
                 return False
 
             if s.start_time != prev_time + prev_duration:

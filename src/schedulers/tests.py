@@ -100,7 +100,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
     def test_maui_wait_and_size(self):
-        # testing w_size = number of nodes (vs. w_wait):
+        # testing w_size = number of processors (vs. w_wait):
         # (w_wtime, w_sld, w_user, w_bypass, w_admin, w_size)
         w_l = Weights(1, 0, 0, 0, 0, 0)
         w_b = Weights(0, 0, 0, 0, 0, -1) 

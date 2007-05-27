@@ -14,8 +14,12 @@ import sys
 class JobArrivalEventGeneratorViaLogFile:
     
     def __init__(self, input_file):
-        """Assumption: Job details are 'correct': arrival_time, nodes and duration are non-negative, job id is unique, 
-        and the amount of nodes requested by the job is never more than the total available nodes"""
+        """
+        Assumption: Job details are 'correct': arrival_time,
+        num_required_processors and duration are non-negative, job id is
+        unique, and the amount of processors requested by the job is never more
+        than the total available processors
+        """
         self.file = file(input_file) # openning of the specified file for reading 
         self.events = Events()
         self.jobs = []
@@ -183,7 +187,7 @@ class Simulator:
                 
             if job.actual_run_time > 0:
                 j.id = job.id
-                j.nodes = job.nodes
+                j.num_required_processors = job.num_required_processors
                 j.arrival_time = job.arrival_time
                 j.actual_run_time = job.actual_run_time
                 cpu_snapshot.assignJob(j, job.start_to_run_at_time)
@@ -198,7 +202,7 @@ class Simulator:
         
         for job in self.jobs:
             # print job
-            j.nodes = job.nodes
+            j.num_required_processors = job.num_required_processors
             j.start_to_run_at_time = job.start_to_run_at_time
             j.estimated_run_time = j.actual_run_time = job.actual_run_time
             self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)

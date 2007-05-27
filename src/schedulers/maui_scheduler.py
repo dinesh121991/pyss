@@ -9,7 +9,7 @@ class Weights:
         self.user  = w_user   # weight of user desired quality of service 
         self.bypass = w_bypass # weight of being skipped over in the waiting list  
         self.admin  = w_admin  # weight of asmin desired quality of service
-        self.size   = w_size   # weight of job size (= nodes) 
+        self.size   = w_size   # weight of job size (= num_required_processors) 
 
 
 # a first toy version for the maui -- essentillay the diffrence between this simplified version of maui and easy
@@ -89,7 +89,7 @@ class MauiScheduler(EasyBackfillScheduler):
                      w.user   * job.user_QoS + \
                      w.bypass * job.maui_bypass_counter + \
                      w.admin  * job.admin_QoS + \
-                     w.size   * job.nodes
+                     w.size   * job.num_required_processors
         return weight_of_job
 
     def waiting_list_compare(self, job_a, job_b): 
