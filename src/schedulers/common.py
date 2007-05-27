@@ -89,9 +89,6 @@ class CpuSnapshot(object):
     
 
     def _add_slice(self, index, free_nodes, start_time, duration):
-        # if the last slice is empty (without any assigned job) we take this slice,
-        # otherwise we allocate a new slice object
-        
         if len(self.archive_of_scratch_slices) > 0:  
             s = self.archive_of_scratch_slices.pop()
             s.free_nodes = free_nodes
@@ -109,7 +106,7 @@ class CpuSnapshot(object):
         Second, to ensure that the actual end time of the job will end at the ending of slice.
         we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
         duration.
-        The idea we first append 2 slices, just to make sure that there's a slice which ends after the start_time.
+        The idea: we first append 2 slices, just to make sure that there's a slice which ends after the start_time.
         We add one more slice just because we actually use list.insert() when we add a new slice.
         After that we itterate through the slices and split a slice if needed"""
 
