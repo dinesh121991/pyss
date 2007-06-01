@@ -40,10 +40,17 @@ class Events:
         # assert timestamp >= 0
         self._addEvent(JobTerminationEvent(timestamp, job))
 
+    @property
+    def _unsorted_events(self):
+        result = []
+        for timestamp, new_list_of_events_at_this_time in self._collection.iteritems():
+            for new_event in new_list_of_events_at_this_time:         
+                result.append( new_event )
+        return result
+
     def addEvents(self, new_events): # combines a new collection of events with the self collection        
-         for timestamp, new_list_of_events_at_this_time in new_events._collection.iteritems():
-             for new_event in new_list_of_events_at_this_time:         
-                 self._addEvent(new_event)                     
+        for new_event in new_events._unsorted_events:
+            self._addEvent(new_event)                     
 
     def printEvents(self): # SHOULD IT BE __STR__????
         times = self._collection.keys()
