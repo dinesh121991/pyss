@@ -7,56 +7,29 @@ from base.prototype import JobSubmissionEvent, JobTerminationEvent
 class Events:
     
     def __init__(self):
-        self._collection = {}
+        from base.simple_heap import Heap
+        self._events_heap = Heap()
 
     def _addEvent(self, event): 
-         if self._collection.has_key(event.timestamp):
-             self._collection[event.timestamp].insert(0, event)
-         else:
-             self._collection[event.timestamp] = []
-             self._collection[event.timestamp].insert(0, event)
+        self._events_heap.push( (event.timestamp, event) )
 
     def add_job_submission_event(self, timestamp, job): # adds a single submission event to the collection
         self._addEvent(JobSubmissionEvent(timestamp, job))
 
     @property
-    def _min_event_time(self):
-        return min(self._collection.keys())
-
-    @property
     def is_empty(self):
-        return len(self._collection) == 0
+        return len(self._events_heap) == 0
 
     def pop_min_event(self):
         assert not self.is_empty
-        assert len(self._collection[self._min_event_time]) > 0
-        result = self._collection[self._min_event_time].pop()
-        if len(self._collection[self._min_event_time]) == 0:
-            del self._collection[self._min_event_time]
-        return result
+        timestamp, event = self._events_heap.pop()
+        return event
         
     def add_job_termination_event(self, timestamp, job):
         # makes sure that there will be a single termination event for this job
         # assert timestamp >= 0
         self._addEvent(JobTerminationEvent(timestamp, job))
 
-    @property
-    def _unsorted_events(self):
-        result = []
-        for timestamp, new_list_of_events_at_this_time in self._collection.iteritems():
-            for new_event in new_list_of_events_at_this_time:         
-                result.append( new_event )
-        return result
-
     def addEvents(self, new_events): # combines a new collection of events with the self collection        
-        for new_event in new_events._unsorted_events:
+        for (timestamp, new_event) in new_events._events_heap:
             self._addEvent(new_event)                     
-
-    def printEvents(self): # SHOULD IT BE __STR__????
-        times = self._collection.keys()
-        times.sort()
-        for t in times:
-            for event in self._collection[t]: 
-                print event 
-        print
-         
