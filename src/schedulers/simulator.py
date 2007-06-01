@@ -1,17 +1,11 @@
 #!/usr/bin/env python2.4
 
-from common  import *
-
-from fcfs_scheduler import FcfsScheduler
-from conservative_scheduler import ConservativeScheduler
-from easy_scheduler import EasyBackfillScheduler
-from maui_scheduler import MauiScheduler, Weights
+from common import *
 
 from base.prototype import JobSubmissionEvent, JobTerminationEvent
 from base.event_queue import EventQueue
 
 import sys
-#import profile
 
 def parse_jobs(input_file_name):
     """

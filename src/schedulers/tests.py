@@ -1,7 +1,12 @@
 #!/usr/bin/env python2.4
 
 import unittest 
-from simulator import * 
+from simulator import Simulator
+from fcfs_scheduler import FcfsScheduler
+from conservative_scheduler import ConservativeScheduler
+from easy_scheduler import EasyBackfillScheduler
+from maui_scheduler import MauiScheduler, Weights
+
 
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
