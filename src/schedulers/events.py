@@ -21,7 +21,3 @@ class Events:
         assert not self.is_empty
         timestamp, event = self._events_heap.pop()
         return event
-        
-    def addEvents(self, new_events): # combines a new collection of events with the self collection        
-        for (timestamp, new_event) in new_events._events_heap:
-            self.add_event(new_event)                     

@@ -19,7 +19,7 @@ class FcfsScheduler(Scheduler):
 
  
     def _schedule_jobs(self, time):
-        newEvents = Events()
+        newEvents = []
         first_failure_has_not_occured = True
         while len(self.waiting_queue_of_jobs) > 0 and first_failure_has_not_occured:
             job = self.waiting_queue_of_jobs[0]
@@ -27,7 +27,7 @@ class FcfsScheduler(Scheduler):
                 del self.waiting_queue_of_jobs[0]
                 self.cpu_snapshot.assignJob(job, time)     
                 termination_time = time + job.actual_run_time
-                newEvents.add_event( JobTerminationEvent(termination_time, job) )
+                newEvents.append( JobTerminationEvent(termination_time, job) )
             else:
                 first_failure_has_not_occured = False
         return newEvents

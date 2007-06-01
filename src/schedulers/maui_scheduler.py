@@ -42,7 +42,7 @@ class MauiScheduler(EasyBackfillScheduler):
         # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
         # The different lines are marked with ## + 
 
-        newEvents = Events()                  
+        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents         
         self.maui_current_time = current_time ## +
@@ -67,7 +67,7 @@ class MauiScheduler(EasyBackfillScheduler):
                     current_time = self.cpu_snapshot.jobEarliestAssignment(next_job, current_time)
                     self.cpu_snapshot.assignJob(next_job, current_time)
                     termination_time = current_time + next_job.actual_run_time
-                    newEvents.add_event( JobTerminationEvent(termination_time, next_job) )
+                    newEvents.append( JobTerminationEvent(termination_time, next_job) )
             self.waiting_list_of_unscheduled_jobs.append(first_job) # + 
         return newEvents
 

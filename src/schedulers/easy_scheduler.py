@@ -12,21 +12,21 @@ class EasyBackfillScheduler(Scheduler):
         the jobs in the waiting list, returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
-        newEvents = Events()
+        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 1:  
             start_time = self.cpu_snapshot.jobEarliestAssignment(just_submitted_job, current_time)
             if start_time == current_time:
                 self.waiting_list_of_unscheduled_jobs = []
                 self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                 termination_time = current_time + just_submitted_job.actual_run_time
-                newEvents.add_event( JobTerminationEvent(termination_time, just_submitted_job) )
+                newEvents.append( JobTerminationEvent(termination_time, just_submitted_job) )
         else: # there are at least 2 jobs in the waiting list  
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             if self.canBeBackfilled(first_job, just_submitted_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.pop()
                     self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                     termination_time = current_time + just_submitted_job.actual_run_time
-                    newEvents.add_event( JobTerminationEvent(termination_time, just_submitted_job) )
+                    newEvents.append( JobTerminationEvent(termination_time, just_submitted_job) )
         return newEvents
 
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -38,7 +38,7 @@ class EasyBackfillScheduler(Scheduler):
         return self._schedule_jobs(current_time)
     
     def _schedule_jobs(self, current_time):       
-        newEvents = Events()
+        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
@@ -53,7 +53,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.waiting_list_of_unscheduled_jobs.remove(first_job)
                 self.cpu_snapshot.assignJob(first_job, time)
                 termination_time = time + first_job.actual_run_time
-                newEvents.add_event( JobTerminationEvent(termination_time, first_job) )
+                newEvents.append( JobTerminationEvent(termination_time, first_job) )
             else:
                 break
 
@@ -65,7 +65,7 @@ class EasyBackfillScheduler(Scheduler):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
                     self.cpu_snapshot.assignJob(next_job, time)
                     termination_time = time + next_job.actual_run_time
-                    newEvents.add_event( JobTerminationEvent(termination_time, next_job) )
+                    newEvents.append( JobTerminationEvent(termination_time, next_job) )
 
     def canBeBackfilled(self, first_job, second_job, time):
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)

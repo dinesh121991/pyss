@@ -103,14 +103,16 @@ class Simulator:
             
             if isinstance(event, JobSubmissionEvent):
                 newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
-                self.events.addEvents(newEvents) 
+                for event in newEvents:
+                    self.events.add_event(event)
                 continue
 
             elif isinstance(event, JobTerminationEvent):
                 if event.job.start_to_run_at_time + event.job.actual_run_time != event.timestamp:
                   continue # redundant JobTerminationEvent
                 newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
-                self.events.addEvents(newEvents)
+                for event in newEvents:
+                    self.events.add_event(event)
                 continue
 
             else:
