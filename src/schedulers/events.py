@@ -16,9 +16,29 @@ class Events:
              self.collection[event.timestamp] = []
              self.collection[event.timestamp].insert(0, event)
 
-
     def add_job_submission_event(self, timestamp, job): # adds a single submission event to the collection
         self._addEvent(JobSubmissionEvent(timestamp, job))
+
+    @property
+    def min_event_time(self):
+        return min(self.collection.keys())
+
+    def pop_min_event(self):
+        # assert len(self.collection) > 0
+        # assert len(self.collection[self.min_event_time]) > 0
+        # result = self.collection[self.min_event_time].pop()
+        # if len(self.collection[self.min_event_time]) == 0:
+        #     del self.collection[self.min_event_time]
+        # return result
+
+        while len(self.collection) > 0:
+            current_time = self.min_event_time
+            while len(self.collection[current_time]) > 0:
+                event = self.collection[current_time].pop()
+                break
+            if len(self.collection[current_time]) == 0:
+                del self.collection[current_time]
+            return event
         
     def add_job_termination_event(self, timestamp, job):
         # makes sure that there will be a single termination event for this job

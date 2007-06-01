@@ -61,7 +61,6 @@ class Simulator:
         
     def __init__(self, total_nodes=100, input_file="input", scheduler=None, maui_list_weights=None, maui_backfill_weights=None):
         self.total_nodes = total_nodes
-        self.current_time = 0
         self.events = None
         self.jobs = None
         self.input_file = input_file
@@ -99,29 +98,23 @@ class Simulator:
         self.events = create_submission_events(self.jobs)
         
         while len(self.events.collection) > 0:
+
+            event = self.events.pop_min_event()
             
-            current_time = min(self.events.collection.keys())
-            
-            while len(self.events.collection[current_time]) > 0:
+            if isinstance(event, JobSubmissionEvent):
+                newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
+                self.events.addEvents(newEvents) 
+                continue
 
-                event = self.events.collection[current_time].pop()
+            elif isinstance(event, JobTerminationEvent):
+                if event.job.start_to_run_at_time + event.job.actual_run_time != event.timestamp:
+                  continue # redundant JobTerminationEvent
+                newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
+                self.events.addEvents(newEvents)
+                continue
 
-                if isinstance(event, JobSubmissionEvent):
-                    newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, int(current_time))
-                    self.events.addEvents(newEvents) 
-                    continue
-
-                elif isinstance(event, JobTerminationEvent):
-                    if event.job.start_to_run_at_time + event.job.actual_run_time != current_time:
-                      continue # redundant JobTerminationEvent
-                    newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
-                    self.events.addEvents(newEvents)
-                    continue
-
-                else:
-                    assert False # should never reach here
-                
-            del self.events.collection[current_time] # removing the current events
+            else:
+                assert False # should never reach here
 
         # simulation is done
         print
