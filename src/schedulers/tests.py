@@ -3,7 +3,8 @@
 import unittest 
 from simulator import * 
 
-INPUT_FILE_DIR = "./Input_test_files"
+import os
+INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 
 class test_Simulator(unittest.TestCase):
 
