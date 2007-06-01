@@ -8,81 +8,74 @@ INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 
 class test_Simulator(unittest.TestCase):
 
-    def test_basic_cons_junk(self):
-        simulator = Simulator(scheduler ="Fcfs", input_file = INPUT_FILE_DIR + "/basic_input.0")
-        self.assertEqual(True, simulator.feasibilty_check_of_data())
-        for job in simulator.jobs:
-            self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
-                       
-
     def test_basic_fcfs(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Fcfs", input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
                 # The job id in these specific test input files signifies the job correct finishing time:  
                 # We use this basic idea to enable complex testing scenarios without much expansion of the code 
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_conservative(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Conservative", input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
     
     def test_basic_easyBackfill(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_maui(self):
         for i in range(25): 
             simulator = Simulator(scheduler ="Maui", input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
     
 
 
     def test_fcfs(self):
         for i in range(8): 
             simulator = Simulator(scheduler ="Fcfs", input_file = INPUT_FILE_DIR + "/fcfs_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
 
 
     def test_conservative(self):
         for i in range(9): 
             simulator = Simulator(scheduler ="Conservative", input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(2): 
             simulator = Simulator(scheduler ="Conservative", input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
         
     
     
     def test_easyBackfill(self):
         for i in range(9): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1): 
             simulator = Simulator(scheduler ="EasyBackfill", input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
                 
                 
     # below we test the weigths of maui: w_wtime, w_sld, w_user, w_bypass, w_admin, w_size
@@ -91,15 +84,15 @@ class test_Simulator(unittest.TestCase):
         # here we basically test that the maui with the default weights behaves as the easybackfill
         for i in range(9):
             simulator = Simulator(scheduler ="Maui", input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1): 
             simulator = Simulator(scheduler ="Maui", input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data())
+            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_maui_wait_and_size(self):
         # testing w_size = number of processors (vs. w_wait):
