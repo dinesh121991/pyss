@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.4
 
 from common  import *
-from events import Events
 
 from fcfs_scheduler import FcfsScheduler
 from conservative_scheduler import ConservativeScheduler
@@ -9,6 +8,7 @@ from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 
 from base.prototype import JobSubmissionEvent, JobTerminationEvent
+from base.event_queue import EventQueue
 
 import sys
 #import profile
@@ -90,19 +90,19 @@ class Simulator:
     def startSimulation(self):        
         self.jobs = parse_jobs(self.input_file)
 
-        self.events = Events()
+        self.event_queue = EventQueue()
 
         for job in self.jobs:
-            self.events.add_event( JobSubmissionEvent(job.submit_time, job) )
+            self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
 
-        while not self.events.is_empty:
+        while not self.event_queue.is_empty:
 
-            event = self.events.pop_min_event()
+            event = self.event_queue.pop()
             
             if isinstance(event, JobSubmissionEvent):
                 newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
                 for event in newEvents:
-                    self.events.add_event(event)
+                    self.event_queue.add_event(event)
                 continue
 
             elif isinstance(event, JobTerminationEvent):
@@ -110,7 +110,7 @@ class Simulator:
                   continue # redundant JobTerminationEvent
                 newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
                 for event in newEvents:
-                    self.events.add_event(event)
+                    self.event_queue.add_event(event)
                 continue
 
             else:
