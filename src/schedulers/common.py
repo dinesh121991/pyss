@@ -22,7 +22,7 @@ class CpuTimeSlice:
     
     total_nodes = 0 # a class variable
     
-    def __init__(self, free_nodes, start_time=0, duration=1):
+    def __init__(self, free_nodes, start_time, duration):
         #assert duration > 0
         #assert start_time >= 0
         
@@ -51,7 +51,7 @@ class CpuSnapshot(object):
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
         self.slices=[] # initializing the main structure of this class 
-        self.slices.append(CpuTimeSlice(self.total_nodes)) # Assumption: the snapshot always has at least one slice 
+        self.slices.append(CpuTimeSlice(self.total_nodes, start_time=0, duration=1)) # Assumption: the snapshot always has at least one slice 
         self.archive_of_old_slices=[]
         self.archive_of_scratch_slices=[]
     
@@ -111,7 +111,7 @@ class CpuSnapshot(object):
       
 
       
-    def jobEarliestAssignment(self, job, time=0):
+    def jobEarliestAssignment(self, job, time):
         """ returns the earliest time right after the given time for which the job can be assigned
         enough processors for job.estimated_run_time unit of times in an uninterrupted fashion.
         Assumption: number of requested processors is not greater than number of total processors.

@@ -48,7 +48,7 @@ class Simulator:
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
         
-    def __init__(self, total_nodes, input_file="input", scheduler=None):
+    def __init__(self, total_nodes, input_file, scheduler):
         self.total_nodes = total_nodes
         self.events = None
         self.jobs = None
