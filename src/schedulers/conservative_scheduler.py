@@ -3,8 +3,9 @@ from events import JobTerminationEvent
 
 class ConservativeScheduler(Scheduler):
 
-    def __init__(self, total_nodes):
-        self.cpu_snapshot = CpuSnapshot(total_nodes)
+    def __init__(self, num_processors):
+        Scheduler.__init__(self, num_processors)
+        self.cpu_snapshot = CpuSnapshot(num_processors)
         self.list_of_unfinished_jobs_arranged_by_submit_times = []    
         
     def handleSubmissionOfJobEvent(self, job, current_time):

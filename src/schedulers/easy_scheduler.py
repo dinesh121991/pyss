@@ -3,8 +3,9 @@ from events import JobTerminationEvent
 
 class EasyBackfillScheduler(Scheduler):
     
-    def __init__(self, total_nodes):
-        self.cpu_snapshot = CpuSnapshot(total_nodes)
+    def __init__(self, num_processors):
+        Scheduler.__init__(self, num_processors)
+        self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_list_of_unscheduled_jobs = []
         
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):

@@ -6,6 +6,9 @@ from base.prototype import Job
         
 class Scheduler(object):
     """ Assumption: every handler returns a (possibly empty) collection of new events """
+
+    def __init__(self, num_processors):
+        self.num_processors = num_processors
     
     def handleSubmissionOfJobEvent(self, job, current_time):
         raise NotImplementedError()
