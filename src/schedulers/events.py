@@ -9,26 +9,26 @@ class Events:
     def __init__(self):
         self.collection = {}
 
-    def _addEvent(self, time, event): 
-         if self.collection.has_key(time):
-             self.collection[time].insert(0, event)
+    def _addEvent(self, event): 
+         if self.collection.has_key(event.timestamp):
+             self.collection[event.timestamp].insert(0, event)
          else:
-             self.collection[time] = []
-             self.collection[time].insert(0, event)
+             self.collection[event.timestamp] = []
+             self.collection[event.timestamp].insert(0, event)
 
 
-    def add_job_submission_event(self, time, job): # adds a single submission event to the collection
-        self._addEvent(time, JobSubmissionEvent(time, job))
+    def add_job_submission_event(self, timestamp, job): # adds a single submission event to the collection
+        self._addEvent(JobSubmissionEvent(timestamp, job))
         
-    def add_job_termination_event(self, time, job):
+    def add_job_termination_event(self, timestamp, job):
         # makes sure that there will be a single termination event for this job
-        # assert time >= 0
-        self._addEvent(time, JobTerminationEvent(time, job))
+        # assert timestamp >= 0
+        self._addEvent(JobTerminationEvent(timestamp, job))
 
     def addEvents(self, new_events): # combines a new collection of events with the self collection        
-         for time, new_list_of_events_at_this_time in new_events.collection.iteritems():
+         for timestamp, new_list_of_events_at_this_time in new_events.collection.iteritems():
              for new_event in new_list_of_events_at_this_time:         
-                 self._addEvent(time, new_event)                     
+                 self._addEvent(new_event)                     
 
     def printEvents(self): # SHOULD IT BE __STR__????
         times = self.collection.keys()
