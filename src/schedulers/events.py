@@ -20,15 +20,15 @@ class Events:
         self._addEvent(JobSubmissionEvent(timestamp, job))
 
     @property
-    def min_event_time(self):
+    def _min_event_time(self):
         return min(self.collection.keys())
 
     def pop_min_event(self):
         assert len(self.collection) > 0
-        assert len(self.collection[self.min_event_time]) > 0
-        result = self.collection[self.min_event_time].pop()
-        if len(self.collection[self.min_event_time]) == 0:
-            del self.collection[self.min_event_time]
+        assert len(self.collection[self._min_event_time]) > 0
+        result = self.collection[self._min_event_time].pop()
+        if len(self.collection[self._min_event_time]) == 0:
+            del self.collection[self._min_event_time]
         return result
         
     def add_job_termination_event(self, timestamp, job):
