@@ -1,6 +1,28 @@
 from simple_heap import Heap
 
 class EventQueue(object):
+    """
+    Generic event queue.
+
+    Handlers are registered for specific event class types. They are called
+    when the event is reach with advance().
+
+    Example:
+      queue = EventQueue()
+      
+      def handler1(event): ...
+      def handler2(event): ...
+
+      queue.add_handler(JobTerminationEvent, handler1)
+      queue.add_handler(JobSubmissionEvent, handler2)
+      queue.add_handler(JobSubmissionEvent, handler1)
+
+      queue.add_event( JobSubmissionEvent(0, ...) )
+      queue.add_event( JobTerminationEvent(1, ...) )
+
+      queue.advance() # JobSubmissionEvent reached, handler2 and handler1 called
+      queue.advance() # JobTerminationEvent reached, handler1 called
+    """
     def __init__(self):
         self._events_heap = Heap()
         self._handlers = {}
@@ -46,6 +68,8 @@ class EventQueue(object):
             return []
 
     def advance(self):
+        "pop and handle the next event in the queue"
+
         assert not self.is_empty
         event = self.pop()
         for handler in self._get_event_handlers( type(event) ):
