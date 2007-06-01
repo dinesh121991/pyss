@@ -142,7 +142,7 @@ class Simulator(object):
         )
 
     def run(self):
-        while not self.event_queue.empty:
+        while not self.event_queue.is_empty:
             self.event_queue.advance()
 
 def simple_job_generator(num_jobs):

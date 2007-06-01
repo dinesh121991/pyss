@@ -115,7 +115,7 @@ class test_EventQueue(TestCase):
     def test_remove_event_succeeds(self):
         self.queue.add_event(self.event)
         self.queue.remove_event(self.event)
-        self.failUnless( self.queue.empty )
+        self.failUnless( self.queue.is_empty )
 
     def test_pop_one_job(self):
         self.queue.add_event( self.event )
@@ -131,11 +131,11 @@ class test_EventQueue(TestCase):
         self.assertRaises(AssertionError, self.queue.pop)
 
     def test_empty_true(self):
-        self.failUnless( self.queue.empty )
+        self.failUnless( self.queue.is_empty )
 
     def test_empty_false(self):
         self.queue.add_event( self.event )
-        self.failIf( self.queue.empty )
+        self.failIf( self.queue.is_empty )
 
     def test_add_handler_sanity(self):
         self.queue.add_handler(prototype.JobEvent, self.handler)
@@ -158,7 +158,7 @@ class test_EventQueue(TestCase):
 
     def test_advance_eats_event(self):
         self._add_event_and_advance(self.event)
-        self.failUnless(self.queue.empty)
+        self.failUnless(self.queue.is_empty)
 
     def test_add_event_earlier_event_after_later_advance(self):
         # after handling an event with a later timestamp, adding an event with
@@ -366,7 +366,7 @@ class test_Machine(TestCase):
 
     def test_add_job_adds_job_end_event(self):
         self.machine.add_job(self._unique_job(), current_timestamp=0)
-        self.failIf(self.event_queue.empty)
+        self.failIf(self.event_queue.is_empty)
 
     def test_job_done_removed(self):
         self.machine.add_job(self._unique_job(), current_timestamp=0)

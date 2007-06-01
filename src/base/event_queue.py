@@ -28,14 +28,14 @@ class EventQueue(object):
         return sorted(self.events)
 
     @property
-    def empty(self):
+    def is_empty(self):
         return len(self) == 0
 
     def __len__(self):
         return len(self._events_heap)
 
     def pop(self):
-        assert not self.empty
+        assert not self.is_empty
         timestamp, event = self._events_heap.pop()
         return event
 
@@ -46,7 +46,7 @@ class EventQueue(object):
             return []
 
     def advance(self):
-        assert not self.empty
+        assert not self.is_empty
         event = self.pop()
         for handler in self._get_event_handlers( type(event) ):
             handler(event)
