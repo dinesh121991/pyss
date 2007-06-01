@@ -19,14 +19,14 @@ class EasyBackfillScheduler(Scheduler):
                 self.waiting_list_of_unscheduled_jobs = []
                 self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                 termination_time = current_time + just_submitted_job.actual_run_time
-                newEvents.add_job_termination_event(termination_time, just_submitted_job) 
+                newEvents.add_event( JobTerminationEvent(termination_time, just_submitted_job) )
         else: # there are at least 2 jobs in the waiting list  
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             if self.canBeBackfilled(first_job, just_submitted_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.pop()
                     self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                     termination_time = current_time + just_submitted_job.actual_run_time
-                    newEvents.add_job_termination_event(termination_time, just_submitted_job)                                
+                    newEvents.add_event( JobTerminationEvent(termination_time, just_submitted_job) )
         return newEvents
 
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -53,7 +53,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.waiting_list_of_unscheduled_jobs.remove(first_job)
                 self.cpu_snapshot.assignJob(first_job, time)
                 termination_time = time + first_job.actual_run_time
-                newEvents.add_job_termination_event(termination_time, first_job) 
+                newEvents.add_event( JobTerminationEvent(termination_time, first_job) )
             else:
                 break
 
@@ -65,7 +65,7 @@ class EasyBackfillScheduler(Scheduler):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
                     self.cpu_snapshot.assignJob(next_job, time)
                     termination_time = time + next_job.actual_run_time
-                    newEvents.add_job_termination_event(termination_time, next_job)
+                    newEvents.add_event( JobTerminationEvent(termination_time, next_job) )
 
     def canBeBackfilled(self, first_job, second_job, time):
         start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)

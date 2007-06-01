@@ -51,7 +51,7 @@ def parse_jobs(input_file_name):
 def create_submission_events(jobs):
     events = Events()
     for job in jobs:
-        events.add_job_submission_event(job.submit_time, job)
+        events.add_event( JobSubmissionEvent(job.submit_time, job) )
     return events
         
 class Simulator:

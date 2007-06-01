@@ -14,7 +14,7 @@ class ConservativeScheduler(Scheduler):
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
         termination_time = job.start_to_run_at_time + job.actual_run_time
-        newEvents.add_job_termination_event(termination_time, job)
+        newEvents.add_event( JobTerminationEvent(termination_time, job) )
         return newEvents
     
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -39,5 +39,5 @@ class ConservativeScheduler(Scheduler):
             assert prev_start_to_run_at_time >= job.start_to_run_at_time
             if prev_start_to_run_at_time != job.start_to_run_at_time:
                 new_termination_time = job.start_to_run_at_time + job.actual_run_time
-                newEvents.add_job_termination_event(new_termination_time, job)
+                newEvents.add_event( JobTerminationEvent(new_termination_time, job) )
         return newEvents
