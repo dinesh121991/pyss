@@ -64,6 +64,9 @@ class StupidScheduler(object):
         )
         self.next_free_time += event.job.estimated_run_time
 
+# TODO: this sanity-checking machine is important for testing
+#       for production runs, registering job termination events is enough
+#       relevant in case of performance problems
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
     def __init__(self, num_processors, event_queue):
