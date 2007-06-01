@@ -121,57 +121,6 @@ class Simulator:
         print "Average flow time is: ", sigma_flow_time / counter 
         print "Number of jobs: ", counter
         
-        
-
-            
-    def feasibilty_check_of_data(self):
-        """ Reconstructs a schedule from the jobs (using the values:
-        job.submit_time, job.start_to_run_at_time, job_actual_run_time for each job),
-        and then checks the feasibility of this schedule.
-        Then check the actual slices of the scheduler itself. Then deletes the jobs from the
-        actual scheduler expecting to see slices with free_nodes == total_nodes"""
-
-        print "@@@ Fesibilty Test"
-        cpu_snapshot = CpuSnapshot(self.total_nodes)
-
-        j = Job(1, 1, 1, 1, 1)
-
-        for job in self.jobs:
-            if job.submit_time > job.start_to_run_at_time:
-                print ">>> PROBLEM: job starts before submission...."
-                return False
-                
-            if job.actual_run_time > 0:
-                j.id = job.id
-                j.num_required_processors = job.num_required_processors
-                j.submit_time = job.submit_time
-                j.actual_run_time = job.actual_run_time
-                cpu_snapshot.assignJob(j, job.start_to_run_at_time)
-        
-        if not cpu_snapshot.CpuSlicesTestFeasibility():
-            return False
-        
-        if not self.scheduler.cpu_snapshot.CpuSlicesTestFeasibility():
-            return False
-
-        # self.scheduler.cpu_snapshot.printCpuSlices()
-        
-        for job in self.jobs:
-            # print job
-            j.num_required_processors = job.num_required_processors
-            j.start_to_run_at_time = job.start_to_run_at_time
-            j.estimated_run_time = j.actual_run_time = job.actual_run_time
-            self.scheduler.cpu_snapshot.delJobFromCpuSlices(j)
-    
-        if not self.scheduler.cpu_snapshot.CpuSlicesTestEmptyFeasibility():
-            return False
-  
-        return True                
-          
-        
-        
-
-        
 
 ###############
 

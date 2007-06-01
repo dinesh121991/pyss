@@ -7,18 +7,58 @@ from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 
-
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 
 TOTAL_NODES=100
+
+def feasibility_check_of_data(total_nodes, jobs):
+    """ Reconstructs a schedule from the jobs (using the values:
+    job.submit_time, job.start_to_run_at_time, job_actual_run_time for each job),
+    and then checks the feasibility of this schedule.
+    Then check the actual slices of the scheduler itself. Then deletes the jobs from the
+    actual scheduler expecting to see slices with free_nodes == total_nodes"""
+
+    from common import CpuSnapshot
+    cpu_snapshot = CpuSnapshot(total_nodes)
+
+    from base.prototype import Job
+    j = Job(1, 1, 1, 1, 1)
+
+    for job in jobs:
+        assert job.submit_time <= job.start_to_run_at_time, "PROBLEM: job starts before submission...."
+            
+        if job.actual_run_time > 0:
+            j.id = job.id
+            j.num_required_processors = job.num_required_processors
+            j.submit_time = job.submit_time
+            j.actual_run_time = job.actual_run_time
+            cpu_snapshot.assignJob(j, job.start_to_run_at_time)
+    
+    assert cpu_snapshot.CpuSlicesTestFeasibility()
+        
+def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
+    assert cpu_snapshot.CpuSlicesTestFeasibility()
+
+    from base.prototype import Job
+    j = Job(1, 1, 1, 1, 1)
+
+    for job in jobs:
+        # print job
+        j.num_required_processors = job.num_required_processors
+        j.start_to_run_at_time = job.start_to_run_at_time
+        j.estimated_run_time = j.actual_run_time = job.actual_run_time
+        cpu_snapshot.delJobFromCpuSlices(j)
+
+    assert cpu_snapshot.CpuSlicesTestEmptyFeasibility()
 
 class test_Simulator(unittest.TestCase):
 
     def test_basic_fcfs(self):
         for i in range(25): 
             simulator = Simulator(scheduler=FcfsScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 # the input jobs have their expected finish time encoded in their name.
                 # to prevent id collisions their names are 'XX.YY' where XX is the expected time
@@ -29,21 +69,24 @@ class test_Simulator(unittest.TestCase):
     def test_basic_conservative(self):
         for i in range(25): 
             simulator = Simulator(scheduler=ConservativeScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
     
     def test_basic_easyBackfill(self):
         for i in range(25): 
             simulator = Simulator(scheduler =EasyBackfillScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_maui(self):
         for i in range(25): 
             simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
     
@@ -52,7 +95,8 @@ class test_Simulator(unittest.TestCase):
     def test_fcfs(self):
         for i in range(8): 
             simulator = Simulator(scheduler=FcfsScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/fcfs_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
@@ -61,13 +105,15 @@ class test_Simulator(unittest.TestCase):
     def test_conservative(self):
         for i in range(9): 
             simulator = Simulator(scheduler=ConservativeScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(2): 
             simulator = Simulator(scheduler=ConservativeScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
         
@@ -76,13 +122,15 @@ class test_Simulator(unittest.TestCase):
     def test_easyBackfill(self):
         for i in range(9): 
             simulator = Simulator(scheduler=EasyBackfillScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1): 
             simulator = Simulator(scheduler=EasyBackfillScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
                 
@@ -93,13 +141,15 @@ class test_Simulator(unittest.TestCase):
         # here we basically test that the maui with the default weights behaves as the easybackfill
         for i in range(9):
             simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1): 
             simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
-            self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
+            feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
@@ -111,7 +161,8 @@ class test_Simulator(unittest.TestCase):
         
         scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
         simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.size")
-        self.assertEqual(True, simulator.feasibilty_check_of_data())
+        feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+        feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
@@ -123,7 +174,8 @@ class test_Simulator(unittest.TestCase):
         
         scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
         simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
-        self.assertEqual(True, simulator.feasibilty_check_of_data())
+        feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+        feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
@@ -135,7 +187,8 @@ class test_Simulator(unittest.TestCase):
         
         scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
         simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
-        self.assertEqual(True, simulator.feasibilty_check_of_data())
+        feasibility_check_of_data(simulator.total_nodes, simulator.jobs)
+        feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
