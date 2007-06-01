@@ -2,11 +2,9 @@ from schedulers.common import CpuSnapshot
 from base.prototype import JobSubmitEvent, JobStartEvent, JobEndEvent
 
 class FcfsScheduler(object):
-    def __init__(self, machine, event_queue):
-        self.machine = machine
+    def __init__(self, event_queue, num_processors):
         self.event_queue = event_queue
-        # TODO: remove cpu_snapshot, FCFS can be implemented just with the machine
-        self.cpu_snapshot = CpuSnapshot(machine.num_processors)
+        self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_queue_of_jobs = []
 
         # register event handlers

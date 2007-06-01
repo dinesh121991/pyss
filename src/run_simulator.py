@@ -17,7 +17,7 @@ def main():
 
     event_queue = EventQueue()
     machine = Machine(num_processors=10000, event_queue=event_queue)
-    scheduler = FcfsScheduler(event_queue=event_queue, machine=machine)
+    scheduler = FcfsScheduler(event_queue=event_queue, num_processors=num_processors)
 
     simulator = Simulator(
         job_source = parse_job_lines_quick_and_dirty(sys.stdin),
