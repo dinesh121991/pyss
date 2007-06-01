@@ -11,45 +11,44 @@ from maui_scheduler import MauiScheduler, Weights
 import sys
 #import profile
 
-class JobArrivalEventGeneratorViaLogFile:
+def parse_jobs_and_events(input_file_name):
+    """
+    Assumption: Job details are 'correct': arrival_time,
+    num_required_processors and duration are non-negative, job id is
+    unique, and the amount of processors requested by the job is never more
+    than the total available processors
+    """
+    input_file = open(input_file_name) # openning of the specified file for reading 
+    events = Events()
+    jobs = []
     
-    def __init__(self, input_file):
-        """
-        Assumption: Job details are 'correct': arrival_time,
-        num_required_processors and duration are non-negative, job id is
-        unique, and the amount of processors requested by the job is never more
-        than the total available processors
-        """
-        self.file = file(input_file) # openning of the specified file for reading 
-        self.events = Events()
-        self.jobs = []
-        
-        while True: 
-            line = self.file.readline()
-            # print line
-            if len(line) == 0: # zero length indicates end-of-file
-                break
-            if line.startswith('#'):
-                continue # skipping a comment in the input_file 
+    while True: 
+        line = input_file.readline()
+        # print line
+        if len(line) == 0: # zero length indicates end-of-file
+            break
+        if line.startswith('#'):
+            continue # skipping a comment in the input file 
 
-            (str_j_arrival_time, j_id, str_j_estimated_run_time, \
-             str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
+        (str_j_arrival_time, j_id, str_j_estimated_run_time, \
+         str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
 
-            j_arrival_time = int(str_j_arrival_time)
-            j_estimated_run_time = int(str_j_estimated_run_time)
-            j_actual_run_time = int(str_j_actual_run_time)
-            j_nodes = int(str_j_nodes)
-  
- 
-            if j_estimated_run_time >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
-                j_admin_QoS = int(str_j_admin_QoS)
-                j_user_QoS = int(str_j_user_QoS)
-                newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_arrival_time, j_admin_QoS, j_user_QoS)
-                self.jobs.append(newJob)
-                self.events.add_job_arrival_event(int(j_arrival_time), newJob)
+        j_arrival_time = int(str_j_arrival_time)
+        j_estimated_run_time = int(str_j_estimated_run_time)
+        j_actual_run_time = int(str_j_actual_run_time)
+        j_nodes = int(str_j_nodes)
 
-        self.file.close()
 
+        if j_estimated_run_time >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
+            j_admin_QoS = int(str_j_admin_QoS)
+            j_user_QoS = int(str_j_user_QoS)
+            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_arrival_time, j_admin_QoS, j_user_QoS)
+            jobs.append(newJob)
+            events.add_job_arrival_event(int(j_arrival_time), newJob)
+
+    input_file.close()
+
+    return jobs, events
         
 class Simulator:
     """ Assumption 1: The simulation clock goes only forward. Specifically,
@@ -92,9 +91,7 @@ class Simulator:
        
 
     def startSimulation(self):        
-        events_generated_by_input_file = JobArrivalEventGeneratorViaLogFile(self.input_file)
-        self.events = events_generated_by_input_file.events
-        self.jobs = events_generated_by_input_file.jobs
+        self.jobs, self.events = parse_jobs_and_events(self.input_file)
         
         while len(self.events.collection) > 0:
             
