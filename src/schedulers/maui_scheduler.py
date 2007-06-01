@@ -19,7 +19,7 @@ class Weights:
 from easy_scheduler import EasyBackfillScheduler
 
 class MauiScheduler(EasyBackfillScheduler):
-    def __init__(self, total_nodes = 100, weights_list=None, weights_backfill=None):
+    def __init__(self, total_nodes, weights_list=None, weights_backfill=None):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_list_of_unscheduled_jobs = []
         self.maui_timestamp = 0

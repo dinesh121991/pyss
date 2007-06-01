@@ -3,7 +3,7 @@ from events import JobTerminationEvent
 
 class FcfsScheduler(Scheduler):
         
-    def __init__(self, total_nodes = 100):
+    def __init__(self, total_nodes):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_queue_of_jobs = []
         

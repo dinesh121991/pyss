@@ -47,7 +47,7 @@ class CpuTimeSlice:
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
     
-    def __init__(self, total_nodes=100):
+    def __init__(self, total_nodes):
         CpuTimeSlice.total_nodes = total_nodes
         self.total_nodes = total_nodes
         self.slices=[] # initializing the main structure of this class 
