@@ -13,9 +13,11 @@ class test_Simulator(unittest.TestCase):
             simulator = Simulator(scheduler ="Fcfs", input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             self.assertEqual(True, simulator.feasibilty_check_of_data(), "i="+str(i))
             for job in simulator.jobs:
-                # The job id in these specific test input files signifies the job correct finishing time:  
-                # We use this basic idea to enable complex testing scenarios without much expansion of the code 
-                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
+                # the input jobs have their expected finish time encoded in their name.
+                # to prevent id collisions their names are 'XX.YY' where XX is the expected time
+                expected_finish_time = int(job.id.split(".")[0])
+
+                self.assertEqual(expected_finish_time, job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_conservative(self):
         for i in range(25): 
