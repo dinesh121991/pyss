@@ -58,16 +58,9 @@ class Simulator:
         self.events = None
         self.jobs = None
         self.input_file = input_file
+        self.scheduler = scheduler
         
-        
-        if scheduler ==  "Conservative":
-            self.scheduler =  ConservativeScheduler(total_nodes)
-
-        elif scheduler ==  "EasyBackfill":
-            self.scheduler =  EasyBackfillScheduler(total_nodes)
-            
-        elif scheduler ==  "Maui":
-            self.scheduler =  MauiScheduler(total_nodes)
+        if type(self.scheduler) == MauiScheduler:
             if maui_list_weights != None:  
                 self.scheduler.weights_list = maui_list_weights
             else:
@@ -76,12 +69,6 @@ class Simulator:
                 self.scheduler.weights_backfill = maui_backfill_weights
             else:
                 self.scheduler.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
-                
-        elif scheduler ==  "Fcfs":
-            self.scheduler = FcfsScheduler(total_nodes)
-        else:
-            print ">>> Problem: No such scheduling Policy"
-            return
 
         self.startSimulation() 
    
