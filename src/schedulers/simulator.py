@@ -85,7 +85,17 @@ class Simulator:
 
         self.startSimulation() 
    
-       
+    def handle_submission_event(self, event):
+        newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
+
+    def handle_termination_event(self, event):
+        if event.job.start_to_run_at_time + event.job.actual_run_time != event.timestamp:
+          return # redundant JobTerminationEvent, TODO: maybe require no redundant events
+        newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
 
     def startSimulation(self):        
         self.jobs = parse_jobs(self.input_file)
@@ -100,18 +110,10 @@ class Simulator:
             event = self.event_queue.pop()
             
             if isinstance(event, JobSubmissionEvent):
-                newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
-                for event in newEvents:
-                    self.event_queue.add_event(event)
-                continue
+                self.handle_submission_event(event)
 
             elif isinstance(event, JobTerminationEvent):
-                if event.job.start_to_run_at_time + event.job.actual_run_time != event.timestamp:
-                  continue # redundant JobTerminationEvent
-                newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
-                for event in newEvents:
-                    self.event_queue.add_event(event)
-                continue
+                self.handle_termination_event(event)
 
             else:
                 assert False # should never reach here
