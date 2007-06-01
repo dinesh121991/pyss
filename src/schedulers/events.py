@@ -23,8 +23,12 @@ class Events:
     def _min_event_time(self):
         return min(self.collection.keys())
 
+    @property
+    def is_empty(self):
+        return len(self.collection) == 0
+
     def pop_min_event(self):
-        assert len(self.collection) > 0
+        assert not self.is_empty
         assert len(self.collection[self._min_event_time]) > 0
         result = self.collection[self._min_event_time].pop()
         if len(self.collection[self._min_event_time]) == 0:

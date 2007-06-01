@@ -97,7 +97,7 @@ class Simulator:
         self.jobs = parse_jobs(self.input_file)
         self.events = create_submission_events(self.jobs)
         
-        while len(self.events.collection) > 0:
+        while not self.events.is_empty:
 
             event = self.events.pop_min_event()
             
