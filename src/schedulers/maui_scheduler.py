@@ -26,8 +26,15 @@ class MauiScheduler(EasyBackfillScheduler):
         self.maui_current_time = 0
 
         # weights for calculation of priorities for the jobs in MAUI style
-        self.weights_list = weights_list
-        self.weights_backfill = weights_backfill
+        if weights_list is not None:  
+            self.weights_list = weights_list
+        else:
+            self.weights_list = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
+
+        if weights_backfill is not None: 
+            self.weights_backfill = weights_backfill
+        else:
+            self.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
     
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule

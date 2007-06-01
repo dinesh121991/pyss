@@ -104,8 +104,8 @@ class test_Simulator(unittest.TestCase):
         w_l = Weights(1, 0, 0, 0, 0, 0)
         w_b = Weights(0, 0, 0, 0, 0, -1) 
         
-        simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, maui_list_weights = w_l, maui_backfill_weights = w_b, \
-                              input_file = INPUT_FILE_DIR + "/maui.size")
+        scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
+        simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.size")
         self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
@@ -116,8 +116,8 @@ class test_Simulator(unittest.TestCase):
         w_l = Weights(0, 0, 0, 0, 1, 0)
         w_b = Weights(0, 0, 1, 0, 0, 0) 
         
-        simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, maui_list_weights = w_l, maui_backfill_weights = w_b, \
-                              input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
+        scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
+        simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
         self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
@@ -128,8 +128,8 @@ class test_Simulator(unittest.TestCase):
         w_l = Weights(0, 0, 0, 1, 1, 0) 
         w_b = Weights(0, 1.0, 0, 0, 0, 0) 
         
-        simulator = Simulator(scheduler=MauiScheduler(TOTAL_NODES), total_nodes=TOTAL_NODES, maui_list_weights = w_l, maui_backfill_weights = w_b, \
-                              input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
+        scheduler = MauiScheduler(TOTAL_NODES, weights_list = w_l, weights_backfill = w_b)
+        simulator = Simulator(scheduler=scheduler, total_nodes=TOTAL_NODES, input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
         self.assertEqual(True, simulator.feasibilty_check_of_data())
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)

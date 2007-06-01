@@ -53,23 +53,13 @@ class Simulator:
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
         
-    def __init__(self, total_nodes=100, input_file="input", scheduler=None, maui_list_weights=None, maui_backfill_weights=None):
+    def __init__(self, total_nodes=100, input_file="input", scheduler=None):
         self.total_nodes = total_nodes
         self.events = None
         self.jobs = None
         self.input_file = input_file
         self.scheduler = scheduler
         
-        if type(self.scheduler) == MauiScheduler:
-            if maui_list_weights != None:  
-                self.scheduler.weights_list = maui_list_weights
-            else:
-                self.scheduler.weights_list = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
-            if maui_backfill_weights != None: 
-                self.scheduler.weights_backfill = maui_backfill_weights
-            else:
-                self.scheduler.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
-
         self.startSimulation() 
    
     def handle_submission_event(self, event):
