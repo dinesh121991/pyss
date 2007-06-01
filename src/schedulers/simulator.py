@@ -48,12 +48,6 @@ def parse_jobs(input_file_name):
 
     return jobs
 
-def create_submission_events(jobs):
-    events = Events()
-    for job in jobs:
-        events.add_event( JobSubmissionEvent(job.submit_time, job) )
-    return events
-        
 class Simulator:
     """ Assumption 1: The simulation clock goes only forward. Specifically,
     an event on time t can only produce future events with time t' = t or t' > t.
@@ -95,8 +89,12 @@ class Simulator:
 
     def startSimulation(self):        
         self.jobs = parse_jobs(self.input_file)
-        self.events = create_submission_events(self.jobs)
-        
+
+        self.events = Events()
+
+        for job in self.jobs:
+            self.events.add_event( JobSubmissionEvent(job.submit_time, job) )
+
         while not self.events.is_empty:
 
             event = self.events.pop_min_event()
