@@ -21,13 +21,11 @@ def parse_jobs(input_file_name):
     input_file = open(input_file_name) # openning of the specified file for reading 
     jobs = []
     
-    while True: 
-        line = input_file.readline()
-        # print line
-        if len(line) == 0: # zero length indicates end-of-file
-            break
-        if line.startswith('#'):
-            continue # skipping a comment in the input file 
+    for line in input_file:
+        if len(line.strip()) == 0: # skip empty lines (.strip() removes leading and trailing whitspace)
+            continue
+        if line.startswith('#'): # skip comments
+            continue
 
         (str_j_arrival_time, j_id, str_j_estimated_run_time, \
          str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
