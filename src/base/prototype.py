@@ -12,9 +12,9 @@ class JobEvent(object):
         "Compare by timestamp first, job second. Also ensure only same types are equal."
         return cmp((self.timestamp, self.job, type(self)), (other.timestamp, other.job, type(other)))
 
-class JobSubmitEvent(JobEvent): pass
+class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
-class JobEndEvent(JobEvent): pass
+class JobTerminationEvent(JobEvent): pass
 
 class Job(object):
     def __init__(self, id, estimated_run_time, actual_run_time, num_required_processors, \
@@ -50,10 +50,10 @@ class StupidScheduler(object):
     def __init__(self, event_queue):
         self.event_queue = event_queue
         self.next_free_time = None
-        self.event_queue.add_handler(JobSubmitEvent, self.job_submitted)
+        self.event_queue.add_handler(JobSubmissionEvent, self.job_submitted)
 
     def job_submitted(self, event):
-        assert type(event) == JobSubmitEvent
+        assert type(event) == JobSubmissionEvent
 
         # init next_free_time to the first timestamp seen
         if self.next_free_time is None:
@@ -71,15 +71,15 @@ class Machine(object):
         self.event_queue = event_queue
         self.jobs = set()
         self.event_queue.add_handler(JobStartEvent, self._start_job_handler)
-        self.event_queue.add_handler(JobEndEvent, self._remove_job_handler)
+        self.event_queue.add_handler(JobTerminationEvent, self._remove_job_handler)
 
     def add_job(self, job, current_timestamp):
         assert job.num_required_processors <= self.free_processors
         self.jobs.add(job)
-        self.event_queue.add_event(JobEndEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
+        self.event_queue.add_event(JobTerminationEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
 
     def _remove_job_handler(self, event):
-        assert type(event) == JobEndEvent
+        assert type(event) == JobTerminationEvent
         self.jobs.remove(event.job)
 
     def _start_job_handler(self, event):
@@ -128,7 +128,7 @@ class Simulator(object):
 
         for submit_time, job in job_source:
             self.event_queue.add_event(
-                    JobSubmitEvent(timestamp = submit_time, job = job)
+                    JobSubmissionEvent(timestamp = submit_time, job = job)
                 )
 
     @staticmethod

@@ -265,7 +265,7 @@ class test_Simulator(TestCase):
         def job_done_handler(event):
             done_jobs_ids.append(event.job.id)
 
-        self.event_queue.add_handler(prototype.JobEndEvent, job_done_handler)
+        self.event_queue.add_handler(prototype.JobTerminationEvent, job_done_handler)
 
         self.simulator.run()
 
@@ -407,7 +407,7 @@ class test_StupidScheduler(TestCase):
     def test_job_submitted_registers_job_start_event(self):
         job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
 
-        self.scheduler.job_submitted(prototype.JobSubmitEvent(job=job, timestamp=0))
+        self.scheduler.job_submitted(prototype.JobSubmissionEvent(job=job, timestamp=0))
 
         self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue.events) )
 
@@ -415,7 +415,7 @@ class test_StupidScheduler(TestCase):
         job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
 
         self.event_queue.add_event(
-            prototype.JobSubmitEvent(job=job, timestamp=0)
+            prototype.JobSubmissionEvent(job=job, timestamp=0)
         )
 
         self.event_queue.advance()

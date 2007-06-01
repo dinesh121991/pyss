@@ -1,12 +1,14 @@
 #!/usr/bin/env python2.4
 
 from common  import *
-from events import *
+from events import Events
 
 from fcfs_scheduler import FcfsScheduler
 from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
+
+from base.prototype import JobSubmissionEvent, JobTerminationEvent
 
 import sys
 #import profile

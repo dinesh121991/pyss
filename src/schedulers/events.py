@@ -2,18 +2,7 @@
 
 from common import * 
  
-
-class Event:
-    def __init__(self, job=None):
-        self.job = job
-
-class JobSubmissionEvent(Event):
-    def __str__(self):
-        return "Job Submission Event: " + str(self.job)
-
-class JobTerminationEvent(Event):
-     def __str__(self):
-        return "Job Termination Event: " + str(self.job)
+from base.prototype import JobSubmissionEvent, JobTerminationEvent
 
 class Events:
     
@@ -29,12 +18,12 @@ class Events:
 
 
     def add_job_submission_event(self, time, job): # adds a single submission event to the collection
-        self._addEvent(time, JobSubmissionEvent(job))
+        self._addEvent(time, JobSubmissionEvent(time, job))
         
     def add_job_termination_event(self, time, job):
         # makes sure that there will be a single termination event for this job
         # assert time >= 0
-        self._addEvent(time, JobTerminationEvent(job))
+        self._addEvent(time, JobTerminationEvent(time, job))
 
     def addEvents(self, new_events): # combines a new collection of events with the self collection        
          for time, new_list_of_events_at_this_time in new_events.collection.iteritems():
