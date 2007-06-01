@@ -4,7 +4,7 @@ import sys
 import sys; sys.path.append("..") # TODO: ugly hack, fix this
 from base.prototype import Job
         
-class Scheduler:
+class Scheduler(object):
     """ Assumption: every handler returns a (possibly empty) collection of new events """
     
     def handleSubmissionOfJobEvent(self, job, current_time):
