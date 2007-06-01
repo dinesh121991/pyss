@@ -1,9 +1,10 @@
 #!/usr/bin/env python2.4
 
-from common import *
-
+from base.prototype import Job
 from base.prototype import JobSubmissionEvent, JobTerminationEvent
 from base.event_queue import EventQueue
+
+from common import CpuSnapshot
 
 import sys
 
