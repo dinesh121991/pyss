@@ -104,22 +104,14 @@ class Simulator:
             
             while len(self.events.collection[current_time]) > 0:
 
-                # print "Current Known Events:"
-                # for tmp_event in self.events.collection[current_time]:
-                    # print current_time, str(tmp_event)
-                # print
-                
                 event = self.events.collection[current_time].pop()
-                # print str(event)
 
                 if isinstance(event, JobSubmissionEvent):
                     newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, int(current_time))
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents) 
                     continue
 
                 elif isinstance(event, JobTerminationEvent):
-                    # self.scheduler.cpu_snapshot.printCpuSlices()
                     if event.job.start_to_run_at_time + event.job.actual_run_time != current_time:
                       continue # redundant JobTerminationEvent
                     newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, current_time)
