@@ -13,7 +13,7 @@ import sys
 
 def parse_jobs(input_file_name):
     """
-    Assumption: Job details are 'correct': arrival_time,
+    Assumption: Job details are 'correct': submit_time,
     num_required_processors and duration are non-negative, job id is
     unique, and the amount of processors requested by the job is never more
     than the total available processors
@@ -27,29 +27,29 @@ def parse_jobs(input_file_name):
         if line.startswith('#'): # skip comments
             continue
 
-        (str_j_arrival_time, j_id, str_j_estimated_run_time, \
+        (str_j_submit_time, j_id, str_j_estimated_run_time, \
          str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
 
-        j_arrival_time = int(str_j_arrival_time)
+        j_submit_time = int(str_j_submit_time)
         j_estimated_run_time = int(str_j_estimated_run_time)
         j_actual_run_time = int(str_j_actual_run_time)
         j_nodes = int(str_j_nodes)
 
 
-        if j_estimated_run_time >= j_actual_run_time and j_arrival_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
+        if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
             j_admin_QoS = int(str_j_admin_QoS)
             j_user_QoS = int(str_j_user_QoS)
-            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_arrival_time, j_admin_QoS, j_user_QoS)
+            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_submit_time, j_admin_QoS, j_user_QoS)
             jobs.append(newJob)
 
     input_file.close()
 
     return jobs
 
-def create_arrival_events(jobs):
+def create_submission_events(jobs):
     events = Events()
     for job in jobs:
-        events.add_job_arrival_event(job.arrival_time, job)
+        events.add_job_submission_event(job.submit_time, job)
     return events
         
 class Simulator:
@@ -76,11 +76,11 @@ class Simulator:
             if maui_list_weights != None:  
                 self.scheduler.weights_list = maui_list_weights
             else:
-                self.scheduler.weights_list = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of arrival
+                self.scheduler.weights_list = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
             if maui_backfill_weights != None: 
                 self.scheduler.weights_backfill = maui_backfill_weights
             else:
-                self.scheduler.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of arrival
+                self.scheduler.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
                 
         elif scheduler ==  "Fcfs":
             self.scheduler = FcfsScheduler(total_nodes)
@@ -94,7 +94,7 @@ class Simulator:
 
     def startSimulation(self):        
         self.jobs = parse_jobs(self.input_file)
-        self.events = create_arrival_events(self.jobs)
+        self.events = create_submission_events(self.jobs)
         
         while len(self.events.collection) > 0:
             
@@ -110,8 +110,8 @@ class Simulator:
                 event = self.events.collection[current_time].pop()
                 # print str(event)
 
-                if isinstance(event, JobArrivalEvent):
-                    newEvents = self.scheduler.handleArrivalOfJobEvent(event.job, int(current_time))
+                if isinstance(event, JobSubmissionEvent):
+                    newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, int(current_time))
                     # self.scheduler.cpu_snapshot.printCpuSlices()
                     self.events.addEvents(newEvents) 
                     continue
@@ -153,7 +153,7 @@ class Simulator:
         for job in self.jobs:
             counter += 1
             
-            wait_time = job.start_to_run_at_time - job.arrival_time
+            wait_time = job.start_to_run_at_time - job.submit_time
             sigma_wait_time += wait_time
             
             flow_time = wait_time + job.actual_run_time
@@ -170,7 +170,7 @@ class Simulator:
             
     def feasibilty_check_of_data(self):
         """ Reconstructs a schedule from the jobs (using the values:
-        job.arrival time, job.start_to_run_at_time, job_actual_run_time for each job),
+        job.submit_time, job.start_to_run_at_time, job_actual_run_time for each job),
         and then checks the feasibility of this schedule.
         Then check the actual slices of the scheduler itself. Then deletes the jobs from the
         actual scheduler expecting to see slices with free_nodes == total_nodes"""
@@ -181,14 +181,14 @@ class Simulator:
         j = Job(1, 1, 1, 1, 1)
 
         for job in self.jobs:
-            if job.arrival_time > job.start_to_run_at_time:
-                print ">>> PROBLEM: job starts before arrival...."
+            if job.submit_time > job.start_to_run_at_time:
+                print ">>> PROBLEM: job starts before submission...."
                 return False
                 
             if job.actual_run_time > 0:
                 j.id = job.id
                 j.num_required_processors = job.num_required_processors
-                j.arrival_time = job.arrival_time
+                j.submit_time = job.submit_time
                 j.actual_run_time = job.actual_run_time
                 cpu_snapshot.assignJob(j, job.start_to_run_at_time)
         

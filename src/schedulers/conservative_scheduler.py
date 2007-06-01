@@ -5,12 +5,12 @@ class ConservativeScheduler(Scheduler):
 
     def __init__(self, total_nodes = 100):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
-        self.list_of_unfinished_jobs_arranged_by_arrival_times = []    
+        self.list_of_unfinished_jobs_arranged_by_submit_times = []    
         
-    def handleArrivalOfJobEvent(self, job, current_time):
+    def handleSubmissionOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         newEvents = Events()
-        self.list_of_unfinished_jobs_arranged_by_arrival_times.append(job)        
+        self.list_of_unfinished_jobs_arranged_by_submit_times.append(job)        
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
         termination_time = job.start_to_run_at_time + job.actual_run_time
@@ -22,14 +22,14 @@ class ConservativeScheduler(Scheduler):
         It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """
         self.cpu_snapshot.archive_old_slices(current_time)
-        self.list_of_unfinished_jobs_arranged_by_arrival_times.remove(job)  
+        self.list_of_unfinished_jobs_arranged_by_submit_times.remove(job)  
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         newEvents = Events()
         return self._reschedule_jobs(current_time, newEvents)
    
 
     def _reschedule_jobs(self, current_time, newEvents):
-        for job in self.list_of_unfinished_jobs_arranged_by_arrival_times:
+        for job in self.list_of_unfinished_jobs_arranged_by_submit_times:
             if job.start_to_run_at_time <= current_time:
                 continue # job started to run before, so it cannot be rescheduled (preemptions are not allowed)
             prev_start_to_run_at_time = job.start_to_run_at_time

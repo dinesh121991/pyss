@@ -7,7 +7,7 @@ class FcfsScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_queue_of_jobs = []
         
-    def handleArrivalOfJobEvent(self, job, current_time):
+    def handleSubmissionOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_queue_of_jobs.append(job)
         return self._schedule_jobs(current_time)

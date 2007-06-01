@@ -4,7 +4,7 @@ from events import *
 class Weights:
     # this class defines the configuration of weights for the MAUI 
     def __init__(self, w_wtime=1, w_sld=0, w_user=0, w_bypass=0, w_admin=0, w_size=0):
-        self.wtime  = w_wtime  # weight of wait time since arrival  
+        self.wtime  = w_wtime  # weight of wait time since submission
         self.sld    = w_sld    # weight of slow down  
         self.user  = w_user   # weight of user desired quality of service 
         self.bypass = w_bypass # weight of being skipped over in the waiting list  
@@ -14,7 +14,7 @@ class Weights:
 
 # a first toy version for the maui -- essentillay the diffrence between this simplified version of maui and easy
 # backfilling is that the maui has more degree of freedom: maui may consider the jobs
-# not necessarily by order of arrival, as opposed to the easy backfill.    
+# not necessarily by order of submission, as opposed to the easy backfill.    
 
 from easy_scheduler import EasyBackfillScheduler
 
@@ -29,13 +29,13 @@ class MauiScheduler(EasyBackfillScheduler):
         self.weights_list = weights_list
         self.weights_backfill = weights_backfill
     
-    def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
+    def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
-        just_arrived_job.maui_timestamp = self.maui_timestamp
+        just_submitted_job.maui_timestamp = self.maui_timestamp
         self.maui_timestamp += 1
-        self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
+        self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
         return self._schedule_jobs(current_time)  
         
     def _schedule_jobs(self, current_time):
@@ -80,7 +80,7 @@ class MauiScheduler(EasyBackfillScheduler):
                 job.maui_bypass_counter += 1
         
     def aggregated_weight_of_job(self, weights, job):
-        wait = self.maui_current_time - job.arrival_time # wait time since arrival of job
+        wait = self.maui_current_time - job.submit_time # wait time since submission of job
         sld = (wait + job.estimated_run_time) /  job.estimated_run_time        
         w = weights
         

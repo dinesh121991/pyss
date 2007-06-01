@@ -7,7 +7,7 @@ from base.prototype import Job
 class Scheduler:
     """ Assumption: every handler returns a (possibly empty) collection of new events """
     
-    def handleArrivalOfJobEvent(self, job, current_time):
+    def handleSubmissionOfJobEvent(self, job, current_time):
         raise NotImplementedError()
     
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -115,7 +115,7 @@ class CpuSnapshot(object):
         """ returns the earliest time right after the given time for which the job can be assigned
         enough processors for job.estimated_run_time unit of times in an uninterrupted fashion.
         Assumption: number of requested processors is not greater than number of total processors.
-        Assumptions: the given is greater than the arrival time of the job >= 0."""
+        Assumptions: the given is greater than the submission time of the job >= 0."""
         
         last = self.slices[-1]  
         length = len(self.slices)

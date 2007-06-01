@@ -7,26 +7,26 @@ class EasyBackfillScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(total_nodes)
         self.waiting_list_of_unscheduled_jobs = []
         
-    def handleArrivalOfJobEvent(self, just_arrived_job, current_time):
+    def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
-        self.waiting_list_of_unscheduled_jobs.append(just_arrived_job)
+        self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
         newEvents = Events()
         if len(self.waiting_list_of_unscheduled_jobs) == 1:  
-            start_time = self.cpu_snapshot.jobEarliestAssignment(just_arrived_job, current_time)
+            start_time = self.cpu_snapshot.jobEarliestAssignment(just_submitted_job, current_time)
             if start_time == current_time:
                 self.waiting_list_of_unscheduled_jobs = []
-                self.cpu_snapshot.assignJob(just_arrived_job, current_time)
-                termination_time = current_time + just_arrived_job.actual_run_time
-                newEvents.add_job_termination_event(termination_time, just_arrived_job) 
+                self.cpu_snapshot.assignJob(just_submitted_job, current_time)
+                termination_time = current_time + just_submitted_job.actual_run_time
+                newEvents.add_job_termination_event(termination_time, just_submitted_job) 
         else: # there are at least 2 jobs in the waiting list  
             first_job = self.waiting_list_of_unscheduled_jobs[0]
-            if self.canBeBackfilled(first_job, just_arrived_job, current_time):
+            if self.canBeBackfilled(first_job, just_submitted_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.pop()
-                    self.cpu_snapshot.assignJob(just_arrived_job, current_time)
-                    termination_time = current_time + just_arrived_job.actual_run_time
-                    newEvents.add_job_termination_event(termination_time, just_arrived_job)                                
+                    self.cpu_snapshot.assignJob(just_submitted_job, current_time)
+                    termination_time = current_time + just_submitted_job.actual_run_time
+                    newEvents.add_job_termination_event(termination_time, just_submitted_job)                                
         return newEvents
 
     def handleTerminationOfJobEvent(self, job, current_time):

@@ -7,9 +7,9 @@ class Event:
     def __init__(self, job=None):
         self.job = job
 
-class JobArrivalEvent(Event):
+class JobSubmissionEvent(Event):
     def __str__(self):
-        return "Job Arrival Event: " + str(self.job)
+        return "Job Submission Event: " + str(self.job)
 
 class JobTerminationEvent(Event):
      def __str__(self):
@@ -28,8 +28,8 @@ class Events:
              self.collection[time].insert(0, event)
 
 
-    def add_job_arrival_event(self, time, job): # adds a single arrival event to the collection
-        self._addEvent(time, JobArrivalEvent(job))
+    def add_job_submission_event(self, time, job): # adds a single submission event to the collection
+        self._addEvent(time, JobSubmissionEvent(job))
         
     def add_job_termination_event(self, time, job):
         # makes sure that there will be a single termination event for this job
