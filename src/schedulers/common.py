@@ -83,8 +83,12 @@ class CpuSnapshot(object):
 
         last = self.slices[-1]
         length = len(self.slices)
-        self._add_slice(length, self.total_nodes, last.end_time, start_time + 1) # duration is huge 
-        self._add_slice(length+1, self.total_nodes, last.end_time + start_time + 1, 1000) # duration is arbitrary
+        
+        if start_time >= last.end_time:  
+            self._add_slice(length, self.total_nodes, last.end_time, start_time - last.end_time)  
+            self._add_slice(length+1, self.total_nodes, start_time, 1000) # duration is arbitrary
+        else: 
+            self._add_slice(length, self.total_nodes, last.end_time, 1000) # duration is arbitrary  
 
         index = -1
         for s in self.slices:
