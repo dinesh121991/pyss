@@ -240,11 +240,7 @@ class CpuSnapshot(object):
             else: 
                 prev = s
                 
-        last = self.slices[-1]
-        if last.free_nodes == self.total_nodes and last.duration > 1000:
-            last.duration = 1000
-            last.end_time = last.start_time + 1000
-        
+
 
         
     def _restore_old_slices(self):
