@@ -149,6 +149,7 @@ class CpuSnapshot(object):
                 accumulated_duration += s.duration
             
             if accumulated_duration >= job.estimated_run_time:
+                self.slices[-1].duration = 1000 # making sure that the last "empty" slice we just add will not be huge 
                 return tentative_start_time
     
 
@@ -226,7 +227,7 @@ class CpuSnapshot(object):
 
     def unify_some_slices(self):
         prev = self.slices[0]
-        for s in self.slices[1: -5]:
+        for s in self.slices[1: ]:
             if prev.free_nodes == s.free_nodes:
                 prev.duration += s.duration
                 prev.end_time += s.duration
