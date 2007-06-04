@@ -69,19 +69,17 @@ class EasyBackfillScheduler(Scheduler):
                     newEvents.append( JobTerminationEvent(termination_time, next_job) )
 
     def canBeBackfilled(self, first_job, second_job, time):
-        start_time_of_second_job = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
 
-        if start_time_of_second_job > time:
-            return False
+        if self.cpu_snapshot.free_nodes_available_at(time) < second_job.num_required_processors:
+            return False 
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-        self.cpu_snapshot.assignJob(second_job, time)
-        start_time_of_1st_if_2nd_job_assigned = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        self.cpu_snapshot.assignJob(first_job, shadow_time)
+        start_time_of_2nd_if_1st_job_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)      
+        self.cpu_snapshot.delJobFromCpuSlices(first_job)
         
-        self.cpu_snapshot.delJobFromCpuSlices(second_job)
-       
-        if start_time_of_1st_if_2nd_job_assigned > shadow_time:
-            return False 
+        if start_time_of_2nd_if_1st_job_assigned == time: 
+            return True # this means that the 2nd is "independent" of the 1st, and thus can be backfilled
         else:
-            return True 
+            return False 
       
