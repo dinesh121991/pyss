@@ -3,6 +3,7 @@
 from base.prototype import Job
 from base.prototype import JobSubmissionEvent, JobTerminationEvent
 from base.event_queue import EventQueue
+from base.prototype import Machine
 
 from common import CpuSnapshot
 
@@ -54,6 +55,9 @@ class Simulator(object):
         self.scheduler = scheduler
 
         self.event_queue = EventQueue()
+
+        # TODO: use ValidatingMachine here
+        self.machine = Machine(event_queue=self.event_queue)
         
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
