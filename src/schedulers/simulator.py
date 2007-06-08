@@ -26,18 +26,18 @@ def parse_jobs(input_file_name):
             continue
 
         (str_j_submit_time, j_id, str_j_estimated_run_time, \
-         str_j_nodes, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
+         str_j_processors, str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS) = line.split()
 
         j_submit_time = int(str_j_submit_time)
         j_estimated_run_time = int(str_j_estimated_run_time)
         j_actual_run_time = int(str_j_actual_run_time)
-        j_nodes = int(str_j_nodes)
+        j_processors = int(str_j_processors)
 
 
-        if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_nodes > 0 and j_actual_run_time >= 0:
+        if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_processors > 0 and j_actual_run_time >= 0:
             j_admin_QoS = int(str_j_admin_QoS)
             j_user_QoS = int(str_j_user_QoS)
-            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_nodes, j_submit_time, j_admin_QoS, j_user_QoS)
+            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, j_processors, j_submit_time, j_admin_QoS, j_user_QoS)
             jobs.append(newJob)
 
     input_file.close()

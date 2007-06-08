@@ -17,7 +17,7 @@ def feasibility_check_of_data(num_processors, jobs):
     job.submit_time, job.start_to_run_at_time, job_actual_run_time for each job),
     and then checks the feasibility of this schedule.
     Then check the actual slices of the scheduler itself. Then deletes the jobs from the
-    actual scheduler expecting to see slices with free_nodes == num_processors"""
+    actual scheduler expecting to see slices with free_processors == num_processors"""
 
     from common import CpuSnapshot
     cpu_snapshot = CpuSnapshot(num_processors)

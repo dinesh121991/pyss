@@ -66,7 +66,7 @@ class EasyBackfillScheduler(Scheduler):
 
     def canBeBackfilled(self, first_job, second_job, time):
 
-        if self.cpu_snapshot.free_nodes_available_at(time) < second_job.num_required_processors:
+        if self.cpu_snapshot.free_processors_available_at(time) < second_job.num_required_processors:
             return False 
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)

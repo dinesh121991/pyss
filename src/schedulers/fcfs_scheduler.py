@@ -23,7 +23,7 @@ class FcfsScheduler(Scheduler):
         newEvents = []
         while len(self.waiting_queue_of_jobs) > 0:
             job = self.waiting_queue_of_jobs[0]
-            if self.cpu_snapshot.free_nodes_available_at(time) >= job.num_required_processors: 
+            if self.cpu_snapshot.free_processors_available_at(time) >= job.num_required_processors: 
                 self.waiting_queue_of_jobs.pop(0)
                 self.cpu_snapshot.assignJob(job, time)     
                 newEvents.append( JobStartEvent(time, job) )
