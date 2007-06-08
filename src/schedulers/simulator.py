@@ -75,15 +75,14 @@ class Simulator(object):
         for event in newEvents:
             self.event_queue.add_event(event)
 
-    def startSimulation(self):        
-
+    def run(self):        
         while not self.event_queue.is_empty:
             self.event_queue.advance()
 
 def run_simulator(num_processors, input_file, scheduler):
     simulator = Simulator(parse_jobs(input_file), num_processors, scheduler)
 
-    simulator.startSimulation()
+    simulator.run()
 
     # simulation is done
     print
