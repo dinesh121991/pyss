@@ -88,7 +88,7 @@ def run_simulator(num_processors, input_file, scheduler):
 
     simulator.run()
 
-    print_simulator_stats(simulator)
+    #print_simulator_stats(simulator)
     return simulator
 
 def print_simulator_stats(simulator):
