@@ -91,35 +91,33 @@ class Simulator:
         print "______________ last snapshot, before the simulation ends ________" 
         self.scheduler.cpu_snapshot.printCpuSlices()
         
-        self.calculate_statistics()  
+        calculate_statistics(self.jobs)
 
+def calculate_statistics(jobs):
 
-
-    def calculate_statistics(self):
-
-        if len(self.jobs) == 0:
-            print
-            print "STATISTICS: "
-            print "Input file is probably empty"
-            return
-        
-        wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0 
-        counter = 0
-        
-        for job in self.jobs:
-            counter += 1
-            
-            wait_time = job.start_to_run_at_time - job.submit_time
-            sigma_wait_time += wait_time
-            
-            flow_time = wait_time + job.actual_run_time
-            sigma_flow_time += flow_time
-            
+    if len(jobs) == 0:
         print
         print "STATISTICS: "
-        print "Average wait time is: ", sigma_wait_time / counter
-        print "Average flow time is: ", sigma_flow_time / counter 
-        print "Number of jobs: ", counter
+        print "Input file is probably empty"
+        return
+    
+    wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0 
+    counter = 0
+    
+    for job in jobs:
+        counter += 1
+        
+        wait_time = job.start_to_run_at_time - job.submit_time
+        sigma_wait_time += wait_time
+        
+        flow_time = wait_time + job.actual_run_time
+        sigma_flow_time += flow_time
+        
+    print
+    print "STATISTICS: "
+    print "Average wait time is: ", sigma_wait_time / counter
+    print "Average flow time is: ", sigma_flow_time / counter 
+    print "Number of jobs: ", counter
         
 
 ###############
