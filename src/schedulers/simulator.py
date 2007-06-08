@@ -80,18 +80,18 @@ class Simulator(object):
         while not self.event_queue.is_empty:
             self.event_queue.advance()
 
-        # simulation is done
-        print
-        print
-        print "______________ last snapshot, before the simulation ends ________" 
-        self.scheduler.cpu_snapshot.printCpuSlices()
-        
-        calculate_statistics(self.jobs)
-
 def run_simulator(num_processors, input_file, scheduler):
     simulator = Simulator(parse_jobs(input_file), num_processors, scheduler)
 
     simulator.startSimulation()
+
+    # simulation is done
+    print
+    print
+    print "______________ last snapshot, before the simulation ends ________" 
+    scheduler.cpu_snapshot.printCpuSlices()
+        
+    calculate_statistics(simulator.jobs)
 
     return simulator
 
