@@ -93,6 +93,12 @@ class Simulator:
         
         calculate_statistics(self.jobs)
 
+def run_simulator(total_nodes, input_file, scheduler):
+    simulator = Simulator(total_nodes, input_file, scheduler)
+
+    return simulator
+
+
 def calculate_statistics(jobs):
 
     if len(jobs) == 0:
