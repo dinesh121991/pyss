@@ -48,8 +48,8 @@ class Simulator(object):
     an event on time t can only produce future events with time t' = t or t' > t.
     Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
         
-    def __init__(self, jobs, total_nodes, scheduler):
-        self.total_nodes = total_nodes
+    def __init__(self, jobs, num_processors, scheduler):
+        self.num_processors = num_processors
         self.jobs = jobs
         self.scheduler = scheduler
 
@@ -89,8 +89,8 @@ class Simulator(object):
         
         calculate_statistics(self.jobs)
 
-def run_simulator(total_nodes, input_file, scheduler):
-    simulator = Simulator(parse_jobs(input_file), total_nodes, scheduler)
+def run_simulator(num_processors, input_file, scheduler):
+    simulator = Simulator(parse_jobs(input_file), num_processors, scheduler)
 
     return simulator
 
