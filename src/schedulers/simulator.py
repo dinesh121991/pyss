@@ -57,7 +57,7 @@ class Simulator(object):
         self.event_queue = EventQueue()
 
         # TODO: use ValidatingMachine here
-        self.machine = Machine(num_processors=num_processors, event_queue=self.event_queue)
+        self.machine = Machine(event_queue=self.event_queue)
         
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
@@ -88,12 +88,12 @@ def run_simulator(num_processors, input_file, scheduler):
 
     simulator.run()
 
-    # simulation is done
-    scheduler.cpu_snapshot.printCpuSlices()
-    print_statistics(simulator.jobs)
-
+    print_simulator_stats(simulator)
     return simulator
 
+def print_simulator_stats(simulator):
+    simulator.scheduler.cpu_snapshot.printCpuSlices()
+    print_statistics(simulator.jobs)
 
 def print_statistics(jobs):
 
