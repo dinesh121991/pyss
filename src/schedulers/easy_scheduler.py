@@ -49,7 +49,7 @@ class EasyBackfillScheduler(Scheduler):
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
             if start_time_of_first_job == time:
-                self.waiting_list_of_unscheduled_jobs.remove(first_job)
+                self.waiting_list_of_unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(first_job, time)
                 newEvents.append( JobStartEvent(time, first_job) )
             else:
@@ -71,10 +71,10 @@ class EasyBackfillScheduler(Scheduler):
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
-        start_time_of_2nd_if_1st_job_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)      
+        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)      
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
         
-        if start_time_of_2nd_if_1st_job_assigned == time: 
+        if start_time_of_2nd_if_1st_job_is_assigned == time: 
             return True # this means that the 2nd is "independent" of the 1st, and thus can be backfilled
         else:
             return False 

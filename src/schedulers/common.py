@@ -154,7 +154,7 @@ class CpuSnapshot(object):
                 accumulated_duration += s.duration
             
             if accumulated_duration >= job.estimated_run_time:
-                self.slices[-1].duration = 1000 # making sure that the last "empty" slice we just add will not be huge 
+                self.slices[-1].duration = 1000 # making sure that the last "empty" slice we've just added will not be huge 
                 return tentative_start_time
     
 
