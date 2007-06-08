@@ -64,30 +64,39 @@ class StupidScheduler(object):
         )
         self.next_free_time += event.job.estimated_run_time
 
-# TODO: this sanity-checking machine is important for testing
-#       for production runs, registering job termination events is enough
-#       relevant in case of performance problems
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
-    def __init__(self, num_processors, event_queue):
-        self.num_processors = num_processors
+    def __init__(self, event_queue):
         self.event_queue = event_queue
-        self.jobs = set()
         self.event_queue.add_handler(JobStartEvent, self._start_job_handler)
+
+    def _start_job_handler(self, event):
+        assert type(event) == JobStartEvent
+        self._add_job(event.job, event.timestamp)
+
+    def _add_job(self, job, current_timestamp):
+        self.event_queue.add_event(JobTerminationEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
+
+class ValidatingMachine(Machine):
+    """
+    Represents the actual parallel machine ('cluster'), validating proper
+    machine usage
+    """
+    def __init__(self, num_processors, event_queue):
+        super(ValidatingMachine, self).__init__(event_queue)
+        self.num_processors = num_processors
+        self.jobs = set()
+
         self.event_queue.add_handler(JobTerminationEvent, self._remove_job_handler)
 
-    def add_job(self, job, current_timestamp):
+    def _add_job(self, job, current_timestamp):
         assert job.num_required_processors <= self.free_processors
         self.jobs.add(job)
-        self.event_queue.add_event(JobTerminationEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
+        super(ValidatingMachine, self)._add_job(job, current_timestamp)
 
     def _remove_job_handler(self, event):
         assert type(event) == JobTerminationEvent
         self.jobs.remove(event.job)
-
-    def _start_job_handler(self, event):
-        assert type(event) == JobStartEvent
-        self.add_job(event.job, event.timestamp)
 
     @property
     def free_processors(self):
