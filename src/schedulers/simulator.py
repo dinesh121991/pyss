@@ -125,20 +125,3 @@ def calculate_statistics(jobs):
     print "Average flow time is: ", sigma_flow_time / counter 
     print "Number of jobs: ", counter
         
-
-###############
-
-# (w_wtime, w_sld, w_user, w_bypass, w_admin, w_size)
-#w_l = Weights(0, 0, 0, 1, 1, 0) 
-#w_b = Weights(0, 1.0, 0, 0, 0, 0) 
-
-#simulation = Simulator(scheduler ="Maui", maui_list_weights = w_l, maui_backfill_weights = w_b)
-#simulation = Simulator(scheduler ="Fcfs", total_nodes = 1024)
-#simulation = Simulator(scheduler ="Conservative", total_nodes = 1024)
-#simulation = Simulator(scheduler ="EasyBackfill", total_nodes = 1024)
-#profile.run('simulation.startSimulation()')
-#simulation.startSimulation()
-
-#simulation = Simulator(input_file = "./Input_test_files/basic_input.1", scheduler ="Conservative")
-#simulation = Simulator(scheduler ="Fcfs")
-#simulation = Simulator(scheduler ="Conservative")
