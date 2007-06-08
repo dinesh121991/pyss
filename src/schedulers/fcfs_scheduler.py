@@ -1,5 +1,5 @@
 from common import Scheduler, CpuSnapshot
-from base.prototype import JobTerminationEvent
+from base.prototype import JobStartEvent
 
 class FcfsScheduler(Scheduler):
         
@@ -26,8 +26,7 @@ class FcfsScheduler(Scheduler):
             if self.cpu_snapshot.free_nodes_available_at(time) >= job.num_required_processors: 
                 self.waiting_queue_of_jobs.pop(0)
                 self.cpu_snapshot.assignJob(job, time)     
-                termination_time = time + job.actual_run_time
-                newEvents.append( JobTerminationEvent(termination_time, job) )
+                newEvents.append( JobStartEvent(time, job) )
             else:
                 break
         return newEvents

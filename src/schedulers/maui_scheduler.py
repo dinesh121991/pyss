@@ -1,5 +1,5 @@
 from common import CpuSnapshot
-from base.prototype import JobTerminationEvent
+from base.prototype import JobStartEvent
 
 class Weights:
     # this class defines the configuration of weights for the MAUI 
@@ -72,8 +72,7 @@ class MauiScheduler(EasyBackfillScheduler):
                     self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +  
                     current_time = self.cpu_snapshot.jobEarliestAssignment(next_job, current_time)
                     self.cpu_snapshot.assignJob(next_job, current_time)
-                    termination_time = current_time + next_job.actual_run_time
-                    newEvents.append( JobTerminationEvent(termination_time, next_job) )
+                    newEvents.append( JobStartEvent(current_time, next_job) )
             self.waiting_list_of_unscheduled_jobs.append(first_job) # + 
         return newEvents
 

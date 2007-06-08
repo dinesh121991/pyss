@@ -1,5 +1,5 @@
 from common import Scheduler, CpuSnapshot
-from base.prototype import JobTerminationEvent
+from base.prototype import JobStartEvent
 
 class ConservativeScheduler(Scheduler):
 
@@ -13,8 +13,7 @@ class ConservativeScheduler(Scheduler):
         self.list_of_unfinished_jobs_arranged_by_submit_times.append(job)        
         start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
         self.cpu_snapshot.assignJob(job, start_time_of_job)
-        termination_time = job.start_to_run_at_time + job.actual_run_time
-        return [ JobTerminationEvent(termination_time, job) ]
+        return [ JobStartEvent(job.start_to_run_at_time, job) ]
     
     def handleTerminationOfJobEvent(self, job, current_time):
         """ Here we delete the tail of job if it was ended before the duration declaration.
@@ -37,6 +36,5 @@ class ConservativeScheduler(Scheduler):
             self.cpu_snapshot.assignJob(job, start_time_of_job)
             assert prev_start_to_run_at_time >= job.start_to_run_at_time
             if prev_start_to_run_at_time != job.start_to_run_at_time:
-                new_termination_time = job.start_to_run_at_time + job.actual_run_time
-                newEvents.append( JobTerminationEvent(new_termination_time, job) )
+                newEvents.append( JobStartEvent(job.start_to_run_at_time, job) )
         return newEvents
