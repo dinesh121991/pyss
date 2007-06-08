@@ -50,9 +50,10 @@ class Simulator(object):
         
     def __init__(self, jobs, total_nodes, scheduler):
         self.total_nodes = total_nodes
-        self.events = None
         self.jobs = jobs
         self.scheduler = scheduler
+
+        self.event_queue = EventQueue()
         
         self.startSimulation() 
    
@@ -71,8 +72,6 @@ class Simulator(object):
             self.event_queue.add_event(event)
 
     def startSimulation(self):        
-        self.event_queue = EventQueue()
-
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
 
