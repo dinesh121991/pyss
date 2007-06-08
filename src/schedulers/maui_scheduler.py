@@ -1,5 +1,5 @@
 from common import CpuSnapshot
-from events import JobTerminationEvent
+from base.prototype import JobTerminationEvent
 
 class Weights:
     # this class defines the configuration of weights for the MAUI 

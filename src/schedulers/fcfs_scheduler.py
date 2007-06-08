@@ -1,5 +1,5 @@
 from common import Scheduler, CpuSnapshot
-from events import JobTerminationEvent
+from base.prototype import JobTerminationEvent
 
 class FcfsScheduler(Scheduler):
         
