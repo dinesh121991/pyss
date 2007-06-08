@@ -61,8 +61,6 @@ class Simulator(object):
         for job in self.jobs:
             self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
 
-        self.startSimulation() 
-   
     def handle_submission_event(self, event):
         assert isinstance(event, JobSubmissionEvent)
         newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
@@ -92,6 +90,8 @@ class Simulator(object):
 
 def run_simulator(num_processors, input_file, scheduler):
     simulator = Simulator(parse_jobs(input_file), num_processors, scheduler)
+
+    simulator.startSimulation()
 
     return simulator
 
