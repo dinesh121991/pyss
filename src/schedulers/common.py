@@ -254,6 +254,9 @@ class CpuSnapshot(object):
 
 
     def printCpuSlices(self):
+        print
+        print
+        print "______________ last snapshot, before the simulation ends ________" 
         print "start time | duration | #free processors "            
         for s in self.slices: 
             print s
