@@ -55,6 +55,12 @@ class Simulator(object):
 
         self.event_queue = EventQueue()
         
+        self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
+        self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
+
+        for job in self.jobs:
+            self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
+
         self.startSimulation() 
    
     def handle_submission_event(self, event):
@@ -72,11 +78,6 @@ class Simulator(object):
             self.event_queue.add_event(event)
 
     def startSimulation(self):        
-        self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
-        self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
-
-        for job in self.jobs:
-            self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
 
         while not self.event_queue.is_empty:
             self.event_queue.advance()
