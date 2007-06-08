@@ -284,7 +284,6 @@ class CpuSnapshot(object):
             duration = s.duration
             time = s.start_time
  
-        print "TEST is OK!!!!" 
         return True
 
 
@@ -309,7 +308,6 @@ class CpuSnapshot(object):
             duration = s.duration
             time = s.start_time
  
-        print "TEST EMPTY is OK!!!!" 
         return True
 
             
