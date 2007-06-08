@@ -104,15 +104,14 @@ def parse_job_lines_quick_and_dirty(lines):
     This should have been:
 
       for job_input in workload_parser.parse_lines(lines):
-        yield job_input.submit_time, Simulator._job_input_to_job(job_input)
+        yield job_input.submit_time, _job_input_to_job(job_input)
 
     But instead everything is hard-coded (also hard to read and modify) for
     performance reasons.
 
     Pay special attention to the indices and see that you're using what you
     expect, check out the workload_parser.JobInput properties and
-    Simulator._job_input_to_job comments to see extra logic that isn't
-    represented here.
+    _job_input_to_job comments to see extra logic that isn't represented here.
     """
     for line in lines:
         x = line.split()
@@ -122,6 +121,15 @@ def parse_job_lines_quick_and_dirty(lines):
             actual_run_time = int(x[3]),
             num_required_processors = max(int(x[7]), int(x[4])), # max(num_requested,max_allocated)
         )
+
+def _job_input_to_job(job_input):
+    return Job(
+        id = job_input.number,
+        estimated_run_time = job_input.requested_time,
+        actual_run_time = job_input.run_time,
+        # TODO: do we want the no. of allocated processors instead of the no. requested?
+        num_required_processors = job_input.num_requested_processors,
+    )
 
 class Simulator(object):
     def __init__(self, job_source, event_queue, machine, scheduler):
@@ -133,16 +141,6 @@ class Simulator(object):
             self.event_queue.add_event(
                     JobSubmissionEvent(timestamp = submit_time, job = job)
                 )
-
-    @staticmethod
-    def _job_input_to_job(job_input):
-        return Job(
-            id = job_input.number,
-            estimated_run_time = job_input.requested_time,
-            actual_run_time = job_input.run_time,
-            # TODO: do we want the no. of allocated processors instead of the no. requested?
-            num_required_processors = job_input.num_requested_processors,
-        )
 
     def run(self):
         while not self.event_queue.is_empty:

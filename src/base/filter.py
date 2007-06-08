@@ -6,7 +6,7 @@ import workload_parser
 import prototype
 import sys
 
-_job_input_to_job = prototype.Simulator._job_input_to_job
+from prototype import _job_input_to_job
 
 for line in fileinput.input():
     if line.lstrip().startswith(';'):

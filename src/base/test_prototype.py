@@ -277,7 +277,8 @@ class test_Simulator(TestCase):
     def test_job_input_to_job(self):
         import workload_parser
         job_input = workload_parser.JobInput(SAMPLE_JOB_INPUT[0])
-        job = self.simulator._job_input_to_job(job_input)
+        from prototype import _job_input_to_job
+        job = _job_input_to_job(job_input)
 
         self.assertEqual( job.id, job_input.number )
         self.assertEqual( job.estimated_run_time, job_input.requested_time )
