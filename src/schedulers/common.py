@@ -26,8 +26,8 @@ class CpuTimeSlice:
     total_processors = 0 # a class variable
     
     def __init__(self, free_processors, start_time, duration):
-        #assert duration > 0
-        #assert start_time >= 0
+        assert duration > 0
+        assert start_time >= 0
         
         self.free_processors = free_processors
         self.start_time = start_time
@@ -36,13 +36,13 @@ class CpuTimeSlice:
         
 
     def addJob(self, job_processors):
-        #assert self.free_processors >= job_processors
+        assert self.free_processors >= job_processors
         self.free_processors -= job_processors
 
 
     def delJob(self, job_processors):
         self.free_processors += job_processors
-        #assert self.free_processors <= CpuTimeSlice.total_processors
+        assert self.free_processors <= CpuTimeSlice.total_processors
 
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
@@ -84,7 +84,7 @@ class CpuSnapshot(object):
         last = self.slices[-1]
         length = len(self.slices)
         
-        if start_time >= last.end_time:  
+        if start_time > last.end_time:  
             self._add_slice(length, self.total_processors, last.end_time, start_time - last.end_time)  
             self._add_slice(length+1, self.total_processors, start_time, 1000) # duration is arbitrary
             return
@@ -132,7 +132,7 @@ class CpuSnapshot(object):
         partially_assigned = False         
         tentative_start_time = accumulated_duration = 0
         
-        # assert time >= 0
+        assert time >= 0
         
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
             
