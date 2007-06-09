@@ -9,11 +9,11 @@ class JobEvent(object):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
 
     def __cmp__(self, other):
-        "Compare by timestamp first, job second. Also ensure only same types are equal."
         return cmp(self._cmp_tuple, other._cmp_tuple)
 
     @property
     def _cmp_tuple(self):
+        "Compare by timestamp, type, and job. Also ensure only same types are equal."
         return (self.timestamp, type(self), self.job)
 
 class JobSubmissionEvent(JobEvent): pass
