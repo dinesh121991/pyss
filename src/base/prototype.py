@@ -86,6 +86,10 @@ class Machine(object):
 
     def _start_job_handler(self, event):
         assert type(event) == JobStartEvent
+        if event.job.start_to_run_at_time not in (-1, event.timestamp):
+            # outdated job start event, ignore
+            # TODO: remove the possibility for outdated events
+            return
         self._add_job(event.job, event.timestamp)
 
     def _add_job(self, job, current_timestamp):

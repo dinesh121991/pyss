@@ -74,10 +74,6 @@ class Simulator(object):
 
     def handle_termination_event(self, event):
         assert isinstance(event, JobTerminationEvent)
-        # TODO: should move this logic to base.prototype.Machine on Start
-        #       events, or remove redundant events altogether
-        if event.job.start_to_run_at_time + event.job.actual_run_time != event.timestamp:
-          return # redundant JobTerminationEvent, TODO: maybe require no redundant events
         newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
         for event in newEvents:
             self.event_queue.add_event(event)
