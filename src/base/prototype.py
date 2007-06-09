@@ -10,7 +10,11 @@ class JobEvent(object):
 
     def __cmp__(self, other):
         "Compare by timestamp first, job second. Also ensure only same types are equal."
-        return cmp((self.timestamp, self.job, type(self)), (other.timestamp, other.job, type(other)))
+        return cmp(self._cmp_tuple, other._cmp_tuple)
+
+    @property
+    def _cmp_tuple(self):
+        return (self.timestamp, type(self), self.job)
 
 class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
@@ -39,11 +43,8 @@ class Job(object):
         self.maui_bypass_counter = 0
         self.maui_timestamp = 0
 
-    def __str__(self):
-        return "job_id=" + str(self.id) + ", submit_time=" + str(self.submit_time) + \
-               ", dur=" + str(self.estimated_run_time) + ",act_dur=" + str(self.actual_run_time) + \
-               ", #num_required_processors=" + str(self.num_required_processors) + \
-               ", startTime=" + str(self.start_to_run_at_time)  
+    def __repr__(self):
+        return type(self).__name__ + "<id=%(id)s, estimated_run_time=%(estimated_run_time)s, actual_run_time=%(actual_run_time)s, num_required_processors=%(num_required_processors)s>" % vars(self)
     
 class StupidScheduler(object):
     "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
