@@ -16,9 +16,9 @@ def parse_jobs(input_file_name):
     unique, and the amount of processors requested by the job is never more
     than the total available processors
     """
-    input_file = open(input_file_name) # openning of the specified file for reading 
+    input_file = open(input_file_name) # openning of the specified file for reading
     jobs = []
-    
+
     for line in input_file:
         if len(line.strip()) == 0: # skip empty lines (.strip() removes leading and trailing whitspace)
             continue
@@ -47,8 +47,8 @@ def parse_jobs(input_file_name):
 class Simulator(object):
     """ Assumption 1: The simulation clock goes only forward. Specifically,
     an event on time t can only produce future events with time t' = t or t' > t.
-    Assumption 2: self.jobs holds every job that was introduced to the simulation. """ 
-        
+    Assumption 2: self.jobs holds every job that was introduced to the simulation. """
+
     def __init__(self, jobs, num_processors, scheduler):
         self.num_processors = num_processors
         self.jobs = jobs
@@ -57,7 +57,7 @@ class Simulator(object):
         self.event_queue = EventQueue()
 
         self.machine = ValidatingMachine(num_processors=num_processors, event_queue=self.event_queue)
-        
+
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
 
@@ -76,7 +76,7 @@ class Simulator(object):
         for event in newEvents:
             self.event_queue.add_event(event)
 
-    def run(self):        
+    def run(self):
         while not self.event_queue.is_empty:
             self.event_queue.advance()
 
@@ -99,22 +99,22 @@ def print_statistics(jobs):
         print "STATISTICS: "
         print "Input file is probably empty"
         return
-    
-    wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0 
+
+    wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0
     counter = 0
-    
+
     for job in jobs:
         counter += 1
-        
+
         wait_time = job.start_to_run_at_time - job.submit_time
         sigma_wait_time += wait_time
-        
+
         flow_time = wait_time + job.actual_run_time
         sigma_flow_time += flow_time
-        
+
     print
     print "STATISTICS: "
     print "Average wait time is: ", sigma_wait_time / counter
-    print "Average flow time is: ", sigma_flow_time / counter 
+    print "Average flow time is: ", sigma_flow_time / counter
     print "Number of jobs: ", counter
-        
+

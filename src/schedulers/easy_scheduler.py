@@ -2,25 +2,25 @@ from common import Scheduler, CpuSnapshot
 from base.prototype import JobStartEvent
 
 class EasyBackfillScheduler(Scheduler):
-    
+
     def __init__(self, num_processors):
         Scheduler.__init__(self, num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_list_of_unscheduled_jobs = []
-        
+
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
         newEvents = []
-        if len(self.waiting_list_of_unscheduled_jobs) == 1:  
+        if len(self.waiting_list_of_unscheduled_jobs) == 1:
             start_time = self.cpu_snapshot.jobEarliestAssignment(just_submitted_job, current_time)
             if start_time == current_time:
                 self.waiting_list_of_unscheduled_jobs = []
                 self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                 newEvents.append( JobStartEvent(current_time, just_submitted_job) )
-        else: # there are at least 2 jobs in the waiting list  
+        else: # there are at least 2 jobs in the waiting list
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             if self.canBeBackfilled(first_job, just_submitted_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.pop()
@@ -35,8 +35,8 @@ class EasyBackfillScheduler(Scheduler):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(current_time)
-    
-    def _schedule_jobs(self, current_time):       
+
+    def _schedule_jobs(self, current_time):
         newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
@@ -45,7 +45,7 @@ class EasyBackfillScheduler(Scheduler):
         return newEvents
 
     def _schedule_the_head_of_the_waiting_list(self, time, newEvents):
-        while len(self.waiting_list_of_unscheduled_jobs) > 0: 
+        while len(self.waiting_list_of_unscheduled_jobs) > 0:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
             if start_time_of_first_job == time:
@@ -58,7 +58,7 @@ class EasyBackfillScheduler(Scheduler):
     def _backfill_the_tail_of_the_waiting_list(self, time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
-            for next_job in self.waiting_list_of_unscheduled_jobs[1:] : 
+            for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
                 if self.canBeBackfilled(first_job, next_job, time):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
                     self.cpu_snapshot.assignJob(next_job, time)
@@ -67,15 +67,15 @@ class EasyBackfillScheduler(Scheduler):
     def canBeBackfilled(self, first_job, second_job, time):
 
         if self.cpu_snapshot.free_processors_available_at(time) < second_job.num_required_processors:
-            return False 
+            return False
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
-        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)      
+        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
-        
-        if start_time_of_2nd_if_1st_job_is_assigned == time: 
+
+        if start_time_of_2nd_if_1st_job_is_assigned == time:
             return True # this means that the 2nd is "independent" of the 1st, and thus can be backfilled
         else:
-            return False 
-      
+            return False
+

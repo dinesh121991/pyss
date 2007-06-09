@@ -2,12 +2,12 @@ from common import Scheduler, CpuSnapshot
 from base.prototype import JobStartEvent
 
 class FcfsScheduler(Scheduler):
-        
+
     def __init__(self, num_processors):
         Scheduler.__init__(self, num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_queue_of_jobs = []
-        
+
     def handleSubmissionOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_queue_of_jobs.append(job)
@@ -18,14 +18,14 @@ class FcfsScheduler(Scheduler):
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._schedule_jobs(current_time)
 
- 
+
     def _schedule_jobs(self, time):
         newEvents = []
         while len(self.waiting_queue_of_jobs) > 0:
             job = self.waiting_queue_of_jobs[0]
-            if self.cpu_snapshot.free_processors_available_at(time) >= job.num_required_processors: 
+            if self.cpu_snapshot.free_processors_available_at(time) >= job.num_required_processors:
                 self.waiting_queue_of_jobs.pop(0)
-                self.cpu_snapshot.assignJob(job, time)     
+                self.cpu_snapshot.assignJob(job, time)
                 newEvents.append( JobStartEvent(time, job) )
             else:
                 break

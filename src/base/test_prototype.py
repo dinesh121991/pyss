@@ -52,7 +52,7 @@ class test_JobEvent(TestCase):
         e2 = prototype.JobEvent(timestamp=22, job="abc")
         self.failUnless( e1 < e2 )
         self.failIf( e1 >= e2 )
-        
+
     def test_sort_order_random(self):
         random_events = _gen_random_timestamp_events()
         sorted_events = sorted(random_events, key=lambda x:(x.timestamp, x.job))
@@ -255,7 +255,7 @@ class test_Simulator(TestCase):
 
     def test_init_event_queue(self):
         self.assertEqual(
-            set(job.id for timestamp, job in self.job_source), 
+            set(job.id for timestamp, job in self.job_source),
             set(event.job.id for event in self.simulator.event_queue.events)
         )
 
@@ -270,7 +270,7 @@ class test_Simulator(TestCase):
         self.simulator.run()
 
         self.assertEqual(
-            set(job.id for timestamp, job in self.job_source), 
+            set(job.id for timestamp, job in self.job_source),
             set(done_jobs_ids),
         )
 

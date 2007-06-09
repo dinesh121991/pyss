@@ -9,7 +9,7 @@ class EventQueue(object):
 
     Example:
       queue = EventQueue()
-      
+
       def handler1(event): ...
       def handler2(event): ...
 
