@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import sys
+
 class JobEvent(object):
     def __init__(self, timestamp, job):
         self.timestamp = timestamp
@@ -13,12 +15,23 @@ class JobEvent(object):
 
     @property
     def _cmp_tuple(self):
-        "Compare by timestamp, type, and job. Also ensure only same types are equal."
-        return (self.timestamp, type(self), self.job)
+        "Compare by timestamp, type order, and job. Also ensure only same types are equal."
+        return (self.timestamp, self._type_order, self.job, type(self))
+
+    @property
+    def _type_order(self):
+        if type(self) in self.EVENTS_ORDER:
+            return self.EVENTS_ORDER.index(type(self))
+        else:
+            return sys.maxint
+
+    EVENTS_ORDER = []
 
 class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
+
+JobEvent.EVENTS_ORDER = [JobTerminationEvent, JobStartEvent]
 
 class Job(object):
     def __init__(self, id, estimated_run_time, actual_run_time, num_required_processors, \
