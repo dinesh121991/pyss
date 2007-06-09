@@ -200,5 +200,9 @@ class test_Simulator(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
-
+    try:
+        import testoob
+        testoob.main()
+    except ImportError:
+        import unittest
+        unittest.main()
