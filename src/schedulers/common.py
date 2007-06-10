@@ -35,9 +35,12 @@ class CpuTimeSlice(object):
         self.free_processors = free_processors
         self.start_time = start_time
         self.duration = duration
-        self.end_time = start_time + duration
 
         self.job_ids = set()
+
+    @property
+    def end_time(self):
+        return self.start_time + self.duration
 
     def addJob(self, job):
         assert job.num_required_processors <= self.free_processors
@@ -111,10 +114,9 @@ class CpuSnapshot(object):
 
         # splitting slice s with respect to the start time
         s = self.slices[index-1]
-        s.duration = start_time - s.start_time
         newslice = CpuTimeSlice(s.free_processors, start_time, s.end_time - start_time, self.total_processors)
+        s.duration = start_time - s.start_time
         self._add_slice(index, newslice)
-        s.end_time = s.start_time + s.duration
 
 
     def free_processors_available_at(self, time):
@@ -243,7 +245,6 @@ class CpuSnapshot(object):
         for s in self.slices[1: ]:
             if prev.free_processors == s.free_processors:
                 prev.duration += s.duration
-                prev.end_time += s.duration
                 self.slices.remove(s)
             else:
                 prev = s
