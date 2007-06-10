@@ -28,6 +28,7 @@ class CpuTimeSlice:
     def __init__(self, free_processors, start_time, duration):
         assert duration > 0
         assert start_time >= 0
+        assert 0 <= free_processors <= CpuTimeSlice.total_processors 
 
         self.free_processors = free_processors
         self.start_time = start_time
@@ -36,16 +37,24 @@ class CpuTimeSlice:
 
 
     def addJob(self, job_processors):
-        assert self.free_processors >= job_processors
+        assert job_processors <= self.free_processors
         self.free_processors -= job_processors
 
 
     def delJob(self, job_processors):
+        assert job_processors <= self.busy_processors
         self.free_processors += job_processors
-        assert self.free_processors <= CpuTimeSlice.total_processors
 
+
+    @property
+    def busy_processors(self):
+        return CpuTimeSlice.total_processors - self.free_processors
+    
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
+
+
+
 
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
