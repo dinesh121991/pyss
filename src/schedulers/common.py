@@ -96,6 +96,22 @@ class CpuSnapshot(object):
     def _add_slice(self, index, slice):
         self.slices.insert(index, slice)
 
+    def _slice_starts_at(self, time):
+        for slice in self.slices:
+            if slice.start_time == time:
+                return True
+        return False # no slice found
+
+    def _slice_index_to_split(self, split_time):
+        index = -1
+
+        for s in self.slices:
+            index += 1
+            if s.start_time > split_time:
+                return index-1
+
+        assert False # should never reach here
+
     def _ensure_a_slice_starts_at(self, start_time):
         """ A preprocessing stage. Usage:
         First, to ensure that the assignment time of the new added job will start at a beginning of a slice.
@@ -116,17 +132,14 @@ class CpuSnapshot(object):
         else:
             self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, 1000, self.total_processors)) # duration is arbitrary
 
-        index = -1
-        for s in self.slices:
-            index += 1
-            if s.start_time > start_time:
-                break
-            if s.start_time == start_time:
-                return # we already have such a slice
+        if self._slice_starts_at(start_time):
+            return # already have one
+
+        index = self._slice_index_to_split(start_time)
 
         # splitting slice s with respect to the start time
-        slice = self.slices.pop(index-1)
-        self.slices[index-1:index-1] = slice.split(start_time)
+        slice = self.slices.pop(index)
+        self.slices[index:index] = slice.split(start_time)
 
 
     def free_processors_available_at(self, time):
