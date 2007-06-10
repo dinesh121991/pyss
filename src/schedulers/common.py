@@ -43,12 +43,14 @@ class CpuTimeSlice(object):
         return self.start_time + self.duration
 
     def addJob(self, job):
+        #print "slice_id=%s, addJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.free_processors
         self.free_processors -= job.num_required_processors
         #self.job_ids.add(job.id)
 
 
     def delJob(self, job):
+        #print "slice_id=%s, delJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.busy_processors
         self.free_processors += job.num_required_processors
         #self.job_ids.remove(job.id)
