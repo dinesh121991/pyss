@@ -64,19 +64,10 @@ class CpuSnapshot(object):
         self.slices=[] # initializing the main structure of this class
         self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors)) # Assumption: the snapshot always has at least one slice
         self.archive_of_old_slices=[]
-        self.archive_of_scratch_slices=[]
 
 
     def _add_slice(self, index, free_processors, start_time, duration):
-        if len(self.archive_of_scratch_slices) > 0:
-            s = self.archive_of_scratch_slices.pop()
-            s.free_processors = free_processors
-            s.start_time = start_time
-            s.duration = duration
-            s.end_time = start_time + duration
-            self.slices.insert(index, s)
-        else:
-            self.slices.insert(index, CpuTimeSlice(free_processors, start_time, duration, self.total_processors))
+        self.slices.insert(index, CpuTimeSlice(free_processors, start_time, duration, self.total_processors))
 
 
     def _ensure_a_slice_starts_at(self, start_time):
@@ -244,7 +235,6 @@ class CpuSnapshot(object):
             if prev.free_processors == s.free_processors:
                 prev.duration += s.duration
                 prev.end_time += s.duration
-                self.archive_of_scratch_slices.append(s)
                 self.slices.remove(s)
             else:
                 prev = s
