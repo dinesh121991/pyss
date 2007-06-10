@@ -253,7 +253,7 @@ class CpuSnapshot(object):
     def unify_some_slices(self):
         prev = self.slices[0]
         for s in self.slices[1: ]:
-            if prev.free_processors == s.free_processors:
+            if prev.free_processors == s.free_processors and s.job_ids == prev.job_ids:
                 prev.duration += s.duration
                 self.slices.remove(s)
             else:
