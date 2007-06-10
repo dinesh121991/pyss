@@ -4,6 +4,8 @@ import sys
 import sys; sys.path.append("..") # TODO: ugly hack, fix this
 from base.prototype import Job
 
+import copy
+
 class Scheduler(object):
     """ Assumption: every handler returns a (possibly empty) collection of new events """
 
@@ -35,15 +37,18 @@ class CpuTimeSlice(object):
         self.duration = duration
         self.end_time = start_time + duration
 
+        self.job_ids = set()
 
-    def addJob(self, job_processors):
-        assert job_processors <= self.free_processors
-        self.free_processors -= job_processors
+    def addJob(self, job):
+        assert job.num_required_processors <= self.free_processors
+        self.free_processors -= job.num_required_processors
+        #self.job_ids.add(job.id)
 
 
-    def delJob(self, job_processors):
-        assert job_processors <= self.busy_processors
-        self.free_processors += job_processors
+    def delJob(self, job):
+        assert job.num_required_processors <= self.busy_processors
+        self.free_processors += job.num_required_processors
+        #self.job_ids.remove(job.id)
 
 
     @property
@@ -53,8 +58,15 @@ class CpuTimeSlice(object):
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
 
-
-
+    def clone(self):
+        result = CpuTimeSlice(
+                free_processors = self.free_processors,
+                start_time = self.start_time,
+                duration = self.duration,
+                total_processors = self.total_processors,
+            )
+        result.job_ids = self.job_ids.copy()
+        return result
 
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
@@ -66,9 +78,8 @@ class CpuSnapshot(object):
         self.archive_of_old_slices=[]
 
 
-    def _add_slice(self, index, free_processors, start_time, duration):
-        self.slices.insert(index, CpuTimeSlice(free_processors, start_time, duration, self.total_processors))
-
+    def _add_slice(self, index, slice):
+        self.slices.insert(index, slice)
 
     def _ensure_a_slice_starts_at(self, start_time):
         """ A preprocessing stage. Usage:
@@ -84,11 +95,11 @@ class CpuSnapshot(object):
         length = len(self.slices)
 
         if start_time > last.end_time:
-            self._add_slice(length, self.total_processors, last.end_time, start_time - last.end_time)
-            self._add_slice(length+1, self.total_processors, start_time, 1000) # duration is arbitrary
+            self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
+            self._add_slice(length+1, CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
             return
         else:
-            self._add_slice(length, self.total_processors, last.end_time, 1000) # duration is arbitrary
+            self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, 1000, self.total_processors)) # duration is arbitrary
 
         index = -1
         for s in self.slices:
@@ -101,10 +112,9 @@ class CpuSnapshot(object):
         # splitting slice s with respect to the start time
         s = self.slices[index-1]
         s.duration = start_time - s.start_time
-        self._add_slice(index, s.free_processors, start_time, s.end_time - start_time)
+        newslice = CpuTimeSlice(s.free_processors, start_time, s.end_time - start_time, self.total_processors)
+        self._add_slice(index, newslice)
         s.end_time = s.start_time + s.duration
-        return
-
 
 
     def free_processors_available_at(self, time):
@@ -126,7 +136,7 @@ class CpuSnapshot(object):
 
         last = self.slices[-1]
         length = len(self.slices)
-        self._add_slice(length, self.total_processors, last.end_time, time + job.estimated_run_time + 10)
+        self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, time + job.estimated_run_time + 10, self.total_processors))
 
         partially_assigned = False
         tentative_start_time = accumulated_duration = 0
@@ -171,7 +181,7 @@ class CpuSnapshot(object):
             if s.start_time < job_start:
                 continue
             elif s.start_time < job_estimated_finish_time:
-                s.addJob(job.num_required_processors)
+                s.addJob(job)
             else:
                 return
 
@@ -190,7 +200,7 @@ class CpuSnapshot(object):
             if s.start_time < job_start:
                 continue
             elif s.start_time < job_estimated_finish_time:
-                s.delJob(job.num_required_processors)
+                s.delJob(job)
             else:
                 break
 
@@ -213,7 +223,7 @@ class CpuSnapshot(object):
             if s.start_time < job_finish_time:
                 continue
             elif s.start_time < job_estimated_finish_time:
-                s.delJob(job.num_required_processors)
+                s.delJob(job)
             else:
                 return
 
