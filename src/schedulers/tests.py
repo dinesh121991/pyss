@@ -27,6 +27,9 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 
     assert cpu_snapshot.CpuSlicesTestEmptyFeasibility()
 
+# TODO: test each scheduler so it calls CpuSnapshot.delJobFromCpuSlices when
+#       rescheduling a job or checking backfill legality (e.g. Maui)
+
 class test_Simulator(unittest.TestCase):
 
     def test_basic_fcfs(self):
