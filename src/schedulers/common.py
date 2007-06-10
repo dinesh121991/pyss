@@ -16,20 +16,20 @@ class Scheduler(object):
     def handleTerminationOfJobEvent(self, job, current_time):
         raise NotImplementedError()
 
-class CpuTimeSlice:
+class CpuTimeSlice(object):
     ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
         It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
         for processors ba all the jobs assigned to this slice never exceeds the amount of the total processors available.
         Assumption: the duration of the slice is never changed.
         We can replace this slice with a new slice with shorter duration.'''
 
-    total_processors = 0 # a class variable
-
-    def __init__(self, free_processors, start_time, duration):
+    def __init__(self, free_processors, start_time, duration, total_processors):
         assert duration > 0
         assert start_time >= 0
-        assert 0 <= free_processors <= CpuTimeSlice.total_processors 
+        assert total_processors > 0
+        assert 0 <= free_processors <= total_processors 
 
+        self.total_processors = total_processors
         self.free_processors = free_processors
         self.start_time = start_time
         self.duration = duration
@@ -48,7 +48,7 @@ class CpuTimeSlice:
 
     @property
     def busy_processors(self):
-        return CpuTimeSlice.total_processors - self.free_processors
+        return self.total_processors - self.free_processors
     
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
@@ -60,10 +60,9 @@ class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
 
     def __init__(self, total_processors):
-        CpuTimeSlice.total_processors = total_processors
         self.total_processors = total_processors
         self.slices=[] # initializing the main structure of this class
-        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1)) # Assumption: the snapshot always has at least one slice
+        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors)) # Assumption: the snapshot always has at least one slice
         self.archive_of_old_slices=[]
         self.archive_of_scratch_slices=[]
 
@@ -77,7 +76,7 @@ class CpuSnapshot(object):
             s.end_time = start_time + duration
             self.slices.insert(index, s)
         else:
-            self.slices.insert(index, CpuTimeSlice(free_processors, start_time, duration))
+            self.slices.insert(index, CpuTimeSlice(free_processors, start_time, duration, self.total_processors))
 
 
     def _ensure_a_slice_starts_at(self, start_time):
