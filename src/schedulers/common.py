@@ -104,9 +104,11 @@ class CpuSnapshot(object):
         return False # no slice found
 
     def _slice_index_to_split(self, split_time):
+        assert not self._slice_starts_at(split_time)
+
         for index, slice in enumerate(self.slices):
-            if slice.start_time > split_time:
-                return index-1
+            if slice.start_time < split_time < slice.end_time:
+                return index
 
         assert False # should never reach here
 
@@ -123,15 +125,19 @@ class CpuSnapshot(object):
         last = self.slices[-1]
         length = len(self.slices)
 
-        if start_time > last.end_time:
+        if self._slice_starts_at(start_time):
+            return # already have one
+
+        elif start_time > last.end_time:
+            # add slice until start_time and slice that starts at start_time
             self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
             self._add_slice(length+1, CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
             return
 
-        self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, 1000, self.total_processors)) # duration is arbitrary
-
-        if self._slice_starts_at(start_time):
-            return # already have one
+        elif last.end_time == start_time:
+            # add just a slice that starts at start time
+            self._add_slice(length, CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
+            return
 
         index = self._slice_index_to_split(start_time)
 
