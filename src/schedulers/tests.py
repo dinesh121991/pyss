@@ -13,7 +13,7 @@ INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 NUM_PROCESSORS=100
 
 def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
-    assert cpu_snapshot.CpuSlicesTestFeasibility()
+    cpu_snapshot._restore_old_slices()
 
     from base.prototype import Job
     j = Job(1, 1, 1, 1, 1)
