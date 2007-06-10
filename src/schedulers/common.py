@@ -71,6 +71,16 @@ class CpuTimeSlice(object):
         result.job_ids = self.job_ids.copy()
         return result
 
+    def split(self, split_time):
+        first = self.clone()
+        first.duration = split_time - self.start_time
+        
+        second = self.clone()
+        second.start_time = split_time
+        second.duration = self.end_time - split_time
+
+        return first, second
+
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
 
@@ -113,12 +123,8 @@ class CpuSnapshot(object):
                 return # we already have such a slice
 
         # splitting slice s with respect to the start time
-        s = self.slices[index-1]
-        newslice = s.clone()
-        newslice.start_time = start_time
-        newslice.duration = s.end_time - start_time
-        s.duration = start_time - s.start_time
-        self._add_slice(index, newslice)
+        slice = self.slices.pop(index-1)
+        self.slices[index-1:index-1] = slice.split(start_time)
 
 
     def free_processors_available_at(self, time):
