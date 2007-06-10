@@ -114,7 +114,9 @@ class CpuSnapshot(object):
 
         # splitting slice s with respect to the start time
         s = self.slices[index-1]
-        newslice = CpuTimeSlice(s.free_processors, start_time, s.end_time - start_time, self.total_processors)
+        newslice = s.clone()
+        newslice.start_time = start_time
+        newslice.duration = s.end_time - start_time
         s.duration = start_time - s.start_time
         self._add_slice(index, newslice)
 
