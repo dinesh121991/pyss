@@ -192,8 +192,7 @@ class CpuSnapshot(object):
             elif s.start_time < job_estimated_finish_time:
                 s.delJob(job.num_required_processors)
             else:
-                return
-
+                break
 
 
     def delTailofJobFromCpuSlices(self, job):
