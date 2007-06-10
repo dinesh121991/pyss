@@ -6,6 +6,7 @@ import random
 import prototype
 
 from event_queue import EventQueue
+import workload_parser
 
 def _gen_random_timestamp_events():
     return [
@@ -238,23 +239,23 @@ SAMPLE_JOB_INPUT = """
 
 class test_Simulator(TestCase):
     def setUp(self):
-        self.job_source = list(prototype.parse_job_lines_quick_and_dirty(SAMPLE_JOB_INPUT))
+        self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT)))
         self.event_queue = EventQueue()
         self.scheduler = prototype.StupidScheduler(self.event_queue)
 
         self.simulator = prototype.Simulator(
-            job_source = self.job_source,
+            jobs = self.jobs,
             event_queue = self.event_queue,
             num_processors = 1000,
             scheduler = self.scheduler,
         )
 
     def tearDown(self):
-        del self.job_source, self.event_queue, self.simulator
+        del self.event_queue, self.simulator
 
     def test_init_event_queue(self):
         self.assertEqual(
-            set(job.id for timestamp, job in self.job_source),
+            set(job.id for job in self.jobs),
             set(event.job.id for event in self.simulator.event_queue.events)
         )
 
@@ -269,12 +270,11 @@ class test_Simulator(TestCase):
         self.simulator.run()
 
         self.assertEqual(
-            set(job.id for timestamp, job in self.job_source),
+            set(job.id for job in self.jobs),
             set(done_jobs_ids),
         )
 
     def test_job_input_to_job(self):
-        import workload_parser
         job_input = workload_parser.JobInput(SAMPLE_JOB_INPUT[0])
         from prototype import _job_input_to_job
         job = _job_input_to_job(job_input)

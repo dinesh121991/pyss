@@ -158,15 +158,19 @@ def _job_input_to_job(job_input):
         num_required_processors = job_input.num_requested_processors,
     )
 
+def _job_inputs_to_jobs(job_inputs):
+    for job_input in job_inputs:
+        yield _job_input_to_job(job_input)
+
 class Simulator(object):
-    def __init__(self, job_source, event_queue, num_processors, scheduler):
+    def __init__(self, jobs, event_queue, num_processors, scheduler):
         self.event_queue = event_queue
         self.machine = ValidatingMachine(num_processors=num_processors, event_queue=event_queue)
         self.scheduler = scheduler
 
-        for submit_time, job in job_source:
+        for job in jobs:
             self.event_queue.add_event(
-                    JobSubmissionEvent(timestamp = submit_time, job = job)
+                    JobSubmissionEvent(timestamp = job.submit_time, job = job)
                 )
 
     def run(self):

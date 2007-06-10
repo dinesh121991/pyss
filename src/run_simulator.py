@@ -3,8 +3,10 @@ import sys
 import time
 
 from base.event_queue import EventQueue
-from base.prototype import Simulator, Machine, StupidScheduler, parse_job_lines_quick_and_dirty
+from base.prototype import Machine, StupidScheduler, _job_inputs_to_jobs
 from base import workload_parser
+
+from schedulers.simulator import Simulator
 
 from fcfs_scheduler import FcfsScheduler
 
@@ -19,7 +21,7 @@ def main():
     scheduler = FcfsScheduler(event_queue=event_queue, num_processors=num_processors)
 
     simulator = Simulator(
-        job_source = parse_job_lines_quick_and_dirty(sys.stdin),
+        jobs = _job_inputs_to_jobs(workload_parser.parse_lines(sys.stdin)),
         event_queue = event_queue,
         num_processors = 1000,
         scheduler = scheduler,
