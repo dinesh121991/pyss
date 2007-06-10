@@ -241,7 +241,7 @@ class test_Simulator(TestCase):
     def setUp(self):
         self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT)))
         self.event_queue = EventQueue()
-        self.scheduler = prototype.StupidScheduler(self.event_queue)
+        self.scheduler = prototype.StupidScheduler()
 
         self.simulator = prototype.Simulator(
             jobs = self.jobs,
@@ -398,29 +398,17 @@ class test_ValidatingMachine(TestCase):
 
 class test_StupidScheduler(TestCase):
     def setUp(self):
-        self.event_queue = EventQueue()
-        self.scheduler = prototype.StupidScheduler(self.event_queue)
+        self.scheduler = prototype.StupidScheduler()
 
     def tearDown(self):
-        del self.event_queue, self.scheduler
+        del self.scheduler
 
-    def test_job_submitted_registers_job_start_event(self):
+    def test_job_submitted_creates_job_start_event(self):
         job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
 
-        self.scheduler.job_submitted(prototype.JobSubmissionEvent(job=job, timestamp=0))
+        new_events = self.scheduler.handleSubmissionOfJobEvent(job=job, timestamp=0)
 
-        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue.events) )
-
-    def test_job_submit_event_registers_job_start_event(self):
-        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
-
-        self.event_queue.add_event(
-            prototype.JobSubmissionEvent(job=job, timestamp=0)
-        )
-
-        self.event_queue.advance()
-
-        self.failUnless( prototype.JobStartEvent in (type(x) for x in self.event_queue.events) )
+        self.failUnless( prototype.JobStartEvent in (type(x) for x in new_events) )
 
 if __name__ == "__main__":
     try:

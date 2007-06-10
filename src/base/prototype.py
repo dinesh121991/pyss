@@ -61,22 +61,22 @@ class Job(object):
 
 class StupidScheduler(object):
     "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
-    def __init__(self, event_queue):
-        self.event_queue = event_queue
+    def __init__(self):
         self.next_free_time = None
-        self.event_queue.add_handler(JobSubmissionEvent, self.job_submitted)
 
-    def job_submitted(self, event):
-        assert type(event) == JobSubmissionEvent
-
+    def handleSubmissionOfJobEvent(self, job, timestamp):
         # init next_free_time to the first timestamp seen
         if self.next_free_time is None:
-            self.next_free_time = event.timestamp
+            self.next_free_time = timestamp
 
-        self.event_queue.add_event(
-            JobStartEvent(timestamp=self.next_free_time, job=event.job)
-        )
-        self.next_free_time += event.job.estimated_run_time
+        result = [JobStartEvent(timestamp=self.next_free_time, job=job)]
+
+        self.next_free_time += job.estimated_run_time
+
+        return result
+
+    def handleTerminationOfJobEvent(self, job, timestamp):
+        return []
 
 class Machine(object):
     "Represents the actual parallel machine ('cluster')"
@@ -168,6 +168,9 @@ class Simulator(object):
         self.machine = ValidatingMachine(num_processors=num_processors, event_queue=event_queue)
         self.scheduler = scheduler
 
+        self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
+        self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
+
         for job in jobs:
             self.event_queue.add_event(
                     JobSubmissionEvent(timestamp = job.submit_time, job = job)
@@ -176,6 +179,18 @@ class Simulator(object):
     def run(self):
         while not self.event_queue.is_empty:
             self.event_queue.advance()
+
+    def handle_submission_event(self, event):
+        assert isinstance(event, JobSubmissionEvent)
+        newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
+
+    def handle_termination_event(self, event):
+        assert isinstance(event, JobTerminationEvent)
+        newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
 
 def simple_job_generator(num_jobs):
     import random
