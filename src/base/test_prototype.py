@@ -297,25 +297,24 @@ class test_simple_job_generator(TestCase):
             self.failUnless( start_time >= prev_time )
             prev_time = start_time
 
-class UniqueNumbers(object):
-    def __init__(self):
-        self.last_id = 0
-    def get(self):
-        self.last_id += 1
-        return self.last_id
+def unique_numbers():
+    current = 0
+    while True:
+        current += 1
+        yield current
 
 class test_ValidatingMachine(TestCase):
     def setUp(self):
         self.event_queue = EventQueue()
         self.machine = prototype.ValidatingMachine(50, self.event_queue)
-        self.unique_numbers = UniqueNumbers()
+        self.unique_numbers = unique_numbers()
 
     def tearDown(self):
         del self.event_queue, self.machine, self.unique_numbers
 
     def _unique_job(self, estimated_run_time=100, actual_run_time=60, num_required_processors=20):
         return prototype.Job(
-                id = self.unique_numbers.get(),
+                id = self.unique_numbers.next(),
                 estimated_run_time = estimated_run_time,
                 actual_run_time = actual_run_time,
                 num_required_processors = num_required_processors
