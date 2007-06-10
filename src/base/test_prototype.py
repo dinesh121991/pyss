@@ -240,18 +240,16 @@ SAMPLE_JOB_INPUT = """
 class test_Simulator(TestCase):
     def setUp(self):
         self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT)))
-        self.event_queue = EventQueue()
         self.scheduler = prototype.StupidScheduler()
 
         self.simulator = prototype.Simulator(
             jobs = self.jobs,
-            event_queue = self.event_queue,
             num_processors = 1000,
             scheduler = self.scheduler,
         )
 
     def tearDown(self):
-        del self.event_queue, self.simulator
+        del self.simulator
 
     def test_init_event_queue(self):
         self.assertEqual(
@@ -265,7 +263,7 @@ class test_Simulator(TestCase):
         def job_done_handler(event):
             done_jobs_ids.append(event.job.id)
 
-        self.event_queue.add_handler(prototype.JobTerminationEvent, job_done_handler)
+        self.simulator.event_queue.add_handler(prototype.JobTerminationEvent, job_done_handler)
 
         self.simulator.run()
 

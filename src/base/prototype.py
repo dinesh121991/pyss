@@ -162,10 +162,11 @@ def _job_inputs_to_jobs(job_inputs):
     for job_input in job_inputs:
         yield _job_input_to_job(job_input)
 
+from event_queue import EventQueue
 class Simulator(object):
-    def __init__(self, jobs, event_queue, num_processors, scheduler):
-        self.event_queue = event_queue
-        self.machine = ValidatingMachine(num_processors=num_processors, event_queue=event_queue)
+    def __init__(self, jobs, num_processors, scheduler):
+        self.event_queue = EventQueue()
+        self.machine = ValidatingMachine(num_processors=num_processors, event_queue=self.event_queue)
         self.scheduler = scheduler
 
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
