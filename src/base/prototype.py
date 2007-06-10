@@ -159,9 +159,9 @@ def _job_input_to_job(job_input):
     )
 
 class Simulator(object):
-    def __init__(self, job_source, event_queue, machine, scheduler):
+    def __init__(self, job_source, event_queue, num_processors, scheduler):
         self.event_queue = event_queue
-        self.machine = machine
+        self.machine = ValidatingMachine(num_processors=num_processors, event_queue=event_queue)
         self.scheduler = scheduler
 
         for submit_time, job in job_source:

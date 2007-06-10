@@ -16,13 +16,12 @@ def main():
     print "Reading input from stdin..."
 
     event_queue = EventQueue()
-    machine = Machine(num_processors=10000, event_queue=event_queue)
     scheduler = FcfsScheduler(event_queue=event_queue, num_processors=num_processors)
 
     simulator = Simulator(
         job_source = parse_job_lines_quick_and_dirty(sys.stdin),
         event_queue = event_queue,
-        machine = machine,
+        num_processors = 1000,
         scheduler = scheduler,
     )
 

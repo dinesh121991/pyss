@@ -240,18 +240,17 @@ class test_Simulator(TestCase):
     def setUp(self):
         self.job_source = list(prototype.parse_job_lines_quick_and_dirty(SAMPLE_JOB_INPUT))
         self.event_queue = EventQueue()
-        self.machine = prototype.ValidatingMachine(num_processors=1000, event_queue=self.event_queue)
         self.scheduler = prototype.StupidScheduler(self.event_queue)
 
         self.simulator = prototype.Simulator(
             job_source = self.job_source,
             event_queue = self.event_queue,
-            machine = self.machine,
+            num_processors = 1000,
             scheduler = self.scheduler,
         )
 
     def tearDown(self):
-        del self.job_source, self.event_queue, self.machine, self.simulator
+        del self.job_source, self.event_queue, self.simulator
 
     def test_init_event_queue(self):
         self.assertEqual(
