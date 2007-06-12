@@ -45,16 +45,16 @@ class CpuTimeSlice(object):
     def addJob(self, job):
         #print "slice_id=%s, addJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.free_processors
-        assert job.id not in self.job_ids
+        assert job.id not in self.job_ids, "job.id="+str(job.id)+", job_ids"+str(self.job_ids)
         self.free_processors -= job.num_required_processors
-        #self.job_ids.add(job.id)
+        self.job_ids.add(job.id)
 
 
     def delJob(self, job):
         #print "slice_id=%s, delJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.busy_processors
         self.free_processors += job.num_required_processors
-        #self.job_ids.remove(job.id)
+        self.job_ids.remove(job.id)
 
 
     @property
@@ -71,7 +71,10 @@ class CpuTimeSlice(object):
                 duration = self.duration,
                 total_processors = self.total_processors,
             )
-        result.job_ids = self.job_ids.copy()
+        if len(self.job_ids) > 0:  
+            for j_id in self.job_ids:   
+                result.job_ids.add(j_id)
+
         return result
 
     def split(self, split_time):
@@ -83,6 +86,8 @@ class CpuTimeSlice(object):
         second.duration = self.end_time - split_time
 
         return first, second
+
+    
 
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
