@@ -92,24 +92,14 @@ class MauiScheduler(EasyBackfillScheduler):
     def waiting_list_compare(self, job_a, job_b):
         w_a = self.aggregated_weight_of_job(self.weights_list, job_a)
         w_b = self.aggregated_weight_of_job(self.weights_list, job_b)
-        if w_a < w_b:
-            return  1
-        elif w_a == w_b:
-            return  0
-        else:
-            return -1
-
+        return cmp(w_b, w_a)
+    
     def backfilling_compare(self, job_a, job_b):
         w_a = self.aggregated_weight_of_job(self.weights_backfill, job_a)
         w_b = self.aggregated_weight_of_job(self.weights_backfill, job_b)
+        return cmp(w_b, w_a)
 
-        if w_a < w_b:
-            return  1
-        elif w_a == w_b:
-            return  0
-        else:
-            return -1
-
+    
     def print_waiting_list(self):
         for job in self.waiting_list_of_unscheduled_jobs:
             print job, "bypassed:", job.maui_bypass_counter

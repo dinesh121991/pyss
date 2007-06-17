@@ -6,6 +6,7 @@ from fcfs_scheduler import FcfsScheduler
 from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
+# from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
@@ -157,6 +158,15 @@ class test_Simulator(unittest.TestCase):
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
+""" 
+    def test_basic_greedy_easy_backfill(self):
+        scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS)
+        simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
+        feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+        for job in simulator.jobs:
+            self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+
+"""
 
 ###########
 
