@@ -63,13 +63,5 @@ Checking running time on real data:
 0.892u 0.060s 0:00.97 97.9%     0+0k 0+0io 0pf+0w
 
 
------------------------------------------------
-Combining with Ori's code
-
-------------------------------------------------
-
-Test the new CpuTimeSlice 
-
-_____________________________
-
-
+--------------------------
+Add more tests
