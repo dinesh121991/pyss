@@ -44,37 +44,37 @@ class EasyBackfillScheduler(Scheduler):
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
 
-    def _schedule_the_head_of_the_waiting_list(self, time, newEvents):
+    def _schedule_the_head_of_the_waiting_list(self, current_time, newEvents):
         while len(self.waiting_list_of_unscheduled_jobs) > 0:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
-            start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
-            if start_time_of_first_job == time:
+            start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
+            if start_time_of_first_job == current_time:
                 self.waiting_list_of_unscheduled_jobs.pop(0)
-                self.cpu_snapshot.assignJob(first_job, time)
-                newEvents.append( JobStartEvent(time, first_job) )
+                self.cpu_snapshot.assignJob(first_job, current_time)
+                newEvents.append( JobStartEvent(current_time, first_job) )
             else:
                 break
 
-    def _backfill_the_tail_of_the_waiting_list(self, time, newEvents):
+    def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
-                if self.canBeBackfilled(first_job, next_job, time):
+                if self.canBeBackfilled(first_job, next_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.remove(next_job)
-                    self.cpu_snapshot.assignJob(next_job, time)
-                    newEvents.append( JobStartEvent(time, next_job) )
+                    self.cpu_snapshot.assignJob(next_job, current_time)
+                    newEvents.append( JobStartEvent(current_time, next_job) )
 
-    def canBeBackfilled(self, first_job, second_job, time):
+    def canBeBackfilled(self, first_job, second_job, current_time):
 
-        if self.cpu_snapshot.free_processors_available_at(time) < second_job.num_required_processors:
+        if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False
 
-        shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, time)
+        shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
-        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, time)
+        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, current_time)
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
 
-        if start_time_of_2nd_if_1st_job_is_assigned == time:
+        if start_time_of_2nd_if_1st_job_is_assigned == current_time:
             return True # this means that the 2nd is "independent" of the 1st, and thus can be backfilled
         else:
             return False

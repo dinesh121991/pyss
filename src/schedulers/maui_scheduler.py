@@ -22,7 +22,7 @@ class MauiScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, weights_list=None, weights_backfill=None):
         EasyBackfillScheduler.__init__(self, num_processors)
         self.maui_timestamp = 0
-        self.maui_current_time = 0
+        self.current_time = 0
 
         # weights for calculation of priorities for the jobs in MAUI style
         if weights_list is not None:
@@ -50,7 +50,7 @@ class MauiScheduler(EasyBackfillScheduler):
         newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
-        self.maui_current_time = current_time ## +
+        self.current_time = current_time ## +
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare) ## +
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)  # call the method of EasyBackfill 
         self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)  # overload the method of EasyBackfill (see below)
@@ -79,7 +79,7 @@ class MauiScheduler(EasyBackfillScheduler):
                 job.maui_bypass_counter += 1
 
     def aggregated_weight_of_job(self, weights, job):
-        wait = self.maui_current_time - job.submit_time # wait time since submission of job
+        wait = self.current_time - job.submit_time # wait time since submission of job
         sld = (wait + job.estimated_run_time) /  job.estimated_run_time
         w = weights
 
