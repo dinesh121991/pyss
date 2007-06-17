@@ -41,9 +41,12 @@ class CpuTimeSlice(object):
     @property
     def end_time(self):
         return self.start_time + self.duration
+    
+    @property
+    def busy_processors(self):
+        return self.total_processors - self.free_processors
 
     def addJob(self, job):
-        #print "slice_id=%s, addJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.free_processors
         assert job.id not in self.job_ids, "job.id="+str(job.id)+", job_ids"+str(self.job_ids)
         self.free_processors -= job.num_required_processors
@@ -57,9 +60,7 @@ class CpuTimeSlice(object):
         self.job_ids.remove(job.id)
 
 
-    @property
-    def busy_processors(self):
-        return self.total_processors - self.free_processors
+ 
     
     def __str__(self):
         return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
@@ -91,11 +92,11 @@ class CpuTimeSlice(object):
 
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
-
+    # Assumption: the snapshot always has at least one slice
     def __init__(self, total_processors):
         self.total_processors = total_processors
-        self.slices=[] # initializing the main structure of this class
-        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors)) # Assumption: the snapshot always has at least one slice
+        self.slices=[] 
+        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors)) 
         self.archive_of_old_slices=[]
 
 
@@ -294,14 +295,20 @@ class CpuSnapshot(object):
 
 
     def printCpuSlices(self):
-        print
-        print
-        print "______________ last snapshot, before the simulation ends ________"
         print "start time | duration | #free processors "
         for s in self.slices:
             print s
         print
 
+
+    def clone(self):
+        result = CpuTimeSlice(self.total_processors)
+        for s in self.slices:
+            t = s.clone()
+            result.slices.append(t)
+        return result
+    
+            
 
 
     def CpuSlicesTestFeasibility(self):
