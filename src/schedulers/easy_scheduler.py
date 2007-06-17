@@ -41,7 +41,7 @@ class EasyBackfillScheduler(Scheduler):
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
-        self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)
+        self._schedule_the_tail_of_the_waiting_list(current_time, newEvents)
         return newEvents
 
     def _schedule_the_head_of_the_waiting_list(self, current_time, newEvents):
@@ -55,7 +55,7 @@ class EasyBackfillScheduler(Scheduler):
             else:
                 break
 
-    def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
+    def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             for next_job in self.waiting_list_of_unscheduled_jobs[1:] :

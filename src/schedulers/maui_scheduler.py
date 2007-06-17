@@ -38,9 +38,8 @@ class MauiScheduler(EasyBackfillScheduler):
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
+        just_submitted_job.maui_timestamp = self.maui_timestamp; self.maui_timestamp += 1
         self.cpu_snapshot.archive_old_slices(current_time)
-        just_submitted_job.maui_timestamp = self.maui_timestamp
-        self.maui_timestamp += 1
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
         return self._schedule_jobs(current_time)
 
@@ -53,10 +52,10 @@ class MauiScheduler(EasyBackfillScheduler):
         self.current_time = current_time ## +
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare) ## +
         self._schedule_the_head_of_the_waiting_list(current_time, newEvents)  # call the method of EasyBackfill 
-        self._backfill_the_tail_of_the_waiting_list(current_time, newEvents)  # overload the method of EasyBackfill (see below)
+        self._schedule_the_tail_of_the_waiting_list(current_time, newEvents)  # overload the method of EasyBackfill (see below)
         return newEvents
 
-    def _backfill_the_tail_of_the_waiting_list(self, current_time, newEvents):
+    def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
             self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## +
