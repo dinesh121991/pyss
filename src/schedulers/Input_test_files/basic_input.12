@@ -3,7 +3,7 @@
 ### in each of these policies we expect a similar scheduling decision
 # The instance: bursts of jobs that can be scheduled at arrival time.
 # the focus here is on jobs with user estimate duration larger than the actual:    
-# specifically, we want to verify the handling of jobs with in accurate running time estimation 
+# specifically, we want to verify the handling of jobs with inaccurate running time estimation 
 0 1.01 5 1 1 0 0
 0 1.11 5 1 1 0 0
 0 2.01 5 1 2 0 0

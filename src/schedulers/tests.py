@@ -6,7 +6,7 @@ from fcfs_scheduler import FcfsScheduler
 from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
-# from greedy_easy_scheduler import GreedyEasyBackFillScheduler
+from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
@@ -47,30 +47,43 @@ class test_Simulator(unittest.TestCase):
 
     def test_basic_conservative(self):
         for i in range(25):
-            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_easyBackfill(self):
         for i in range(25):
-            simulator = run_simulator(scheduler =EasyBackfillScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            simulator = run_simulator(scheduler =EasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
     def test_basic_maui(self):
         for i in range(25):
-            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
+
+    def test_basic_greedy_easyBackfill(self):      
+        for i in range(15):
+            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS)
+            simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
 
 
     def test_fcfs(self):
         for i in range(8):
-            simulator = run_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/fcfs_input." + str(i))
+            simulator = run_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/fcfs_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
@@ -79,13 +92,15 @@ class test_Simulator(unittest.TestCase):
 
     def test_conservative(self):
         for i in range(9):
-            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
+            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(2):
-            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
+            simulator = run_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
@@ -94,13 +109,15 @@ class test_Simulator(unittest.TestCase):
 
     def test_easyBackfill(self):
         for i in range(9):
-            simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
+            simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1):
-            simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
+            simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
@@ -111,13 +128,15 @@ class test_Simulator(unittest.TestCase):
     def test_maui_wtime(self):
         # here we basically test that the maui with the default weights behaves as the easybackfill
         for i in range(9):
-            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
+            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
 
         for i in range(1):
-            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
+            simulator = run_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time, "i="+str(i))
@@ -141,7 +160,8 @@ class test_Simulator(unittest.TestCase):
         w_b = Weights(0, 0, 1, 0, 0, 0)
 
         scheduler = MauiScheduler(NUM_PROCESSORS, weights_list = w_l, weights_backfill = w_b)
-        simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
+        simulator = run_simulator(scheduler=scheduler, \
+                                  num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
         feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
@@ -153,24 +173,47 @@ class test_Simulator(unittest.TestCase):
         w_b = Weights(0, 1.0, 0, 0, 0, 0)
 
         scheduler = MauiScheduler(NUM_PROCESSORS, weights_list = w_l, weights_backfill = w_b)
-        simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
+        simulator = run_simulator(scheduler=scheduler, \
+                                  num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
         feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
 
-"""
-    def test_basic_greedy_easy_backfill(self):
-        scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS)
-        simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/basic_input.1")
-        feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-        for job in simulator.jobs:
-            self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
-"""
 
 
+    def test_greedy_easyBackfill(self):
+        bf = BasicCompareFunctionsTest()
+        cmp_list = [bf.cmp0, bf.cmp1]
+        bv = BasicLocalEvaluationFuctionTest()
+        for i in range(1):
+            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, cmp_list, bv.valuefunction)
+            simulator = run_simulator(scheduler=scheduler, \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.start_to_run_at_time + job.actual_run_time)
+
+
+  
 ###########
 
+class  BasicCompareFunctionsTest(object):
 
+    def cmp0(self, job_a, job_b):
+        cmp(job_b.submit_time, job_a.submit_time)
+        
+    def cmp1(self, job_a, job_b):
+        cmp (job_a.num_processors, job_b.num_processors)
+
+
+
+class BasicLocalEvaluationFuctionTest(object):
+
+    def valuefunction(self, list_of_jobs):
+        val = 0.0
+        for job in list_of_jobs:
+             val += job.num_processors  
+        return val
 
 
 
