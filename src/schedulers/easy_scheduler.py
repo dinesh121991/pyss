@@ -21,8 +21,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                 newEvents.append( JobStartEvent(current_time, just_submitted_job) )
         else: # there are at least 2 jobs in the waiting list
-            first_job = self.waiting_list_of_unscheduled_jobs[0]
-            if self.canBeBackfilled(first_job, just_submitted_job, current_time):
+            if self.canBeBackfilled(just_submitted_job, current_time):
                     self.waiting_list_of_unscheduled_jobs.pop()
                     self.cpu_snapshot.assignJob(just_submitted_job, current_time)
                     newEvents.append( JobStartEvent(current_time, just_submitted_job) )
@@ -61,12 +60,10 @@ class EasyBackfillScheduler(Scheduler):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []
 
-        first_job = self.waiting_list_of_unscheduled_jobs[0]
-
         jobs_to_remove = []
         result = []
         for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
-            if self.canBeBackfilled(first_job, next_job, current_time):
+            if self.canBeBackfilled(next_job, current_time):
                 jobs_to_remove.append(next_job)
                 self.cpu_snapshot.assignJob(next_job, current_time)
                 result.append( JobStartEvent(current_time, next_job) )
@@ -76,7 +73,9 @@ class EasyBackfillScheduler(Scheduler):
 
         return result
 
-    def canBeBackfilled(self, first_job, second_job, current_time):
+    def canBeBackfilled(self, second_job, current_time):
+
+        first_job = self.waiting_list_of_unscheduled_jobs[0]
 
         if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False

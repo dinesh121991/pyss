@@ -55,31 +55,33 @@ class MauiScheduler(EasyBackfillScheduler):
         newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # overload the method of EasyBackfill (see below)
         return newEvents
 
+    def _unscheduled_jobs_in_backfilling_order(self):
+        # sort the tail, keep the first job first
+        return self.waiting_list_of_unscheduled_jobs[0:1] + \
+            sorted(self.waiting_list_of_unscheduled_jobs[1:], self.backfilling_compare)
+
     def _schedule_the_tail_of_the_waiting_list(self, current_time):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []
 
-        first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
-        self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## +
+        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order()
 
         jobs_to_remove = []
         result = []
         for next_job in self.waiting_list_of_unscheduled_jobs:
-            if self.canBeBackfilled(first_job, next_job, current_time):
+            if self.canBeBackfilled(next_job, current_time):
                 jobs_to_remove.append(next_job)
-                self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +
+                self.increament_bypass_counters_while_backfilling(next_job) ## +
                 self.cpu_snapshot.assignJob(next_job, current_time)
                 result.append( JobStartEvent(current_time, next_job) )
 
         for job in jobs_to_remove:
             self.waiting_list_of_unscheduled_jobs.remove(job)
 
-        self.waiting_list_of_unscheduled_jobs.append(first_job) # +
-
         return result
 
-    def increament_bypass_counters_while_backfilling(self, first_job, backfilled_job):
-        for job in self.waiting_list_of_unscheduled_jobs + [first_job]:
+    def increament_bypass_counters_while_backfilling(self, backfilled_job):
+        for job in self.waiting_list_of_unscheduled_jobs:
             if job.maui_counter < backfilled_job.maui_counter:
                 job.maui_bypass_counter += 1
 
