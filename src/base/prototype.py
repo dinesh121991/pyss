@@ -16,6 +16,7 @@ class JobEvent(object):
     @property
     def _cmp_tuple(self):
         "Compare by timestamp, type order, and job. Also ensure only same types are equal."
+        # TODO: still not fully deterministic - type(self) order can change between runs
         return (self.timestamp, self._type_order, self.job, type(self))
 
     @property
