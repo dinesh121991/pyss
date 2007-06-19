@@ -302,10 +302,8 @@ class CpuSnapshot(object):
 
 
     def clone(self):
-        result = CpuTimeSlice(self.total_processors)
-        for s in self.slices:
-            t = s.clone()
-            result.slices.append(t)
+        result = CpuSnapshot(self.total_processors)
+        result.slices = [slice.clone() for slice in self.slices]
         return result
     
             
