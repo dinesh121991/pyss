@@ -49,7 +49,7 @@ class Job(object):
 
         # not used by base
         self.submit_time = submit_time # Assumption: submission time is greater than zero
-        self.start_to_run_at_time = -1
+        self.start_to_run_at_time = -1 # TODO: convert to None
 
         # the next are essentially for the MauiScheduler
         self.admin_QoS = admin_QoS # the priority given by the system administration
@@ -57,6 +57,10 @@ class Job(object):
         self.maui_bypass_counter = 0
         self.maui_timestamp = 0
 
+    @property
+    def finish_time(self):
+        assert self.start_to_run_at_time != -1
+        return self.start_to_run_at_time + self.actual_run_time
 
     def __repr__(self):
         return type(self).__name__ + "<id=%(id)s, estimated_run_time=%(estimated_run_time)s, actual_run_time=%(actual_run_time)s, num_required_processors=%(num_required_processors)s>" % vars(self)
