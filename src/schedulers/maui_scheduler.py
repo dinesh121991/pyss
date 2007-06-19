@@ -60,21 +60,6 @@ class MauiScheduler(EasyBackfillScheduler):
         return self.waiting_list_of_unscheduled_jobs[0:1] + \
             sorted(self.waiting_list_of_unscheduled_jobs[1:], self.backfilling_compare)
 
-    def _backfill_jobs(self, current_time):
-        """
-        Find jobs that can be backfilled and update the cpu snapshot.
-        """
-        result = []
-        for job in self.waiting_list_of_unscheduled_jobs:
-            if self.canBeBackfilled(job, current_time):
-                result.append(job)
-                self.cpu_snapshot.assignJob(job, current_time)
-
-        for job in result:
-            self.waiting_list_of_unscheduled_jobs.remove(job)
-
-        return result
-
     def _schedule_the_tail_of_the_waiting_list(self, current_time):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []

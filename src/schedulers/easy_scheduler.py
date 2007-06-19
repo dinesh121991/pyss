@@ -56,22 +56,31 @@ class EasyBackfillScheduler(Scheduler):
                 break
         return result
 
+    def _backfill_jobs(self, current_time):
+        """
+        Find jobs that can be backfilled and update the cpu snapshot.
+        """
+        result = []
+        for job in self.waiting_list_of_unscheduled_jobs:
+            if self.canBeBackfilled(job, current_time):
+                result.append(job)
+                self.cpu_snapshot.assignJob(job, current_time)
+
+        for job in result:
+            self.waiting_list_of_unscheduled_jobs.remove(job)
+
+        return result
+
     def _schedule_the_tail_of_the_waiting_list(self, current_time):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []
 
-        jobs_to_remove = []
-        result = []
-        for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
-            if self.canBeBackfilled(next_job, current_time):
-                jobs_to_remove.append(next_job)
-                self.cpu_snapshot.assignJob(next_job, current_time)
-                result.append( JobStartEvent(current_time, next_job) )
+        backfilled_jobs = self._backfill_jobs(current_time)
 
-        for job in jobs_to_remove:
-            self.waiting_list_of_unscheduled_jobs.remove(job)
-
-        return result
+        return [
+            JobStartEvent(current_time, job)
+            for job in backfilled_jobs
+        ]
 
     def canBeBackfilled(self, second_job, current_time):
 
