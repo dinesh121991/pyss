@@ -64,7 +64,7 @@ class MauiScheduler(EasyBackfillScheduler):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []
 
-        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order()
+        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order() ## +
 
         jobs_to_remove = []
         result = []
