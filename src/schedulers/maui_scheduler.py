@@ -79,10 +79,7 @@ class MauiScheduler(EasyBackfillScheduler):
         return result
 
     def increament_bypass_counters_while_backfilling(self, first_job, backfilled_job):
-        if first_job.maui_counter < backfilled_job.maui_counter:
-            first_job.maui_bypass_counter += 1
-            
-        for job in self.waiting_list_of_unscheduled_jobs:
+        for job in self.waiting_list_of_unscheduled_jobs + [first_job]:
             if job.maui_counter < backfilled_job.maui_counter:
                 job.maui_bypass_counter += 1
 
