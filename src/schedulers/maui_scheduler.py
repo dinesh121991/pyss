@@ -52,6 +52,7 @@ class MauiScheduler(EasyBackfillScheduler):
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare) ## +
 
         newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
+        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order() ## +
         newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # overload the method of EasyBackfill (see below)
         return newEvents
 
@@ -70,16 +71,6 @@ class MauiScheduler(EasyBackfillScheduler):
             self.increment_bypass_counters_while_backfilling(job) ## +
 
         return result
-
-    def _schedule_the_tail_of_the_waiting_list(self, current_time):
-        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order() ## +
-
-        backfilled_jobs = self._backfill_jobs(current_time)
-
-        return [
-            JobStartEvent(current_time, job)
-            for job in backfilled_jobs
-        ]
 
     def increment_bypass_counters_while_backfilling(self, backfilled_job):
         for job in self.waiting_list_of_unscheduled_jobs:
