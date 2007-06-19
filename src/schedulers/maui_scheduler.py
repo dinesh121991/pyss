@@ -71,7 +71,7 @@ class MauiScheduler(EasyBackfillScheduler):
         for next_job in self.waiting_list_of_unscheduled_jobs:
             if self.canBeBackfilled(next_job, current_time):
                 jobs_to_remove.append(next_job)
-                self.increament_bypass_counters_while_backfilling(next_job) ## +
+                self.increment_bypass_counters_while_backfilling(next_job) ## +
                 self.cpu_snapshot.assignJob(next_job, current_time)
                 result.append( JobStartEvent(current_time, next_job) )
 
@@ -80,7 +80,7 @@ class MauiScheduler(EasyBackfillScheduler):
 
         return result
 
-    def increament_bypass_counters_while_backfilling(self, backfilled_job):
+    def increment_bypass_counters_while_backfilling(self, backfilled_job):
         for job in self.waiting_list_of_unscheduled_jobs:
             if job.maui_counter < backfilled_job.maui_counter:
                 job.maui_bypass_counter += 1
