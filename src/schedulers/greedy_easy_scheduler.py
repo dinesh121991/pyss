@@ -51,7 +51,6 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def _schedule_jobs(self, current_time):
         # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
         # The additonal or different code lines are marked with ## +
-        print "current time:", current_time; self.print_waiting_list();
         newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
@@ -64,10 +63,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
             self._find_an_approximate_best_order_of_the_jobs(current_time) ## + 
-            print "current time:", current_time; self.print_waiting_list();
             for job in self.waiting_list_of_unscheduled_jobs:
                 earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
-                print job; print earliest_time; print current_time
                 if current_time == earliest_time: 
                     self.waiting_list_of_unscheduled_jobs.remove(job)
                     self.cpu_snapshot.assignJob(job, current_time)

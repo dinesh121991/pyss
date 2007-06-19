@@ -21,7 +21,7 @@ from easy_scheduler import EasyBackfillScheduler
 class MauiScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, weights_list=None, weights_backfill=None):
         EasyBackfillScheduler.__init__(self, num_processors)
-        self.maui_timestamp = 0
+        self.maui_counter = 0
         self.current_time = 0
 
         # weights for calculation of priorities for the jobs in MAUI style
@@ -38,7 +38,7 @@ class MauiScheduler(EasyBackfillScheduler):
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
-        just_submitted_job.maui_timestamp = self.maui_timestamp; self.maui_timestamp += 1
+        just_submitted_job.maui_counter = self.maui_counter; self.maui_counter += 1
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
         return self._schedule_jobs(current_time)
@@ -69,11 +69,11 @@ class MauiScheduler(EasyBackfillScheduler):
         return newEvents
 
     def increament_bypass_counters_while_backfilling(self, first_job, backfilled_job):
-        if first_job.maui_timestamp < backfilled_job.maui_timestamp:
+        if first_job.maui_counter < backfilled_job.maui_counter:
             first_job.maui_bypass_counter += 1
             
         for job in self.waiting_list_of_unscheduled_jobs:
-            if job.maui_timestamp < backfilled_job.maui_timestamp:
+            if job.maui_counter < backfilled_job.maui_counter:
                 job.maui_bypass_counter += 1
 
     def aggregated_weight_of_job(self, weights, job):

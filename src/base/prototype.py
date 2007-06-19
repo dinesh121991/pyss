@@ -55,7 +55,7 @@ class Job(object):
         self.admin_QoS = admin_QoS # the priority given by the system administration
         self.user_QoS = user_QoS # the priority given by the user
         self.maui_bypass_counter = 0
-        self.maui_timestamp = 0
+        self.maui_counter = 0
 
     @property
     def finish_time(self):
