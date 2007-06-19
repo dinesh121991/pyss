@@ -6,19 +6,19 @@ from easy_scheduler import EasyBackfillScheduler
 class  BasicCompareFunctions(object):
 
     def cmp0(self, job_a, job_b):
-        cmp(job_b.submit_time, job_a.submit_time)
+        return cmp(job_b.submit_time, job_a.submit_time)
         
     def cmp1(self, job_a, job_b):
-        cmp(job_a.submit_time, job_b.submit_time)
+        return cmp(job_a.submit_time, job_b.submit_time)
 
     def cmp2(self, job_a, job_b):
-        cmp (job_a.num_processors, job_b.num_processors)
+        return cmp (job_a.num_processors, job_b.num_processors)
 
     def cmp3(self, job_a, job_b):
-        cmp(job_a.estimated_run_time, job_b.estimated_run_time)
+        return cmp(job_a.estimated_run_time, job_b.estimated_run_time)
 
     def cmp4(self, job_a, job_b):
-        cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time)
+        return cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time)
 
 
 class BasicLocalEvaluationFuction(object):
@@ -51,6 +51,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def _schedule_jobs(self, current_time):
         # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
         # The additonal or different code lines are marked with ## +
+        print "current time:", current_time; self.print_waiting_list();
         newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return newEvents
@@ -62,29 +63,34 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
     def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
         if len(self.waiting_list_of_unscheduled_jobs) > 1:
-            first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
-            self._find_an_approximate_best_order_of_the_jobs(current_time, first_job) ## + 
-            for next_job in self.waiting_list_of_unscheduled_jobs:
-                if self.canBeBackfilled(first_job, next_job, current_time):
-                    self.waiting_list_of_unscheduled_jobs.remove(next_job)
-                    self.cpu_snapshot.assignJob(next_job, current_time)
-                    newEvents.append( JobStartEvent(current_time, next_job) )
-            self.waiting_list_of_unscheduled_jobs.append(first_job) # +
+            self._find_an_approximate_best_order_of_the_jobs(current_time) ## + 
+            print "current time:", current_time; self.print_waiting_list();
+            for job in self.waiting_list_of_unscheduled_jobs:
+                earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
+                print job; print earliest_time; print current_time
+                if current_time == earliest_time: 
+                    self.waiting_list_of_unscheduled_jobs.remove(job)
+                    self.cpu_snapshot.assignJob(job, current_time)
+                    newEvents.append( JobStartEvent(current_time, job) )
+                                                                                
         return newEvents
 
 
-    def _find_an_approximate_best_order_of_the_jobs(current_time):
+    def _find_an_approximate_best_order_of_the_jobs(self, current_time):
+        first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
+
         index_of_rank_with_max_value = 0
-        max_value = 0
+        max_value = 0.0
         for index in range(len(self.list_of_compare_functions)):
             tmp_cpu_snapshot = self.cpu_snapshot.clone()
             tentative_list_of_jobs = []
             self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index])
             for job in self.waiting_list_of_unscheduled_jobs:
-                if current_time == tmp_cpu_snapshot.jobEarliestAssignment(job, current_time):
-                    self.tmp_cpu_snapshot.assignJob(job, current_time)
+                earliest_time = tmp_cpu_snapshot.jobEarliestAssignment(job, current_time) 
+                if current_time == earliest_time:
+                    tmp_cpu_snapshot.assignJob(job, current_time)
                     tentative_list_of_jobs.append(job)
 
             value = self.value_function(tentative_list_of_jobs)
@@ -94,16 +100,13 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
                 
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
         self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index_of_rank_with_max_value])
-        
+        self.waiting_list_of_unscheduled_jobs.append(first_job)
             
-      
 
 
     def submit_time_compare(self, job_a, job_b):
-        cmp(job_b.submit_time, job_a.submit_time) 
+        return cmp(job_a.submit_time, job_b.submit_time) 
 
-    def num_processors_compare(self, job_a, job_b):
-        cmp (job_a.num_processors, job_b.num_processors)
 
     def print_waiting_list(self):
         for job in self.waiting_list_of_unscheduled_jobs:
