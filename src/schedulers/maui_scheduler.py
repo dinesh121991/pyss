@@ -70,7 +70,7 @@ class MauiScheduler(EasyBackfillScheduler):
                 result.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)
 
-        for job in backfilled_jobs:
+        for job in result:
             self.waiting_list_of_unscheduled_jobs.remove(job)
 
         return result
