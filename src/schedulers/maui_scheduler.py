@@ -60,28 +60,36 @@ class MauiScheduler(EasyBackfillScheduler):
         return self.waiting_list_of_unscheduled_jobs[0:1] + \
             sorted(self.waiting_list_of_unscheduled_jobs[1:], self.backfilling_compare)
 
+    def _backfill_jobs(self, current_time):
+        """
+        Find jobs that can be backfilled and update the cpu snapshot.
+        """
+        result = []
+        for job in self.waiting_list_of_unscheduled_jobs:
+            if self.canBeBackfilled(job, current_time):
+                result.append(job)
+                self.cpu_snapshot.assignJob(job, current_time)
+
+        for job in backfilled_jobs:
+            self.waiting_list_of_unscheduled_jobs.remove(job)
+
+        return result
+
     def _schedule_the_tail_of_the_waiting_list(self, current_time):
         if len(self.waiting_list_of_unscheduled_jobs) <= 1:
             return []
 
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order() ## +
 
-        backfilled_jobs = []
-        for next_job in self.waiting_list_of_unscheduled_jobs:
-            if self.canBeBackfilled(next_job, current_time):
-                backfilled_jobs.append(next_job)
-                self.cpu_snapshot.assignJob(next_job, current_time)
-
-        for job in backfilled_jobs:
-            self.waiting_list_of_unscheduled_jobs.remove(job)
+        backfilled_jobs = self._backfill_jobs(current_time)
 
         for job in backfilled_jobs:
             self.increment_bypass_counters_while_backfilling(job) ## +
 
-        result = []
-        for job in backfilled_jobs:
-            result.append( JobStartEvent(current_time, job) )
-        return result
+        return [
+            JobStartEvent(current_time, job)
+            for job in backfilled_jobs
+        ]
 
     def increment_bypass_counters_while_backfilling(self, backfilled_job):
         for job in self.waiting_list_of_unscheduled_jobs:
