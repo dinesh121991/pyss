@@ -11,21 +11,12 @@ class EasyBackfillScheduler(Scheduler):
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
+        # TODO: a probable performance bottleneck because we reschedule all the
+        # jobs. Knowing that only one new job is added allows more efficient
+        # scheduling here.
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
-        newEvents = []
-        if len(self.waiting_list_of_unscheduled_jobs) == 1:
-            start_time = self.cpu_snapshot.jobEarliestAssignment(just_submitted_job, current_time)
-            if start_time == current_time:
-                self.waiting_list_of_unscheduled_jobs = []
-                self.cpu_snapshot.assignJob(just_submitted_job, current_time)
-                newEvents.append( JobStartEvent(current_time, just_submitted_job) )
-        else: # there are at least 2 jobs in the waiting list
-            if self.canBeBackfilled(just_submitted_job, current_time):
-                    self.waiting_list_of_unscheduled_jobs.pop()
-                    self.cpu_snapshot.assignJob(just_submitted_job, current_time)
-                    newEvents.append( JobStartEvent(current_time, just_submitted_job) )
-        return newEvents
+        return self._schedule_jobs(current_time)
 
     def handleTerminationOfJobEvent(self, job, current_time):
         """ Here we first delete the tail of the just terminated job (in case it's
