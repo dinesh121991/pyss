@@ -49,8 +49,8 @@ class MauiScheduler(EasyBackfillScheduler):
             return []
 
         self.waiting_list_of_unscheduled_jobs.sort( key = lambda x: self.waiting_list_weight(x, current_time), reverse=True ) ## +
-
         newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
+
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
         newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # overload the method of EasyBackfill (see below)
         return newEvents
