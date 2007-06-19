@@ -56,7 +56,7 @@ class test_JobEvent(TestCase):
 
     def test_sort_order_random(self):
         random_events = _gen_random_timestamp_events()
-        sorted_events = sorted(random_events, key=lambda x:(x.timestamp, x.job))
+        sorted_events = sorted(random_events, key=lambda x:x._cmp_tuple)
         self.assertEqual( sorted_events, sorted(random_events) )
 
 class test_EventQueue(TestCase):

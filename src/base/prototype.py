@@ -3,9 +3,17 @@
 import sys
 
 class JobEvent(object):
+
+    global_event_counter = 0
+    @classmethod
+    def next_counter(cls):
+        cls.global_event_counter += 1
+        return cls.global_event_counter
+
     def __init__(self, timestamp, job):
         self.timestamp = timestamp
         self.job = job
+        self.counter = JobEvent.next_counter()
 
     def __repr__(self):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
@@ -15,9 +23,16 @@ class JobEvent(object):
 
     @property
     def _cmp_tuple(self):
-        "Compare by timestamp, type order, and job. Also ensure only same types are equal."
-        # TODO: still not fully deterministic - type(self) order can change between runs
-        return (self.timestamp, self._type_order, self.job, type(self))
+        "Order by timestamp and type order. A global counter tie-breaks."
+        return (self.timestamp, self._type_order, self.counter)
+
+    def __eq__(self, other):
+        return self._eq_tuple == other._eq_tuple
+
+    @property
+    def _eq_tuple(self):
+        "equal iff timestamp, job, and type are the same"
+        return (self.timestamp, self.job, type(self))
 
     @property
     def _type_order(self):
