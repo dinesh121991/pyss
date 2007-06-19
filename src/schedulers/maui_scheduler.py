@@ -47,7 +47,7 @@ class MauiScheduler(EasyBackfillScheduler):
         # The additonal or different code lines are marked with ## +
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return []
-        self.waiting_list_of_unscheduled_jobs.sort( lambda x,y: self.waiting_list_compare(x, y, current_time) ) ## +
+        self.waiting_list_of_unscheduled_jobs.sort( key = lambda x: self.waiting_list_weight(x, current_time), reverse=True )
 
         newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
@@ -57,7 +57,7 @@ class MauiScheduler(EasyBackfillScheduler):
     def _unscheduled_jobs_in_backfilling_order(self, current_time):
         # sort the tail, keep the first job first
         return self.waiting_list_of_unscheduled_jobs[0:1] + \
-            sorted(self.waiting_list_of_unscheduled_jobs[1:], lambda x,y: self.backfilling_compare(x, y, current_time) )
+            sorted(self.waiting_list_of_unscheduled_jobs[1:], key=lambda x: self.backfilling_weight(x, current_time), reverse=True )
 
     def _backfill_jobs(self, current_time):
         """
@@ -88,17 +88,12 @@ class MauiScheduler(EasyBackfillScheduler):
                      w.size   * job.num_required_processors
         return weight_of_job
 
-    def waiting_list_compare(self, job_a, job_b, current_time):
-        w_a = self.aggregated_weight_of_job(self.weights_list, job_a, current_time)
-        w_b = self.aggregated_weight_of_job(self.weights_list, job_b, current_time)
-        return cmp(w_b, w_a)
-    
-    def backfilling_compare(self, job_a, job_b, current_time):
-        w_a = self.aggregated_weight_of_job(self.weights_backfill, job_a, current_time)
-        w_b = self.aggregated_weight_of_job(self.weights_backfill, job_b, current_time)
-        return cmp(w_b, w_a)
+    def waiting_list_weight(self, job, current_time):
+        return self.aggregated_weight_of_job(self.weights_list, job, current_time)
 
-    
+    def backfilling_weight(self, job, current_time):
+        return self.aggregated_weight_of_job(self.weights_backfill, job, current_time)
+
     def print_waiting_list(self):
         for job in self.waiting_list_of_unscheduled_jobs:
             print job, "bypassed:", job.maui_bypass_counter
