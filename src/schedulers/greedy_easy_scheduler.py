@@ -51,26 +51,41 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def _schedule_jobs(self, current_time):
         # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
         # The additonal or different code lines are marked with ## +
-        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return newEvents
+            return []
+
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
-        self._schedule_the_head_of_the_waiting_list(current_time, newEvents)  # call the method of EasyBackfill 
-        self._schedule_the_tail_of_the_waiting_list(current_time, newEvents)  # overload the method of EasyBackfill (see below)
+
+        newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
+        newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # override the method of EasyBackfill (see below)
+
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
         return newEvents
 
-    def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
-        if len(self.waiting_list_of_unscheduled_jobs) > 1:
-            self._find_an_approximate_best_order_of_the_jobs(current_time) ## + 
-            for job in self.waiting_list_of_unscheduled_jobs:
-                earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
-                if current_time == earliest_time: 
-                    self.waiting_list_of_unscheduled_jobs.remove(job)
-                    self.cpu_snapshot.assignJob(job, current_time)
-                    newEvents.append( JobStartEvent(current_time, job) )
+    def _schedule_the_tail_of_the_waiting_list(self, current_time):
+        """
+        Updates the internal state and returns a list of new events
+        """
+        if len(self.waiting_list_of_unscheduled_jobs) <= 1:
+            return []
+
+        self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
+        print self.cpu_snapshot.printCpuSlices(); self.print_waiting_list()  # XXX
+
+        result = []
+        jobs_to_remove = []
+        for job in self.waiting_list_of_unscheduled_jobs:
+            earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
+            print "______", job, earliest_time # XXX
+            if current_time == earliest_time: 
+                jobs_to_remove.append(job)
+                self.cpu_snapshot.assignJob(job, current_time)
+                result.append( JobStartEvent(current_time, job) )
                                                                                 
-        return newEvents
+        for job in jobs_to_remove:
+            self.waiting_list_of_unscheduled_jobs.remove(job)
+
+        return result
 
 
     def _find_an_approximate_best_order_of_the_jobs(self, current_time):

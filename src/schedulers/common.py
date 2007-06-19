@@ -63,7 +63,7 @@ class CpuTimeSlice(object):
  
     
     def __str__(self):
-        return '%d %d %d' % (self.start_time, self.duration, self.free_processors)
+        return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, str(self.job_ids))
 
     def clone(self):
         result = CpuTimeSlice(
@@ -295,7 +295,7 @@ class CpuSnapshot(object):
 
 
     def printCpuSlices(self):
-        print "start time | duration | #free processors "
+        print "start time | duration | #free processors | jobs"
         for s in self.slices:
             print s
         print

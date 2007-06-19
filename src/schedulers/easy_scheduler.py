@@ -37,32 +37,44 @@ class EasyBackfillScheduler(Scheduler):
         return self._schedule_jobs(current_time)
 
     def _schedule_jobs(self, current_time):
-        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return newEvents
-        self._schedule_the_head_of_the_waiting_list(current_time, newEvents)
-        self._schedule_the_tail_of_the_waiting_list(current_time, newEvents)
+            return []
+
+        newEvents = self._schedule_the_head_of_the_waiting_list(current_time)
+        newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)
         return newEvents
 
-    def _schedule_the_head_of_the_waiting_list(self, current_time, newEvents):
+    def _schedule_the_head_of_the_waiting_list(self, current_time):
+        result = []
         while len(self.waiting_list_of_unscheduled_jobs) > 0:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
             if start_time_of_first_job == current_time:
                 self.waiting_list_of_unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(first_job, current_time)
-                newEvents.append( JobStartEvent(current_time, first_job) )
+                result.append( JobStartEvent(current_time, first_job) )
             else:
                 break
+        return result
 
-    def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
-        if len(self.waiting_list_of_unscheduled_jobs) > 1:
-            first_job = self.waiting_list_of_unscheduled_jobs[0]
-            for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
-                if self.canBeBackfilled(first_job, next_job, current_time):
-                    self.waiting_list_of_unscheduled_jobs.remove(next_job)
-                    self.cpu_snapshot.assignJob(next_job, current_time)
-                    newEvents.append( JobStartEvent(current_time, next_job) )
+    def _schedule_the_tail_of_the_waiting_list(self, current_time):
+        if len(self.waiting_list_of_unscheduled_jobs) <= 1:
+            return []
+
+        first_job = self.waiting_list_of_unscheduled_jobs[0]
+
+        jobs_to_remove = []
+        result = []
+        for next_job in self.waiting_list_of_unscheduled_jobs[1:] :
+            if self.canBeBackfilled(first_job, next_job, current_time):
+                jobs_to_remove.append(next_job)
+                self.cpu_snapshot.assignJob(next_job, current_time)
+                result.append( JobStartEvent(current_time, next_job) )
+
+        for job in jobs_to_remove:
+            self.waiting_list_of_unscheduled_jobs.remove(job)
+
+        return result
 
     def canBeBackfilled(self, first_job, second_job, current_time):
 

@@ -46,27 +46,37 @@ class MauiScheduler(EasyBackfillScheduler):
     def _schedule_jobs(self, current_time):
         # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
         # The additonal or different code lines are marked with ## +
-        newEvents = []
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return newEvents
+            return []
         self.current_time = current_time ## +
         self.waiting_list_of_unscheduled_jobs.sort(self.waiting_list_compare) ## +
-        self._schedule_the_head_of_the_waiting_list(current_time, newEvents)  # call the method of EasyBackfill 
-        self._schedule_the_tail_of_the_waiting_list(current_time, newEvents)  # overload the method of EasyBackfill (see below)
+
+        newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
+        newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # overload the method of EasyBackfill (see below)
         return newEvents
 
-    def _schedule_the_tail_of_the_waiting_list(self, current_time, newEvents):
-        if len(self.waiting_list_of_unscheduled_jobs) > 1:
-            first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
-            self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## +
-            for next_job in self.waiting_list_of_unscheduled_jobs:
-                if self.canBeBackfilled(first_job, next_job, current_time):
-                    self.waiting_list_of_unscheduled_jobs.remove(next_job)
-                    self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +
-                    self.cpu_snapshot.assignJob(next_job, current_time)
-                    newEvents.append( JobStartEvent(current_time, next_job) )
-            self.waiting_list_of_unscheduled_jobs.append(first_job) # +
-        return newEvents
+    def _schedule_the_tail_of_the_waiting_list(self, current_time):
+        if len(self.waiting_list_of_unscheduled_jobs) <= 1:
+            return []
+
+        first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
+        self.waiting_list_of_unscheduled_jobs.sort(self.backfilling_compare) ## +
+
+        jobs_to_remove = []
+        result = []
+        for next_job in self.waiting_list_of_unscheduled_jobs:
+            if self.canBeBackfilled(first_job, next_job, current_time):
+                jobs_to_remove.append(next_job)
+                self.increament_bypass_counters_while_backfilling(first_job, next_job) ## +
+                self.cpu_snapshot.assignJob(next_job, current_time)
+                result.append( JobStartEvent(current_time, next_job) )
+
+        for job in jobs_to_remove:
+            self.waiting_list_of_unscheduled_jobs.remove(job)
+
+        self.waiting_list_of_unscheduled_jobs.append(first_job) # +
+
+        return result
 
     def increament_bypass_counters_while_backfilling(self, first_job, backfilled_job):
         if first_job.maui_counter < backfilled_job.maui_counter:

@@ -181,8 +181,6 @@ class test_Simulator(unittest.TestCase):
 
 
     def test_greedy_easyBackfill(self):
-        import testoob
-        testoob.testing.skip("not finished yet")
         bf = BasicCompareFunctionsTest()
         cmp_list = [bf.cmp0, bf.cmp1]
         bv = BasicLocalEvaluationFuctionTest()

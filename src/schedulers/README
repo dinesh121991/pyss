@@ -405,3 +405,7 @@ head -5000 ../../temp/stam2/input > ! input ; time simulator.py > ! output
             
           
             
+
+testoob.testing.skip("not ready yet")
+
+./runtests.sh --regex='test_.*easy'
