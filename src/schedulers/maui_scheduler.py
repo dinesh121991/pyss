@@ -63,9 +63,6 @@ class MauiScheduler(EasyBackfillScheduler):
     def _schedule_the_tail_of_the_waiting_list(self, current_time):
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order() ## +
 
-        if len(self.waiting_list_of_unscheduled_jobs) <= 1:
-            return []
-
         backfilled_jobs = self._backfill_jobs(current_time)
 
         for job in backfilled_jobs:
