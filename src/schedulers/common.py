@@ -222,6 +222,8 @@ class CpuSnapshot(object):
             else:
                 return
 
+    def assignJobEarliest(self, job, time):
+        self.assignJob(job, self.jobEarliestAssignment(job, time))
 
 
 

@@ -74,8 +74,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
         cpu_snapshot_copy = self.cpu_snapshot.copy()
 
-        shadow_time = cpu_snapshot_copy.jobEarliestAssignment(first_job, current_time)
-        cpu_snapshot_copy.assignJob(first_job, shadow_time)
+        cpu_snapshot_copy.assignJobEarliest(first_job, current_time)
 
         max_score_compare_func = self.list_of_compare_functions[0]
         max_score = 0.0

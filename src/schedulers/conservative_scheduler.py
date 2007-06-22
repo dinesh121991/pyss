@@ -11,8 +11,7 @@ class ConservativeScheduler(Scheduler):
     def handleSubmissionOfJobEvent(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.list_of_unfinished_jobs_arranged_by_submit_times.append(job)
-        start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
-        self.cpu_snapshot.assignJob(job, start_time_of_job)
+        self.cpu_snapshot.assignJobEarliest(job, current_time)
         return [ JobStartEvent(job.start_to_run_at_time, job) ]
 
     def handleTerminationOfJobEvent(self, job, current_time):
@@ -32,8 +31,7 @@ class ConservativeScheduler(Scheduler):
                 continue # job started to run before, so it cannot be rescheduled (preemptions are not allowed)
             prev_start_to_run_at_time = job.start_to_run_at_time
             self.cpu_snapshot.delJobFromCpuSlices(job)
-            start_time_of_job = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
-            self.cpu_snapshot.assignJob(job, start_time_of_job)
+            self.cpu_snapshot.assignJobEarliest(job, current_time)
             assert prev_start_to_run_at_time >= job.start_to_run_at_time
             if prev_start_to_run_at_time != job.start_to_run_at_time:
                 newEvents.append( JobStartEvent(job.start_to_run_at_time, job) )
