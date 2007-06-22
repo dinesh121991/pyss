@@ -27,15 +27,15 @@ def basic_score_function(list_of_jobs):
     return val
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
-    def __init__(self, num_processors, list_of_compare_functions=None, score_function=None):
+    def __init__(self, num_processors, compare_functions=None, score_function=None):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
 
-        self.list_of_compare_functions = []
-        if list_of_compare_functions == None:
+        self.compare_functions = []
+        if compare_functions == None:
             bf = BasicCompareFunctions()
-            self.list_of_compare_functions = [bf.cmp0, bf.cmp1, bf.cmp2, bf.cmp3]
+            self.compare_functions = [bf.cmp0, bf.cmp1, bf.cmp2, bf.cmp3]
         else:
-            self.list_of_compare_functions = list_of_compare_functions
+            self.compare_functions = compare_functions
 
         if score_function is None:
             self.score_function = basic_score_function
@@ -70,9 +70,9 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
         cpu_snapshot_copy.assignJobEarliest(first_job, current_time)
 
-        max_score_compare_func = self.list_of_compare_functions[0]
+        max_score_compare_func = self.compare_functions[0]
         max_score = 0.0
-        for compare_func in self.list_of_compare_functions:
+        for compare_func in self.compare_functions:
             tmp_cpu_snapshot = cpu_snapshot_copy.clone()
             tentative_list_of_jobs = []
             self.unscheduled_jobs.sort(compare_func)
