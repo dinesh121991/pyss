@@ -204,6 +204,8 @@ class CpuSnapshot(object):
                 self.slices[-1].duration = 1000 # making sure that the last "empty" slice we've just added will not be huge
                 return tentative_start_time
 
+        assert False # should never reach here
+
     def _slices_time_range(self, start, end):
         assert self._slice_starts_at(start)
         assert self._slice_starts_at(end)
