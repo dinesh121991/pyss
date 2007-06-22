@@ -58,6 +58,8 @@ class EasyBackfillScheduler(Scheduler):
         Find jobs that can be backfilled and update the cpu snapshot.
         """
         result = []
+
+        # need to iterate over a copy, because the list is modified
         tail_of_waiting_list = self.waiting_list_of_unscheduled_jobs[1:]
 
         for job in tail_of_waiting_list:
