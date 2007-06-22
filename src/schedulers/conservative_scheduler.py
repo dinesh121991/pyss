@@ -23,7 +23,6 @@ class ConservativeScheduler(Scheduler):
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return self._reschedule_jobs(current_time)
 
-
     def _reschedule_jobs(self, current_time):
         newEvents = []
         for job in self.unfinished_jobs_by_submit_time:

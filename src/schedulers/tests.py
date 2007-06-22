@@ -69,7 +69,7 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
-    def test_basic_greedy_easyBackfill(self):      
+    def test_basic_greedy_easyBackfill(self):
         for i in range(15):
             scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
@@ -78,8 +78,6 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time)
 
-
-
     def test_fcfs(self):
         for i in range(8):
             simulator = run_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), \
@@ -87,8 +85,6 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
-
-
 
     def test_conservative(self):
         for i in range(9):
@@ -105,8 +101,6 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
-
-
     def test_easyBackfill(self):
         import testoob; testoob.testing.skip('missing input file')
         for i in range(9):
@@ -122,7 +116,6 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
-
 
     # below we test the weigths of maui: w_wtime, w_sld, w_user, w_bypass, w_admin, w_size
 
@@ -180,7 +173,6 @@ class test_Simulator(unittest.TestCase):
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.finish_time)
 
-
     def test_greedy_easyBackfill(self):
         import testoob; testoob.testing.skip('missing input file')
         bf = BasicCompareFunctionsTest()
@@ -195,18 +187,15 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, \
                                  "i="+str(i)+" "+str(job) + str(job.finish_time))
 
-  
 ###########
 
-class  BasicCompareFunctionsTest(object):
+class BasicCompareFunctionsTest(object):
 
     def cmp0(self, job_a, job_b):
         return cmp(job_a.estimated_run_time, job_b.estimated_run_time)
-        
+
     def cmp1(self, job_a, job_b):
         return cmp(job_a.num_required_processors, job_b.num_required_processors)
-
-
 
 class BasicLocalEvaluationFuctionTest(object):
 

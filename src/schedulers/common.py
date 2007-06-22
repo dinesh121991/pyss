@@ -29,7 +29,7 @@ class CpuTimeSlice(object):
         assert duration > 0
         assert start_time >= 0
         assert total_processors > 0
-        assert 0 <= free_processors <= total_processors 
+        assert 0 <= free_processors <= total_processors
 
         self.total_processors = total_processors
         self.free_processors = free_processors
@@ -41,7 +41,7 @@ class CpuTimeSlice(object):
     @property
     def end_time(self):
         return self.start_time + self.duration
-    
+
     @property
     def busy_processors(self):
         return self.total_processors - self.free_processors
@@ -52,16 +52,12 @@ class CpuTimeSlice(object):
         self.free_processors -= job.num_required_processors
         self.job_ids.add(job.id)
 
-
     def delJob(self, job):
         #print "slice_id=%s, delJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.busy_processors
         self.free_processors += job.num_required_processors
         self.job_ids.remove(job.id)
 
-
- 
-    
     def __str__(self):
         return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, str(self.job_ids))
 
@@ -72,8 +68,8 @@ class CpuTimeSlice(object):
                 duration = self.duration,
                 total_processors = self.total_processors,
             )
-        if len(self.job_ids) > 0:  
-            for j_id in self.job_ids:   
+        if len(self.job_ids) > 0:
+            for j_id in self.job_ids:
                 result.job_ids.add(j_id)
 
         return result
@@ -81,24 +77,22 @@ class CpuTimeSlice(object):
     def split(self, split_time):
         first = self.clone()
         first.duration = split_time - self.start_time
-        
+
         second = self.clone()
         second.start_time = split_time
         second.duration = self.end_time - split_time
 
         return first, second
 
-    
 
 class CpuSnapshot(object):
     """ represents the time table with the assignments of jobs to available processors. """
     # Assumption: the snapshot always has at least one slice
     def __init__(self, total_processors):
         self.total_processors = total_processors
-        self.slices=[] 
-        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors)) 
+        self.slices=[]
+        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors))
         self.archive_of_old_slices=[]
-
 
     def _add_slice(self, index, slice):
         self.slices.insert(index, slice)
@@ -159,9 +153,6 @@ class CpuSnapshot(object):
             return s.free_processors
         return self.total_processors
 
-
-
-
     def canJobStartNow(self, job, current_time):
         return self.jobEarliestAssignment(job, current_time) == current_time
 
@@ -181,8 +172,6 @@ class CpuSnapshot(object):
         assert time >= 0
 
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
-
-
             feasible = s.end_time > time and s.free_processors >= job.num_required_processors
 
             if not feasible: # then surely the job cannot be assigned to this slice
@@ -203,9 +192,6 @@ class CpuSnapshot(object):
                 self.slices[-1].duration = 1000 # making sure that the last "empty" slice we've just added will not be huge
                 return tentative_start_time
 
-
-
-
     def assignJob(self, job, job_start):
         """ assigns the job to start at the given job_start time.
         Important assumption: job_start was returned by jobEarliestAssignment. """
@@ -225,8 +211,6 @@ class CpuSnapshot(object):
     def assignJobEarliest(self, job, time):
         self.assignJob(job, self.jobEarliestAssignment(job, time))
 
-
-
     def delJobFromCpuSlices(self, job):
         """ Deletes an _entire_ job from the slices.
         Assumption: job resides at consecutive slices (no preemptions), and nothing is archived! """
@@ -242,7 +226,6 @@ class CpuSnapshot(object):
                 s.delJob(job)
             else:
                 break
-
 
     def delTailofJobFromCpuSlices(self, job):
         """ This function is used when the actual duration is smaller than the estimated duration, so the tail
@@ -266,7 +249,6 @@ class CpuSnapshot(object):
             else:
                 return
 
-
     def archive_old_slices(self, current_time):
         for s in self.slices[ : -1] :
             if s.end_time < current_time:
@@ -275,7 +257,6 @@ class CpuSnapshot(object):
             else:
                 self.unify_some_slices()
                 return
-
 
     def unify_some_slices(self):
         prev = self.slices[0]
@@ -286,9 +267,6 @@ class CpuSnapshot(object):
             else:
                 prev = s
 
-
-
-
     def _restore_old_slices(self):
         size = len(self.archive_of_old_slices)
         while size > 0:
@@ -296,22 +274,16 @@ class CpuSnapshot(object):
             s = self.archive_of_old_slices.pop()
             self.slices.insert(0, s)
 
-
-
     def printCpuSlices(self):
         print "start time | duration | #free processors | jobs"
         for s in self.slices:
             print s
         print
 
-
     def clone(self):
         result = CpuSnapshot(self.total_processors)
         result.slices = [slice.clone() for slice in self.slices]
         return result
-    
-            
-
 
     def CpuSlicesTestFeasibility(self):
         self._restore_old_slices()
@@ -335,8 +307,6 @@ class CpuSnapshot(object):
 
         return True
 
-
-
     def CpuSlicesTestEmptyFeasibility(self):
         self._restore_old_slices()
         duration = 0
@@ -358,6 +328,4 @@ class CpuSnapshot(object):
             time = s.start_time
 
         return True
-
-
 

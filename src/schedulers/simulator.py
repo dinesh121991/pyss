@@ -33,7 +33,6 @@ def parse_jobs(input_file_name):
         j_actual_run_time = int(str_j_actual_run_time)
         j_processors = int(str_j_processors)
 
-
         if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_processors > 0 and j_actual_run_time >= 0:
             j_admin_QoS = int(str_j_admin_QoS)
             j_user_QoS = int(str_j_user_QoS)
@@ -93,7 +92,6 @@ def print_simulator_stats(simulator):
     print_statistics(simulator.jobs)
 
 def print_statistics(jobs):
-
     if len(jobs) == 0:
         print
         print "STATISTICS: "

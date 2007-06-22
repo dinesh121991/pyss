@@ -7,7 +7,7 @@ class  BasicCompareFunctions(object):
 
     def cmp0(self, job_a, job_b):
         return cmp(job_b.submit_time, job_a.submit_time)
-        
+
     def cmp1(self, job_a, job_b):
         return cmp(job_a.submit_time, job_b.submit_time)
 
@@ -26,27 +26,26 @@ class BasicScoreFuction(object):
     def score(self, list_of_jobs):
         val = 0.0
         for job in list_of_jobs:
-             val += job.num_processors * job.estimated_run_time  
+             val += job.num_processors * job.estimated_run_time
         return val
-    
-    
+
+
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, list_of_compare_functions=None, score_function=None):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
-        
+
         self.list_of_compare_functions = []
         if list_of_compare_functions == None:
             bf = BasicCompareFunctions()
             self.list_of_compare_functions = [bf.cmp0, bf.cmp1, bf.cmp2, bf.cmp3]
         else:
             self.list_of_compare_functions = list_of_compare_functions
-                
+
         if score_function == None:
             bs = BasicScoreFuction()
             self.score_function = bs.score
         else:
             self.score_function = score_function
-            
 
     def _schedule_jobs(self, current_time):
         self.unscheduled_jobs.sort(self.submit_time_compare)
@@ -91,15 +90,12 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             if max_score < score:
                 max_score = score
                 max_score_compare_func = compare_func
-                
+
         self.unscheduled_jobs.sort(max_score_compare_func)
         self.unscheduled_jobs.append(first_job)
-            
-
 
     def submit_time_compare(self, job_a, job_b):
-        return cmp(job_a.submit_time, job_b.submit_time) 
-
+        return cmp(job_a.submit_time, job_b.submit_time)
 
     def print_waiting_list(self):
         for job in self.unscheduled_jobs:
