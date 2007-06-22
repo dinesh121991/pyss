@@ -13,10 +13,7 @@ default_sort_key_functions = (
 )
 
 def basic_score_function(list_of_jobs):
-    val = 0.0
-    for job in list_of_jobs:
-         val += job.num_processors * job.estimated_run_time
-    return val
+    return sum(job.num_processors * job.estimated_run_time for job in list_of_jobs)
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, sort_key_functions=None, score_function=None):
