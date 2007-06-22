@@ -184,7 +184,7 @@ class test_Simulator(unittest.TestCase):
         bf = BasicCompareFunctionsTest()
         cmp_list = [bf.cmp0, bf.cmp1]
         bv = BasicLocalEvaluationFuctionTest()
-        for i in range(2):
+        for i in range(6):
             scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, cmp_list, bv.valuefunction)
             simulator = run_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))

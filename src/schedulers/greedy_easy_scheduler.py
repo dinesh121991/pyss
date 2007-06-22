@@ -21,9 +21,9 @@ class  BasicCompareFunctions(object):
         return cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time)
 
 
-class BasicLocalEvaluationFuction(object):
+class BasicScoreFuction(object):
 
-    def value(self, list_of_jobs):
+    def score(self, list_of_jobs):
         val = 0.0
         for job in list_of_jobs:
              val += job.num_processors * job.estimated_run_time  
@@ -31,7 +31,7 @@ class BasicLocalEvaluationFuction(object):
     
     
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
-    def __init__(self, num_processors, list_of_compare_functions=None, value_function=None):
+    def __init__(self, num_processors, list_of_compare_functions=None, score_function=None):
         EasyBackfillScheduler.__init__(self, num_processors)
         
         self.list_of_compare_functions = []
@@ -41,15 +41,15 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         else:
             self.list_of_compare_functions = list_of_compare_functions
                 
-        if value_function == None:
-            bv = BasicLocalEvaluationFuction()
-            self.value_function = bv.value
+        if score_function == None:
+            bs = BasicScoreFuction()
+            self.score_function = bs.score
         else:
-            self.value_function = value_function
+            self.score_function = score_function
             
 
     def _schedule_jobs(self, current_time):
-        # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
+        # Greedy's scheduling methods are based on the analogue methods of EasyBackfill.
         # The additonal or different code lines are marked with ## +
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return []
@@ -70,6 +70,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             return []
 
         self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
+	print "Current Time: ", current_time
         print self.cpu_snapshot.printCpuSlices(); self.print_waiting_list()  # XXX
 
         result = []
@@ -93,8 +94,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
 
-        index_of_rank_with_max_value = 0
-        max_value = 0.0
+        index_of_rank_with_max_score = 0
+        max_score = 0.0
         for index in range(len(self.list_of_compare_functions)):
             tmp_cpu_snapshot = self.cpu_snapshot.clone()
             tentative_list_of_jobs = []
@@ -105,13 +106,13 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
                     tmp_cpu_snapshot.assignJob(job, current_time)
                     tentative_list_of_jobs.append(job)
 
-            value = self.value_function(tentative_list_of_jobs)
-            if max_value < value:
-                max_value = value
-                index_of_rank_with_max_value = index
+            score = self.score_function(tentative_list_of_jobs)
+            if max_score < score:
+                max_score = score
+                index_of_rank_with_max_score = index
                 
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
-        self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index_of_rank_with_max_value])
+        self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index_of_rank_with_max_score])
         self.waiting_list_of_unscheduled_jobs.append(first_job)
             
 
