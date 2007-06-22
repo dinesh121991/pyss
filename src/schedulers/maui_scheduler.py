@@ -12,9 +12,10 @@ class Weights(object):
         self.size   = w_size   # weight of job size (= num_required_processors)
 
 
-# a first toy version for the maui -- essentillay the diffrence between this simplified version of maui and easy
-# backfilling is that the maui has more degree of freedom: maui may consider the jobs
-# not necessarily by order of submission, as opposed to the easy backfill.
+# a first toy version for the maui -- essentially the difference between this
+# simplified version of maui and easy backfilling is that the maui has another
+# degree of freedom: maui may consider the jobs not necessarily by order of
+# submission, as opposed to the easy backfill.
 
 from easy_scheduler import EasyBackfillScheduler
 
@@ -36,7 +37,8 @@ class MauiScheduler(EasyBackfillScheduler):
 
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         "Overriding parent method"
-        just_submitted_job.maui_counter = self.maui_counter; self.maui_counter += 1
+        just_submitted_job.maui_counter = self.maui_counter
+        self.maui_counter += 1
         return super(MauiScheduler, self).handleSubmissionOfJobEvent(just_submitted_job, current_time)
 
     def _schedule_jobs(self, current_time):
