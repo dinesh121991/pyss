@@ -47,7 +47,9 @@ class EasyBackfillScheduler(Scheduler):
 
     def _schedule_the_head_of_the_waiting_list(self, current_time):
         result = []
-        while len(self.waiting_list_of_unscheduled_jobs) > 0:
+        while True:
+            if len(self.waiting_list_of_unscheduled_jobs) == 0:
+                break
             # Try to schedule the first job
             if self._can_first_job_start_now(current_time):
                 job = self.waiting_list_of_unscheduled_jobs.pop(0)
