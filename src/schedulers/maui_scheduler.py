@@ -1,7 +1,7 @@
 from common import CpuSnapshot
 from base.prototype import JobStartEvent
 
-class Weights:
+class Weights(object):
     # this class defines the configuration of weights for the MAUI
     def __init__(self, w_wtime=1, w_sld=0, w_user=0, w_bypass=0, w_admin=0, w_size=0):
         self.wtime  = w_wtime  # weight of wait time since submission
