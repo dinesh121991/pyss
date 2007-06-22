@@ -67,17 +67,17 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
 
         result = []
-        jobs_to_remove = []
-        for job in self.waiting_list_of_unscheduled_jobs:
+
+        # need to iterate over a copy, because the list is modified
+        tail_of_waiting_list = self.waiting_list_of_unscheduled_jobs[1:]
+
+        for job in tail_of_waiting_list:
             earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
             if current_time == earliest_time: 
-                jobs_to_remove.append(job)
+                self.waiting_list_of_unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
                                                                                 
-        for job in jobs_to_remove:
-            self.waiting_list_of_unscheduled_jobs.remove(job)
-
         return result
 
 
