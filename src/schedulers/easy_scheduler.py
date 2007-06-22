@@ -39,6 +39,7 @@ class EasyBackfillScheduler(Scheduler):
         ]
 
     def _can_first_job_start_now(self, current_time):
+        assert len(self.waiting_list_of_unscheduled_jobs) > 0
         first_job = self.waiting_list_of_unscheduled_jobs[0]
         start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         # TODO: should this be == or <= ?
