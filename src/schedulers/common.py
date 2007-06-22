@@ -1,7 +1,3 @@
-import sys
-
-import copy
-
 class Scheduler(object):
     """ Assumption: every handler returns a (possibly empty) collection of new events """
 
