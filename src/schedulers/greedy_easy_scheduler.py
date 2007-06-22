@@ -58,23 +58,9 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         return result
 
     def _backfill_jobs(self, current_time):
-        """
-        Updates the internal state and returns a list of new events
-        """
-        self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
-
-        result = []
-
-        # need to iterate over a copy, because the list is modified
-        tail_of_waiting_list = self.waiting_list_of_unscheduled_jobs[1:]
-
-        for job in tail_of_waiting_list:
-            if self.canBeBackfilled(job, current_time):
-                self.waiting_list_of_unscheduled_jobs.remove(job)
-                self.cpu_snapshot.assignJob(job, current_time)
-                result.append(job)
-                                                                                
-        return result
+        "Overriding parent method"
+        self._find_an_approximate_best_order_of_the_jobs(current_time)
+        return super(GreedyEasyBackFillScheduler, self)._backfill_jobs(current_time)
 
     def canBeBackfilled(self, job, current_time):
         "Overriding parent method"
