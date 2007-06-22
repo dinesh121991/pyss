@@ -51,12 +51,11 @@ class MauiScheduler(EasyBackfillScheduler):
 
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
         jobs += self._backfill_jobs(current_time)
-        newEvents = [
+
+        return [
             JobStartEvent(current_time, job)
             for job in jobs
         ]
-
-        return newEvents
 
     def _unscheduled_jobs_in_backfilling_order(self, current_time):
         # sort the tail, keep the first job first
