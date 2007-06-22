@@ -159,9 +159,8 @@ class CpuSnapshot(object):
 
     def free_processors_available_at(self, time):
         for s in self.slices:
-            if s.end_time <= time:
-                continue
-            return s.free_processors
+            if s.start_time <= time < s.end_time:
+                return s.free_processors
         return self.total_processors
 
     def canJobStartNow(self, job, current_time):
