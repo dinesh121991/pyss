@@ -20,15 +20,11 @@ class  BasicCompareFunctions(object):
     def cmp4(self, job_a, job_b):
         return cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time)
 
-
-class BasicScoreFuction(object):
-
-    def score(self, list_of_jobs):
-        val = 0.0
-        for job in list_of_jobs:
-             val += job.num_processors * job.estimated_run_time
-        return val
-
+def basic_score_function(list_of_jobs):
+    val = 0.0
+    for job in list_of_jobs:
+         val += job.num_processors * job.estimated_run_time
+    return val
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, list_of_compare_functions=None, score_function=None):
@@ -41,9 +37,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         else:
             self.list_of_compare_functions = list_of_compare_functions
 
-        if score_function == None:
-            bs = BasicScoreFuction()
-            self.score_function = bs.score
+        if score_function is None:
+            self.score_function = basic_score_function
         else:
             self.score_function = score_function
 
