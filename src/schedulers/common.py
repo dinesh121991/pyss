@@ -162,6 +162,8 @@ class CpuSnapshot(object):
 
 
 
+    def canJobStartNow(self, job, current_time):
+        return self.jobEarliestAssignment(job, current_time) == current_time
 
     def jobEarliestAssignment(self, job, time):
         """ returns the earliest time right after the given time for which the job can be assigned

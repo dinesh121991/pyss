@@ -64,7 +64,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
     def canBeBackfilled(self, job, current_time):
         "Overriding parent method"
-        return self.cpu_snapshot.jobEarliestAssignment(job, current_time) == current_time
+        return self.cpu_snapshot.canJobStartNow(job, current_time)
 
     def _find_an_approximate_best_order_of_the_jobs(self, current_time):
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
@@ -81,8 +81,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             tentative_list_of_jobs = []
             self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index])
             for job in self.waiting_list_of_unscheduled_jobs:
-                earliest_time = tmp_cpu_snapshot.jobEarliestAssignment(job, current_time) 
-                if current_time == earliest_time:
+                if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                     tmp_cpu_snapshot.assignJob(job, current_time)
                     tentative_list_of_jobs.append(job)
 

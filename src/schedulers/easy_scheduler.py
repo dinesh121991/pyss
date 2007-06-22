@@ -41,9 +41,7 @@ class EasyBackfillScheduler(Scheduler):
     def _can_first_job_start_now(self, current_time):
         assert len(self.waiting_list_of_unscheduled_jobs) > 0
         first_job = self.waiting_list_of_unscheduled_jobs[0]
-        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
-        # TODO: should this be == or <= ?
-        return start_time_of_first_job == current_time
+        return self.cpu_snapshot.canJobStartNow(first_job, current_time)
 
     def _schedule_the_head_of_the_waiting_list(self, current_time):
         result = []
@@ -87,12 +85,8 @@ class EasyBackfillScheduler(Scheduler):
         first_job = self.waiting_list_of_unscheduled_jobs[0]
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
-        self.cpu_snapshot.assignJob(first_job, shadow_time)
-        start_time_of_2nd_if_1st_job_is_assigned = self.cpu_snapshot.jobEarliestAssignment(second_job, current_time)
-        self.cpu_snapshot.delJobFromCpuSlices(first_job)
+        temp_cpu_snapshot = self.cpu_snapshot.clone()
+        temp_cpu_snapshot.assignJob(first_job, shadow_time)
 
-        if start_time_of_2nd_if_1st_job_is_assigned == current_time:
-            return True # this means that the 2nd is "independent" of the 1st, and thus can be backfilled
-        else:
-            return False
-
+        # if true, this means that the 2nd is "independent" of the 1st, and thus can be backfilled
+        return temp_cpu_snapshot.canJobStartNow(second_job, current_time)
