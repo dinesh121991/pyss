@@ -71,13 +71,16 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             return
 
         first_job = self.unscheduled_jobs.pop(0) ## +
-        shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
-        self.cpu_snapshot.assignJob(first_job, shadow_time)
+
+        cpu_snapshot_copy = self.cpu_snapshot.copy()
+
+        shadow_time = cpu_snapshot_copy.jobEarliestAssignment(first_job, current_time)
+        cpu_snapshot_copy.assignJob(first_job, shadow_time)
 
         max_score_compare_func = self.list_of_compare_functions[0]
         max_score = 0.0
         for compare_func in self.list_of_compare_functions:
-            tmp_cpu_snapshot = self.cpu_snapshot.clone()
+            tmp_cpu_snapshot = cpu_snapshot_copy.clone()
             tentative_list_of_jobs = []
             self.unscheduled_jobs.sort(compare_func)
             for job in self.unscheduled_jobs:
@@ -90,7 +93,6 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
                 max_score = score
                 max_score_compare_func = compare_func
                 
-        self.cpu_snapshot.delJobFromCpuSlices(first_job)
         self.unscheduled_jobs.sort(max_score_compare_func)
         self.unscheduled_jobs.append(first_job)
             
