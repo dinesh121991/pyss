@@ -41,7 +41,7 @@ class MauiScheduler(EasyBackfillScheduler):
 
     def _schedule_jobs(self, current_time):
         "Overriding parent method"
-        self.waiting_list_of_unscheduled_jobs.sort(
+        self.unscheduled_jobs.sort(
                 key = lambda x: self.waiting_list_weight(x, current_time),
                 reverse=True
             )
@@ -50,12 +50,12 @@ class MauiScheduler(EasyBackfillScheduler):
 
     def _unscheduled_jobs_in_backfilling_order(self, current_time):
         # sort the tail, keep the first job first
-        return self.waiting_list_of_unscheduled_jobs[0:1] + \
-            sorted(self.waiting_list_of_unscheduled_jobs[1:], key=lambda x: self.backfilling_weight(x, current_time), reverse=True )
+        return self.unscheduled_jobs[0:1] + \
+            sorted(self.unscheduled_jobs[1:], key=lambda x: self.backfilling_weight(x, current_time), reverse=True )
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
-        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
+        self.unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
 
         result = super(MauiScheduler, self)._backfill_jobs(current_time)
 
@@ -65,7 +65,7 @@ class MauiScheduler(EasyBackfillScheduler):
         return result
 
     def increment_bypass_counters(self, backfilled_job):
-        for job in self.waiting_list_of_unscheduled_jobs:
+        for job in self.unscheduled_jobs:
             if job.maui_counter < backfilled_job.maui_counter:
                 job.maui_bypass_counter += 1
 
@@ -89,6 +89,6 @@ class MauiScheduler(EasyBackfillScheduler):
         return self.aggregated_weight_of_job(self.weights_backfill, job, current_time)
 
     def print_waiting_list(self):
-        for job in self.waiting_list_of_unscheduled_jobs:
+        for job in self.unscheduled_jobs:
             print job, "bypassed:", job.maui_bypass_counter
         print

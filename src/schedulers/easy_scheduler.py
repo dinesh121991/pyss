@@ -6,7 +6,7 @@ class EasyBackfillScheduler(Scheduler):
     def __init__(self, num_processors):
         super(EasyBackfillScheduler, self).__init__(num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
-        self.waiting_list_of_unscheduled_jobs = []
+        self.unscheduled_jobs = []
 
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
@@ -15,7 +15,7 @@ class EasyBackfillScheduler(Scheduler):
         # jobs. Knowing that only one new job is added allows more efficient
         # scheduling here.
         self.cpu_snapshot.archive_old_slices(current_time)
-        self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
+        self.unscheduled_jobs.append(just_submitted_job)
         return [
             JobStartEvent(current_time, job)
             for job in self._schedule_jobs(current_time)
@@ -34,7 +34,7 @@ class EasyBackfillScheduler(Scheduler):
 
     def _schedule_jobs(self, current_time):
         "Schedules jobs that can run right now, and returns them"
-        if len(self.waiting_list_of_unscheduled_jobs) == 0:
+        if len(self.unscheduled_jobs) == 0:
             return []
 
         jobs = self._schedule_head_of_list(current_time)
@@ -43,18 +43,18 @@ class EasyBackfillScheduler(Scheduler):
         return jobs
 
     def _can_first_job_start_now(self, current_time):
-        assert len(self.waiting_list_of_unscheduled_jobs) > 0
-        first_job = self.waiting_list_of_unscheduled_jobs[0]
+        assert len(self.unscheduled_jobs) > 0
+        first_job = self.unscheduled_jobs[0]
         return self.cpu_snapshot.canJobStartNow(first_job, current_time)
 
     def _schedule_head_of_list(self, current_time):
         result = []
         while True:
-            if len(self.waiting_list_of_unscheduled_jobs) == 0:
+            if len(self.unscheduled_jobs) == 0:
                 break
             # Try to schedule the first job
             if self._can_first_job_start_now(current_time):
-                job = self.waiting_list_of_unscheduled_jobs.pop(0)
+                job = self.unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
             else:
@@ -69,24 +69,24 @@ class EasyBackfillScheduler(Scheduler):
         result = []
 
         # need to iterate over a copy, because the list is modified
-        tail_of_waiting_list = self.waiting_list_of_unscheduled_jobs[1:]
+        tail_of_waiting_list = self.unscheduled_jobs[1:]
 
         for job in tail_of_waiting_list:
             if self.canBeBackfilled(job, current_time):
-                self.waiting_list_of_unscheduled_jobs.remove(job)
+                self.unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
 
         return result
 
     def canBeBackfilled(self, second_job, current_time):
-        assert len(self.waiting_list_of_unscheduled_jobs) >= 2
-        assert second_job in self.waiting_list_of_unscheduled_jobs[1:]
+        assert len(self.unscheduled_jobs) >= 2
+        assert second_job in self.unscheduled_jobs[1:]
 
         if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False
 
-        first_job = self.waiting_list_of_unscheduled_jobs[0]
+        first_job = self.unscheduled_jobs[0]
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         temp_cpu_snapshot = self.cpu_snapshot.clone()

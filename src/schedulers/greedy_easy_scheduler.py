@@ -49,11 +49,11 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             
 
     def _schedule_jobs(self, current_time):
-        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare)
+        self.unscheduled_jobs.sort(self.submit_time_compare)
 
         result = super(GreedyEasyBackFillScheduler, self)._schedule_jobs(current_time)
 
-        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare)
+        self.unscheduled_jobs.sort(self.submit_time_compare)
 
         return result
 
@@ -67,10 +67,10 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         return self.cpu_snapshot.canJobStartNow(job, current_time)
 
     def _find_an_approximate_best_order_of_the_jobs(self, current_time):
-        if len(self.waiting_list_of_unscheduled_jobs) == 0:
+        if len(self.unscheduled_jobs) == 0:
             return
 
-        first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
+        first_job = self.unscheduled_jobs.pop(0) ## +
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
 
@@ -79,8 +79,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         for index in range(len(self.list_of_compare_functions)):
             tmp_cpu_snapshot = self.cpu_snapshot.clone()
             tentative_list_of_jobs = []
-            self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index])
-            for job in self.waiting_list_of_unscheduled_jobs:
+            self.unscheduled_jobs.sort(self.list_of_compare_functions[index])
+            for job in self.unscheduled_jobs:
                 if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                     tmp_cpu_snapshot.assignJob(job, current_time)
                     tentative_list_of_jobs.append(job)
@@ -91,8 +91,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
                 index_of_rank_with_max_score = index
                 
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
-        self.waiting_list_of_unscheduled_jobs.sort(self.list_of_compare_functions[index_of_rank_with_max_score])
-        self.waiting_list_of_unscheduled_jobs.append(first_job)
+        self.unscheduled_jobs.sort(self.list_of_compare_functions[index_of_rank_with_max_score])
+        self.unscheduled_jobs.append(first_job)
             
 
 
@@ -101,6 +101,6 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def print_waiting_list(self):
-        for job in self.waiting_list_of_unscheduled_jobs:
+        for job in self.unscheduled_jobs:
             print job
         print
