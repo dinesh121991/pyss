@@ -94,9 +94,6 @@ class CpuSnapshot(object):
         self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors))
         self.archive_of_old_slices=[]
 
-    def _add_slice(self, index, slice):
-        self.slices.insert(index, slice)
-
     def _slice_starts_at(self, time):
         for slice in self.slices:
             if slice.start_time == time:
@@ -131,20 +128,19 @@ class CpuSnapshot(object):
         """
 
         last = self.slices[-1]
-        length = len(self.slices)
 
         if self._slice_starts_at(start_time):
             return # already have one
 
         elif start_time > last.end_time:
             # add slice until start_time and slice that starts at start_time
-            self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
-            self._add_slice(length+1, CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
+            self.slices.append(CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
+            self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
             return
 
         elif last.end_time == start_time:
             # add just a slice that starts at start time
-            self._add_slice(length, CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
+            self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
             return
 
         index = self._slice_index_to_split(start_time)
@@ -174,8 +170,14 @@ class CpuSnapshot(object):
         assert job.num_required_processors <= self.total_processors
 
         last = self.slices[-1]
-        length = len(self.slices)
-        self._add_slice(length, CpuTimeSlice(self.total_processors, last.end_time, time + job.estimated_run_time + 10, self.total_processors))
+        self.slices.append(
+            CpuTimeSlice(
+                self.total_processors,
+                last.end_time,
+                time + job.estimated_run_time + 10, # TODO: why +10?
+                self.total_processors
+            )
+        )
 
         partially_assigned = False
         tentative_start_time = accumulated_duration = 0
