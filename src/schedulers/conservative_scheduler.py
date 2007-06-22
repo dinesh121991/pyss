@@ -8,13 +8,13 @@ class ConservativeScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.unfinished_jobs_by_submit_time = []
 
-    def handleSubmissionOfJobEvent(self, job, current_time):
+    def new_events_on_job_submission(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unfinished_jobs_by_submit_time.append(job)
         self.cpu_snapshot.assignJobEarliest(job, current_time)
         return [ JobStartEvent(job.start_to_run_at_time, job) ]
 
-    def handleTerminationOfJobEvent(self, job, current_time):
+    def new_events_on_job_termination(self, job, current_time):
         """ Here we delete the tail of job if it was ended before the duration declaration.
         It then reschedules the remaining jobs and returns a collection of new termination events
         (using the dictionary data structure) """

@@ -35,11 +35,11 @@ class MauiScheduler(EasyBackfillScheduler):
         else:
             self.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
 
-    def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
+    def new_events_on_job_submission(self, just_submitted_job, current_time):
         "Overriding parent method"
         just_submitted_job.maui_counter = self.maui_counter
         self.maui_counter += 1
-        return super(MauiScheduler, self).handleSubmissionOfJobEvent(just_submitted_job, current_time)
+        return super(MauiScheduler, self).new_events_on_job_submission(just_submitted_job, current_time)
 
     def _schedule_jobs(self, current_time):
         "Overriding parent method"

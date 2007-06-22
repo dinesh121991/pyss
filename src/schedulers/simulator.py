@@ -67,13 +67,13 @@ class Simulator(object):
 
     def handle_submission_event(self, event):
         assert isinstance(event, JobSubmissionEvent)
-        newEvents = self.scheduler.handleSubmissionOfJobEvent(event.job, event.timestamp)
+        newEvents = self.scheduler.new_events_on_job_submission(event.job, event.timestamp)
         for event in newEvents:
             self.event_queue.add_event(event)
 
     def handle_termination_event(self, event):
         assert isinstance(event, JobTerminationEvent)
-        newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
+        newEvents = self.scheduler.new_events_on_job_termination(event.job, event.timestamp)
         for event in newEvents:
             self.event_queue.add_event(event)
 

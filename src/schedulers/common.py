@@ -6,10 +6,10 @@ class Scheduler(object):
     def __init__(self, num_processors):
         self.num_processors = num_processors
 
-    def handleSubmissionOfJobEvent(self, job, current_time):
+    def new_events_on_job_submission(self, job, current_time):
         raise NotImplementedError()
 
-    def handleTerminationOfJobEvent(self, job, current_time):
+    def new_events_on_job_termination(self, job, current_time):
         raise NotImplementedError()
 
 class CpuTimeSlice(object):

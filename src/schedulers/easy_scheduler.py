@@ -8,7 +8,7 @@ class EasyBackfillScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.unscheduled_jobs = []
 
-    def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
+    def new_events_on_job_submission(self, just_submitted_job, current_time):
         """ Here we first add the new job to the waiting list. We then try to schedule
         the jobs in the waiting list, returning a collection of new termination events """
         # TODO: a probable performance bottleneck because we reschedule all the
@@ -21,7 +21,7 @@ class EasyBackfillScheduler(Scheduler):
             for job in self._schedule_jobs(current_time)
         ]
 
-    def handleTerminationOfJobEvent(self, job, current_time):
+    def new_events_on_job_termination(self, job, current_time):
         """ Here we first delete the tail of the just terminated job (in case it's
         done before user estimation time). We then try to schedule the jobs in the waiting list,
         returning a collection of new termination events """

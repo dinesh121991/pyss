@@ -8,7 +8,7 @@ class FcfsScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_queue_of_jobs = []
 
-    def handleSubmissionOfJobEvent(self, job, current_time):
+    def new_events_on_job_submission(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_queue_of_jobs.append(job)
         return [
@@ -16,7 +16,7 @@ class FcfsScheduler(Scheduler):
             for job in self._schedule_jobs(current_time)
         ]
 
-    def handleTerminationOfJobEvent(self, job, current_time):
+    def new_events_on_job_termination(self, job, current_time):
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return [
