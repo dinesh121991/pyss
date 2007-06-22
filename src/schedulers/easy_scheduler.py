@@ -31,7 +31,13 @@ class EasyBackfillScheduler(Scheduler):
             return []
 
         newEvents = self._schedule_the_head_of_the_waiting_list(current_time)
-        newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)
+
+        backfilled_jobs = self._backfill_jobs(current_time)
+
+        newEvents += [
+            JobStartEvent(current_time, job)
+            for job in backfilled_jobs
+        ]
         return newEvents
 
     def _can_first_job_start_now(self, current_time):
@@ -69,14 +75,6 @@ class EasyBackfillScheduler(Scheduler):
                 result.append(job)
 
         return result
-
-    def _schedule_the_tail_of_the_waiting_list(self, current_time):
-        backfilled_jobs = self._backfill_jobs(current_time)
-
-        return [
-            JobStartEvent(current_time, job)
-            for job in backfilled_jobs
-        ]
 
     def canBeBackfilled(self, second_job, current_time):
 

@@ -57,12 +57,16 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
 
         newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
-        newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)  # override the method of EasyBackfill (see below)
+        backfilled_jobs = self._backfill_jobs(current_time)
+        newEvents += [
+            JobStartEvent(current_time, job)
+            for job in backfilled_jobs
+        ]
 
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
         return newEvents
 
-    def _schedule_the_tail_of_the_waiting_list(self, current_time):
+    def _backfill_jobs(self, current_time):
         """
         Updates the internal state and returns a list of new events
         """
@@ -78,7 +82,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             if current_time == earliest_time: 
                 jobs_to_remove.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)
-                result.append( JobStartEvent(current_time, job) )
+                result.append(job)
                                                                                 
         for job in jobs_to_remove:
             self.waiting_list_of_unscheduled_jobs.remove(job)
