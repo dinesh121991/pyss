@@ -130,18 +130,18 @@ class CpuSnapshot(object):
         if self._slice_starts_at(start_time):
             return # already have one
 
-        last = self.slices[-1]
+        snapshot_end_time = self.slices[-1].end_time
 
-        if start_time > last.end_time:
+        if start_time > snapshot_end_time:
             # add slice until start_time and slice that starts at start_time
-            self.slices.append(CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
+            self.slices.append(CpuTimeSlice(self.total_processors, snapshot_end_time, start_time - snapshot_end_time, self.total_processors))
             self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
 
-        elif last.end_time == start_time:
+        elif snapshot_end_time == start_time:
             # add just a slice that starts at start time
             self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
 
-        else: # start_time < last.end_time
+        else: # start_time < snapshot_end_time
             index = self._slice_index_to_split(start_time)
 
             # splitting slice s with respect to the start time
