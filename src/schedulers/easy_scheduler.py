@@ -79,14 +79,12 @@ class EasyBackfillScheduler(Scheduler):
 
     def canBeBackfilled(self, second_job, current_time):
         assert len(self.waiting_list_of_unscheduled_jobs) >= 2
-        assert second_job in self.waiting_list_of_unscheduled_jobs
-
-        first_job = self.waiting_list_of_unscheduled_jobs[0]
-
-        assert second_job != first_job
+        assert second_job in self.waiting_list_of_unscheduled_jobs[1:]
 
         if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False
+
+        first_job = self.waiting_list_of_unscheduled_jobs[0]
 
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
