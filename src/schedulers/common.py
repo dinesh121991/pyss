@@ -51,7 +51,7 @@ class CpuTimeSlice(object):
         self.job_ids.remove(job.id)
 
     def __str__(self):
-        return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, str(self.job_ids))
+        return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, self.job_ids)
 
     def clone(self):
         result = CpuTimeSlice(
