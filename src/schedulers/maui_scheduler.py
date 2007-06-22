@@ -35,12 +35,12 @@ class MauiScheduler(EasyBackfillScheduler):
             self.weights_backfill = Weights(1, 0, 0, 0, 0, 0) # sort the jobs by order of submission
 
     def handleSubmissionOfJobEvent(self, just_submitted_job, current_time):
-        """ Here we first add the new job to the waiting list. We then try to schedule
-        the jobs in the waiting list, returning a collection of new termination events """
+        "Overriding parent method"
         just_submitted_job.maui_counter = self.maui_counter; self.maui_counter += 1
         return super(MauiScheduler, self).handleSubmissionOfJobEvent(just_submitted_job, current_time)
 
     def _schedule_jobs(self, current_time):
+        "Overriding parent method"
         self.waiting_list_of_unscheduled_jobs.sort(
                 key = lambda x: self.waiting_list_weight(x, current_time),
                 reverse=True
@@ -54,9 +54,7 @@ class MauiScheduler(EasyBackfillScheduler):
             sorted(self.waiting_list_of_unscheduled_jobs[1:], key=lambda x: self.backfilling_weight(x, current_time), reverse=True )
 
     def _backfill_jobs(self, current_time):
-        """
-        overrides parent method
-        """
+        "Overriding parent method"
         self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
 
         result = super(MauiScheduler, self)._backfill_jobs(current_time)
