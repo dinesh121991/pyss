@@ -169,9 +169,9 @@ class CpuSnapshot(object):
         returns the earliest time right after the given time for which the job
         can be assigned enough processors for job.estimated_run_time unit of
         times in an uninterrupted fashion.
-        Assumption: number of requested processors is not greater than number of total processors.
         Assumptions: the given is greater than the submission time of the job >= 0.
         """
+        assert job.num_required_processors <= self.total_processors
 
         last = self.slices[-1]
         length = len(self.slices)
