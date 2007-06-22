@@ -50,13 +50,13 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def _scored_tail(self, cpu_snapshot, sort_key_func):
         tmp_cpu_snapshot = cpu_snapshot.copy()
         tentative_list_of_jobs = []
-        tail = self.unscheduled_jobs[1:]
-        for job in sorted(tail, key=sort_key_func):
+        sorted_tail = sorted(self.unscheduled_jobs[1:], key=sort_key_func)
+        for job in sorted_tail:
             if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                 tmp_cpu_snapshot.assignJob(job, current_time)
                 tentative_list_of_jobs.append(job)
 
-        return self.score_function(tentative_list_of_jobs), tentative_list_of_jobs
+        return self.score_function(tentative_list_of_jobs), sorted_tail
 
     def _reorder_jobs_in_approximate_best_order(self, current_time):
         if len(self.unscheduled_jobs) == 0:
