@@ -267,9 +267,9 @@ class CpuSnapshot(object):
         assert self.slices
         while self.slices[:-1] and self.slices[0].end_time < current_time:
             self.archive_of_old_slices.append( self.slices.pop(0) )
-        self.unify_some_slices()
+        self.unify_slices()
 
-    def unify_some_slices(self):
+    def unify_slices(self):
         assert self.slices
         prev = self.slices[0]
         for s in self.slices[1: ]:
