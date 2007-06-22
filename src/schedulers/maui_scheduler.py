@@ -57,7 +57,7 @@ class MauiScheduler(EasyBackfillScheduler):
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
-        self.unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
+        self.unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time)
 
         result = super(MauiScheduler, self)._backfill_jobs(current_time)
 
