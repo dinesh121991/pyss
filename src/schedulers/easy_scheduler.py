@@ -39,6 +39,7 @@ class EasyBackfillScheduler(Scheduler):
         while len(self.waiting_list_of_unscheduled_jobs) > 0:
             first_job = self.waiting_list_of_unscheduled_jobs[0]
             start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
+            # TODO: should this be == or <= ?
             if start_time_of_first_job == current_time:
                 self.waiting_list_of_unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(first_job, current_time)
