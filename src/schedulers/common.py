@@ -136,18 +136,17 @@ class CpuSnapshot(object):
             # add slice until start_time and slice that starts at start_time
             self.slices.append(CpuTimeSlice(self.total_processors, last.end_time, start_time - last.end_time, self.total_processors))
             self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
-            return
 
         elif last.end_time == start_time:
             # add just a slice that starts at start time
             self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors)) # duration is arbitrary
-            return
 
-        index = self._slice_index_to_split(start_time)
+        else: # start_time < last.end_time
+            index = self._slice_index_to_split(start_time)
 
-        # splitting slice s with respect to the start time
-        slice = self.slices.pop(index)
-        self.slices[index:index] = slice.split(start_time)
+            # splitting slice s with respect to the start time
+            slice = self.slices.pop(index)
+            self.slices[index:index] = slice.split(start_time)
 
 
     def free_processors_available_at(self, time):
