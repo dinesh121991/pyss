@@ -109,6 +109,14 @@ class CpuSnapshot(object):
 
         assert False # should never reach here
 
+    @property
+    def snapshot_end_time(self):
+        assert len(self.slices) > 0
+        return self.slices[-1].end_time
+
+    def _append_time_slice(self, free_processors, duration):
+        self.slices.append(CpuTimeSlice(free_processors, self.snapshot_end_time, duration, self.total_processors))
+
     def _ensure_a_slice_starts_at(self, start_time):
         """
         A preprocessing stage.
@@ -143,10 +151,11 @@ class CpuSnapshot(object):
 
         if start_time > snapshot_end_time:
             # add slice until start_time
-            self.slices.append(CpuTimeSlice(self.total_processors, snapshot_end_time, start_time - snapshot_end_time, self.total_processors))
+            self._append_time_slice(self.total_processors, start_time - snapshot_end_time)
+            assert self.snapshot_end_time == start_time
 
         # add a tail slice, duration is arbitrary
-        self.slices.append(CpuTimeSlice(self.total_processors, start_time, 1000, self.total_processors))
+        self._append_time_slice(self.total_processors, 1000)
 
     def free_processors_available_at(self, time):
         for s in self.slices:
@@ -167,15 +176,8 @@ class CpuSnapshot(object):
         """
         assert job.num_required_processors <= self.total_processors
 
-        snapshot_end_time = self.slices[-1].end_time
-        self.slices.append(
-            CpuTimeSlice(
-                self.total_processors,
-                snapshot_end_time,
-                time + job.estimated_run_time + 10, # TODO: why +10?
-                self.total_processors
-            )
-        )
+        # TODO: why +10?
+        self._append_time_slice(self.total_processors, time + job.estimated_run_time + 10)
 
         partially_assigned = False
         tentative_start_time = accumulated_duration = 0
