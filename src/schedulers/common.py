@@ -1,9 +1,5 @@
 import sys
 
-# TODO: placeholder until everyone uses base.prototype.Job
-import sys; sys.path.append("..") # TODO: ugly hack, fix this
-from base.prototype import Job
-
 import copy
 
 class Scheduler(object):
