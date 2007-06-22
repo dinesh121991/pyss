@@ -53,7 +53,7 @@ class CpuTimeSlice(object):
     def __str__(self):
         return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, self.job_ids)
 
-    def clone(self):
+    def copy(self):
         result = CpuTimeSlice(
                 free_processors = self.free_processors,
                 start_time = self.start_time,
@@ -67,10 +67,10 @@ class CpuTimeSlice(object):
         return result
 
     def split(self, split_time):
-        first = self.clone()
+        first = self.copy()
         first.duration = split_time - self.start_time
 
-        second = self.clone()
+        second = self.copy()
         second.start_time = split_time
         second.duration = self.end_time - split_time
 
@@ -272,9 +272,9 @@ class CpuSnapshot(object):
             print s
         print
 
-    def clone(self):
+    def copy(self):
         result = CpuSnapshot(self.total_processors)
-        result.slices = [slice.clone() for slice in self.slices]
+        result.slices = [slice.copy() for slice in self.slices]
         return result
 
     def CpuSlicesTestFeasibility(self):

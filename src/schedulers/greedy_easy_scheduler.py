@@ -63,7 +63,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         max_score_sort_key_func = self.sort_key_functions[0]
         max_score = 0.0
         for sort_key_func in self.sort_key_functions:
-            tmp_cpu_snapshot = cpu_snapshot_copy.clone()
+            tmp_cpu_snapshot = cpu_snapshot_copy.copy()
             tentative_list_of_jobs = []
             self.unscheduled_jobs.sort(key=sort_key_func)
             for job in self.unscheduled_jobs:
