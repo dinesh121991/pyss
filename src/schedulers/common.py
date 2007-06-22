@@ -264,13 +264,9 @@ class CpuSnapshot(object):
             s.delJob(job)
 
     def archive_old_slices(self, current_time):
-        for s in self.slices[ : -1] :
-            if s.end_time < current_time:
-                self.archive_of_old_slices.append(s)
-                self.slices.pop(0)
-            else:
-                self.unify_some_slices()
-                return
+        while self.slices[:-1] and self.slices[0].end_time < current_time:
+            self.archive_of_old_slices.append( self.slices.pop(0) )
+        self.unify_some_slices()
 
     def unify_some_slices(self):
         prev = self.slices[0]
