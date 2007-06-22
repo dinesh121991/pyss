@@ -205,6 +205,12 @@ class CpuSnapshot(object):
                 self.slices[-1].duration = 1000 # making sure that the last "empty" slice we've just added will not be huge
                 return tentative_start_time
 
+    def _slices_time_range(self, start, end):
+        assert self._slice_starts_at(start)
+        assert self._slice_starts_at(end)
+
+        return (s for s in self.slices if start <= s.start_time < end)
+
     def assignJob(self, job, job_start):
         """
         assigns the job to start at the given job_start time.
@@ -215,13 +221,8 @@ class CpuSnapshot(object):
         self._ensure_a_slice_starts_at(job_start)
         self._ensure_a_slice_starts_at(job_estimated_finish_time)
 
-        for s in self.slices:
-            if s.start_time < job_start:
-                continue
-            elif s.start_time < job_estimated_finish_time:
-                s.addJob(job)
-            else:
-                return
+        for s in self._slices_time_range(job_start, job_estimated_finish_time):
+            s.addJob(job)
 
     def assignJobEarliest(self, job, time):
         self.assignJob(job, self.jobEarliestAssignment(job, time))
@@ -237,13 +238,8 @@ class CpuSnapshot(object):
         self._ensure_a_slice_starts_at(job_start)
         self._ensure_a_slice_starts_at(job_estimated_finish_time)
 
-        for s in self.slices:
-            if s.start_time < job_start:
-                continue
-            elif s.start_time < job_estimated_finish_time:
-                s.delJob(job)
-            else:
-                break
+        for s in self._slices_time_range(job_start, job_estimated_finish_time):
+            s.delJob(job)
 
     def delTailofJobFromCpuSlices(self, job):
         """
@@ -263,13 +259,8 @@ class CpuSnapshot(object):
         self._ensure_a_slice_starts_at(job_finish_time)
         self._ensure_a_slice_starts_at(job_estimated_finish_time)
 
-        for s in self.slices:
-            if s.start_time < job_finish_time:
-                continue
-            elif s.start_time < job_estimated_finish_time:
-                s.delJob(job)
-            else:
-                return
+        for s in self._slices_time_range(job_finish_time, job_estimated_finish_time):
+            s.delJob(job)
 
     def archive_old_slices(self, current_time):
         for s in self.slices[ : -1] :
