@@ -70,14 +70,11 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             return []
 
         self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
-	print "Current Time: ", current_time
-        print self.cpu_snapshot.printCpuSlices(); self.print_waiting_list()  # XXX
 
         result = []
         jobs_to_remove = []
         for job in self.waiting_list_of_unscheduled_jobs:
             earliest_time = self.cpu_snapshot.jobEarliestAssignment(job, current_time)
-            print "______", job, earliest_time # XXX
             if current_time == earliest_time: 
                 jobs_to_remove.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)

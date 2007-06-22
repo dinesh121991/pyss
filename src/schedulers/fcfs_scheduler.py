@@ -19,14 +19,14 @@ class FcfsScheduler(Scheduler):
         return self._schedule_jobs(current_time)
 
 
-    def _schedule_jobs(self, time):
+    def _schedule_jobs(self, current_time):
         newEvents = []
         while len(self.waiting_queue_of_jobs) > 0:
             job = self.waiting_queue_of_jobs[0]
-            if self.cpu_snapshot.free_processors_available_at(time) >= job.num_required_processors:
+            if self.cpu_snapshot.free_processors_available_at(current_time) >= job.num_required_processors:
                 self.waiting_queue_of_jobs.pop(0)
-                self.cpu_snapshot.assignJob(job, time)
-                newEvents.append( JobStartEvent(time, job) )
+                self.cpu_snapshot.assignJob(job, current_time)
+                newEvents.append( JobStartEvent(current_time, job) )
             else:
                 break
         return newEvents
