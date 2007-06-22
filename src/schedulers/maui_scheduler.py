@@ -41,20 +41,12 @@ class MauiScheduler(EasyBackfillScheduler):
         return super(MauiScheduler, self).handleSubmissionOfJobEvent(just_submitted_job, current_time)
 
     def _schedule_jobs(self, current_time):
-        # Maui's scheduling methods are based on the analogue methods of EasyBackfill.
-        # The additonal or different code lines are marked with ## +
-        if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return []
+        self.waiting_list_of_unscheduled_jobs.sort(
+                key = lambda x: self.waiting_list_weight(x, current_time),
+                reverse=True
+            )
 
-        self.waiting_list_of_unscheduled_jobs.sort( key = lambda x: self.waiting_list_weight(x, current_time), reverse=True ) ## +
-        jobs = self._schedule_the_head_of_the_waiting_list(current_time)
-
-        jobs += self._backfill_jobs(current_time)
-
-        return [
-            JobStartEvent(current_time, job)
-            for job in jobs
-        ]
+        return super(MauiScheduler, self)._schedule_jobs(current_time)
 
     def _unscheduled_jobs_in_backfilling_order(self, current_time):
         # sort the tail, keep the first job first
