@@ -37,7 +37,7 @@ class EasyBackfillScheduler(Scheduler):
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return []
 
-        jobs = self._schedule_the_head_of_the_waiting_list(current_time)
+        jobs = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
 
         return jobs
@@ -47,7 +47,7 @@ class EasyBackfillScheduler(Scheduler):
         first_job = self.waiting_list_of_unscheduled_jobs[0]
         return self.cpu_snapshot.canJobStartNow(first_job, current_time)
 
-    def _schedule_the_head_of_the_waiting_list(self, current_time):
+    def _schedule_head_of_list(self, current_time):
         result = []
         while True:
             if len(self.waiting_list_of_unscheduled_jobs) == 0:
