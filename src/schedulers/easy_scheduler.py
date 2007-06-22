@@ -30,13 +30,13 @@ class EasyBackfillScheduler(Scheduler):
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return []
 
-        newEvents = self._schedule_the_head_of_the_waiting_list(current_time)
+        jobs = self._schedule_the_head_of_the_waiting_list(current_time)
 
-        backfilled_jobs = self._backfill_jobs(current_time)
+        jobs += self._backfill_jobs(current_time)
 
-        newEvents += [
+        newEvents = [
             JobStartEvent(current_time, job)
-            for job in backfilled_jobs
+            for job in jobs
         ]
         return newEvents
 
@@ -53,7 +53,7 @@ class EasyBackfillScheduler(Scheduler):
             if self._can_first_job_start_now(current_time):
                 job = self.waiting_list_of_unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(job, current_time)
-                result.append( JobStartEvent(current_time, job) )
+                result.append(job)
             else:
                 # first job can't be scheduled
                 break

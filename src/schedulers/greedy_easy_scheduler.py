@@ -56,11 +56,11 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
 
-        newEvents = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
-        backfilled_jobs = self._backfill_jobs(current_time)
-        newEvents += [
+        jobs = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
+        jobs += self._backfill_jobs(current_time)
+        newEvents = [
             JobStartEvent(current_time, job)
-            for job in backfilled_jobs
+            for job in jobs
         ]
 
         self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
