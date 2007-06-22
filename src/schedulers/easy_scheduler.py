@@ -34,17 +34,20 @@ class EasyBackfillScheduler(Scheduler):
         newEvents += self._schedule_the_tail_of_the_waiting_list(current_time)
         return newEvents
 
+    def _can_first_job_start_now(self, current_time):
+        first_job = self.waiting_list_of_unscheduled_jobs[0]
+        start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
+        # TODO: should this be == or <= ?
+        return start_time_of_first_job == current_time
+
     def _schedule_the_head_of_the_waiting_list(self, current_time):
         result = []
         while len(self.waiting_list_of_unscheduled_jobs) > 0:
             # Try to schedule the first job
-            first_job = self.waiting_list_of_unscheduled_jobs[0]
-            start_time_of_first_job = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
-            # TODO: should this be == or <= ?
-            if start_time_of_first_job == current_time:
-                self.waiting_list_of_unscheduled_jobs.pop(0)
-                self.cpu_snapshot.assignJob(first_job, current_time)
-                result.append( JobStartEvent(current_time, first_job) )
+            if self._can_first_job_start_now(current_time):
+                job = self.waiting_list_of_unscheduled_jobs.pop(0)
+                self.cpu_snapshot.assignJob(job, current_time)
+                result.append( JobStartEvent(current_time, job) )
             else:
                 # first job can't be scheduled
                 break
