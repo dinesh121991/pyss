@@ -31,14 +31,12 @@ class EasyBackfillScheduler(Scheduler):
             return []
 
         jobs = self._schedule_the_head_of_the_waiting_list(current_time)
-
         jobs += self._backfill_jobs(current_time)
 
-        newEvents = [
+        return [
             JobStartEvent(current_time, job)
             for job in jobs
         ]
-        return newEvents
 
     def _can_first_job_start_now(self, current_time):
         first_job = self.waiting_list_of_unscheduled_jobs[0]
