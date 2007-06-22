@@ -44,9 +44,11 @@ def parse_jobs(input_file_name):
     return jobs
 
 class Simulator(object):
-    """ Assumption 1: The simulation clock goes only forward. Specifically,
+    """
+    Assumption 1: The simulation clock goes only forward. Specifically,
     an event on time t can only produce future events with time t' = t or t' > t.
-    Assumption 2: self.jobs holds every job that was introduced to the simulation. """
+    Assumption 2: self.jobs holds every job that was introduced to the simulation.
+    """
 
     def __init__(self, jobs, num_processors, scheduler):
         self.num_processors = num_processors
