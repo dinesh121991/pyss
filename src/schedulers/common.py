@@ -124,7 +124,7 @@ class CpuSnapshot(object):
         The idea: we first append 2 slices, just to make sure that there's a
         slice which ends after the start_time.  We add one more slice just
         because we actually use list.insert() when we add a new slice.
-        After that we itterate through the slices and split a slice if needed
+        After that we iterate through the slices and split a slice if needed
         """
 
         if self._slice_starts_at(start_time):
