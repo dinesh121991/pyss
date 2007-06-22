@@ -3,22 +3,14 @@ from base.prototype import JobStartEvent
 
 from easy_scheduler import EasyBackfillScheduler
 
-class  BasicCompareFunctions(object):
-
-    def cmp0(self, job_a, job_b):
-        return cmp(job_b.submit_time, job_a.submit_time)
-
-    def cmp1(self, job_a, job_b):
-        return cmp(job_a.submit_time, job_b.submit_time)
-
-    def cmp2(self, job_a, job_b):
-        return cmp (job_a.num_processors, job_b.num_processors)
-
-    def cmp3(self, job_a, job_b):
-        return cmp(job_a.estimated_run_time, job_b.estimated_run_time)
-
-    def cmp4(self, job_a, job_b):
-        return cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time)
+default_compare_functions = (
+    lambda job_a, job_b : cmp(job_b.submit_time, job_a.submit_time),
+    lambda job_a, job_b : cmp(job_a.submit_time, job_b.submit_time),
+    lambda job_a, job_b : cmp(job_a.num_processors, job_b.num_processors),
+    lambda job_a, job_b : cmp(job_a.estimated_run_time, job_b.estimated_run_time),
+    # TODO: why don't we use this one?
+    #lambda job_a, job_b : cmp(job_a.num_processors * job_a.estimated_run_time, job_b.num_processors * job_b.estimated_run_time),
+)
 
 def basic_score_function(list_of_jobs):
     val = 0.0
@@ -30,10 +22,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, compare_functions=None, score_function=None):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
 
-        self.compare_functions = []
-        if compare_functions == None:
-            bf = BasicCompareFunctions()
-            self.compare_functions = [bf.cmp0, bf.cmp1, bf.cmp2, bf.cmp3]
+        if compare_functions is None:
+            self.compare_functions = default_compare_functions
         else:
             self.compare_functions = compare_functions
 
