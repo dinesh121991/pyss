@@ -185,20 +185,20 @@ class CpuSnapshot(object):
         assert time >= 0
 
         for s in self.slices: # continuity assumption: if t' is the successor of t, then: t' = t + duration_of_slice_t
-            feasible = s.end_time > time and s.free_processors >= job.num_required_processors
-
-            if not feasible: # then surely the job cannot be assigned to this slice
+            if s.end_time <= time or s.free_processors < job.num_required_processors:
+                # the job can't be assigned to this slice, need to reset
+                # partially_assigned and accumulated_duration
                 partially_assigned = False
                 accumulated_duration = 0
 
-            elif feasible and not partially_assigned:
+            elif not partially_assigned:
                 # we'll check if the job can be assigned to this slice and perhaps to its successive
                 partially_assigned = True
                 tentative_start_time =  max(time, s.start_time)
                 accumulated_duration = s.end_time - tentative_start_time
 
             else:
-                # it's a feasible slice and the job is partially_assigned:
+                # job is partially_assigned:
                 accumulated_duration += s.duration
 
             if accumulated_duration >= job.estimated_run_time:
