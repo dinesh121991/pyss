@@ -47,32 +47,32 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         "Overriding parent method"
         return self.cpu_snapshot.canJobStartNow(job, current_time)
 
+    def _scored_tail(self, cpu_snapshot, sort_key_func):
+        tmp_cpu_snapshot = cpu_snapshot.copy()
+        tentative_list_of_jobs = []
+        tail = self.unscheduled_jobs[1:]
+        for job in sorted(tail, key=sort_key_func):
+            if tmp_cpu_snapshot.canJobStartNow(job, current_time):
+                tmp_cpu_snapshot.assignJob(job, current_time)
+                tentative_list_of_jobs.append(job)
+
+        return self.score_function(tentative_list_of_jobs), tentative_list_of_jobs
+
     def _reorder_jobs_in_approximate_best_order(self, current_time):
         if len(self.unscheduled_jobs) == 0:
             return
 
-        cpu_snapshot_copy = self.cpu_snapshot.copy()
-        cpu_snapshot_copy.assignJobEarliest(first_job, current_time)
+        cpu_snapshot_with_job = self.cpu_snapshot.copy()
+        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
 
-        tail = self.unscheduled_jobs[1:]
-
-        max_score_sort_key_func = self.sort_key_functions[0]
-        max_score = 0.0
-        for sort_key_func in self.sort_key_functions:
-            tmp_cpu_snapshot = cpu_snapshot_copy.copy()
-            tentative_list_of_jobs = []
-            for job in sorted(tail, key=sort_key_func):
-                if tmp_cpu_snapshot.canJobStartNow(job, current_time):
-                    tmp_cpu_snapshot.assignJob(job, current_time)
-                    tentative_list_of_jobs.append(job)
-
-            score = self.score_function(tentative_list_of_jobs)
-            if max_score < score:
-                max_score = score
-                max_score_sort_key_func = sort_key_func
+        # get tail from best (score, tail) tuple
+        best_tail = max(
+            self._scored_tail(cpu_snapshot_with_job, sort_key_func)
+            for sort_key_func in self.sort_key_functions
+        )[1]
 
         first_job = self.unscheduled_jobs[0]
-        self.unscheduled_jobs = sorted(tail, key=max_score_sort_key_func) + [first_job]
+        self.unscheduled_jobs = best_tail + [first_job]
 
     def _submit_job_sort_key(self, job):
         return job.submit_time
