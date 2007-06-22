@@ -16,7 +16,10 @@ class EasyBackfillScheduler(Scheduler):
         # scheduling here.
         self.cpu_snapshot.archive_old_slices(current_time)
         self.waiting_list_of_unscheduled_jobs.append(just_submitted_job)
-        return self._schedule_jobs(current_time)
+        return [
+            JobStartEvent(current_time, job)
+            for job in self._schedule_jobs(current_time)
+        ]
 
     def handleTerminationOfJobEvent(self, job, current_time):
         """ Here we first delete the tail of the just terminated job (in case it's
@@ -24,19 +27,20 @@ class EasyBackfillScheduler(Scheduler):
         returning a collection of new termination events """
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
-        return self._schedule_jobs(current_time)
+        return [
+            JobStartEvent(current_time, job)
+            for job in self._schedule_jobs(current_time)
+        ]
 
     def _schedule_jobs(self, current_time):
+        "Schedules jobs that can run right now, and returns them"
         if len(self.waiting_list_of_unscheduled_jobs) == 0:
             return []
 
         jobs = self._schedule_the_head_of_the_waiting_list(current_time)
         jobs += self._backfill_jobs(current_time)
 
-        return [
-            JobStartEvent(current_time, job)
-            for job in jobs
-        ]
+        return jobs
 
     def _can_first_job_start_now(self, current_time):
         assert len(self.waiting_list_of_unscheduled_jobs) > 0
