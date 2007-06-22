@@ -1,5 +1,7 @@
 class Scheduler(object):
-    """ Assumption: every handler returns a (possibly empty) collection of new events """
+    """
+    Assumption: every handler returns a (possibly empty) collection of new events
+    """
 
     def __init__(self, num_processors):
         self.num_processors = num_processors
@@ -11,11 +13,15 @@ class Scheduler(object):
         raise NotImplementedError()
 
 class CpuTimeSlice(object):
-    ''' represents a "tentative feasible" snapshot of the cpu between the start_time until start_time + dur_time.
-        It is tentative since a job might be rescheduled to an earlier slice. It is feasible since the total demand
-        for processors ba all the jobs assigned to this slice never exceeds the amount of the total processors available.
-        Assumption: the duration of the slice is never changed.
-        We can replace this slice with a new slice with shorter duration.'''
+    """
+    represents a "tentative feasible" snapshot of the cpu between the
+    start_time until start_time + dur_time.  It is tentative since a job might
+    be rescheduled to an earlier slice. It is feasible since the total demand
+    for processors ba all the jobs assigned to this slice never exceeds the
+    amount of the total processors available.
+    Assumption: the duration of the slice is never changed.
+    We can replace this slice with a new slice with shorter duration.
+    """
 
     def __init__(self, free_processors, start_time, duration, total_processors):
         assert duration > 0
@@ -78,7 +84,9 @@ class CpuTimeSlice(object):
 
 
 class CpuSnapshot(object):
-    """ represents the time table with the assignments of jobs to available processors. """
+    """
+    represents the time table with the assignments of jobs to available processors
+    """
     # Assumption: the snapshot always has at least one slice
     def __init__(self, total_processors):
         self.total_processors = total_processors
@@ -105,14 +113,22 @@ class CpuSnapshot(object):
         assert False # should never reach here
 
     def _ensure_a_slice_starts_at(self, start_time):
-        """ A preprocessing stage. Usage:
-        First, to ensure that the assignment time of the new added job will start at a beginning of a slice.
-        Second, to ensure that the actual end time of the job will end at the ending of slice.
-        we need this when we add a new job, or delete a tail of job when the user estimation is larger than the actual
-        duration.
-        The idea: we first append 2 slices, just to make sure that there's a slice which ends after the start_time.
-        We add one more slice just because we actually use list.insert() when we add a new slice.
-        After that we itterate through the slices and split a slice if needed"""
+        """
+        A preprocessing stage.
+        
+        Usage:
+        First, to ensure that the assignment time of the new added job will
+        start at a beginning of a slice.
+
+        Second, to ensure that the actual end time of the job will end at the
+        ending of slice.  we need this when we add a new job, or delete a tail
+        of job when the user estimation is larger than the actual duration.
+
+        The idea: we first append 2 slices, just to make sure that there's a
+        slice which ends after the start_time.  We add one more slice just
+        because we actually use list.insert() when we add a new slice.
+        After that we itterate through the slices and split a slice if needed
+        """
 
         last = self.slices[-1]
         length = len(self.slices)
@@ -149,10 +165,13 @@ class CpuSnapshot(object):
         return self.jobEarliestAssignment(job, current_time) == current_time
 
     def jobEarliestAssignment(self, job, time):
-        """ returns the earliest time right after the given time for which the job can be assigned
-        enough processors for job.estimated_run_time unit of times in an uninterrupted fashion.
+        """
+        returns the earliest time right after the given time for which the job
+        can be assigned enough processors for job.estimated_run_time unit of
+        times in an uninterrupted fashion.
         Assumption: number of requested processors is not greater than number of total processors.
-        Assumptions: the given is greater than the submission time of the job >= 0."""
+        Assumptions: the given is greater than the submission time of the job >= 0.
+        """
 
         last = self.slices[-1]
         length = len(self.slices)
@@ -185,8 +204,10 @@ class CpuSnapshot(object):
                 return tentative_start_time
 
     def assignJob(self, job, job_start):
-        """ assigns the job to start at the given job_start time.
-        Important assumption: job_start was returned by jobEarliestAssignment. """
+        """
+        assigns the job to start at the given job_start time.
+        Important assumption: job_start was returned by jobEarliestAssignment.
+        """
         job.start_to_run_at_time = job_start
         job_estimated_finish_time = job.start_to_run_at_time + job.estimated_run_time
         self._ensure_a_slice_starts_at(job_start)
@@ -204,8 +225,11 @@ class CpuSnapshot(object):
         self.assignJob(job, self.jobEarliestAssignment(job, time))
 
     def delJobFromCpuSlices(self, job):
-        """ Deletes an _entire_ job from the slices.
-        Assumption: job resides at consecutive slices (no preemptions), and nothing is archived! """
+        """
+        Deletes an _entire_ job from the slices.
+        Assumption: job resides at consecutive slices (no preemptions), and
+        nothing is archived!
+        """
         job_estimated_finish_time = job.start_to_run_at_time + job.estimated_run_time
         job_start = job.start_to_run_at_time
         self._ensure_a_slice_starts_at(job_start)
@@ -220,11 +244,15 @@ class CpuSnapshot(object):
                 break
 
     def delTailofJobFromCpuSlices(self, job):
-        """ This function is used when the actual duration is smaller than the estimated duration, so the tail
-        of the job must be deleted from the slices.
-        We itterate trough the sorted slices until the critical point is found: the point from which the
-        tail of the job starts.
-        Assumption: job is assigned to successive slices. Specifically, there are no preemptions."""
+        """
+        This function is used when the actual duration is smaller than the
+        estimated duration, so the tail of the job must be deleted from the
+        slices.
+        We iterate trough the sorted slices until the critical point is found:
+        the point from which the tail of the job starts.
+        Assumption: job is assigned to successive slices. Specifically, there
+        are no preemptions.
+        """
 
         if job.actual_run_time ==  job.estimated_run_time:
             return
