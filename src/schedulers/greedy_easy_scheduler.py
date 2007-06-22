@@ -49,22 +49,13 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
             
 
     def _schedule_jobs(self, current_time):
-        # Greedy's scheduling methods are based on the analogue methods of EasyBackfill.
-        # The additonal or different code lines are marked with ## +
-        if len(self.waiting_list_of_unscheduled_jobs) == 0:
-            return []
+        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare)
 
-        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
+        result = super(GreedyEasyBackFillScheduler, self)._schedule_jobs(current_time)
 
-        jobs = self._schedule_the_head_of_the_waiting_list(current_time)  # call the method of EasyBackfill 
-        jobs += self._backfill_jobs(current_time)
-        newEvents = [
-            JobStartEvent(current_time, job)
-            for job in jobs
-        ]
+        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare)
 
-        self.waiting_list_of_unscheduled_jobs.sort(self.submit_time_compare) ## +
-        return newEvents
+        return result
 
     def _backfill_jobs(self, current_time):
         """
