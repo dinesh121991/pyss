@@ -49,7 +49,6 @@ class MauiScheduler(EasyBackfillScheduler):
         self.waiting_list_of_unscheduled_jobs.sort( key = lambda x: self.waiting_list_weight(x, current_time), reverse=True ) ## +
         jobs = self._schedule_the_head_of_the_waiting_list(current_time)
 
-        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
         jobs += self._backfill_jobs(current_time)
 
         return [
@@ -66,6 +65,8 @@ class MauiScheduler(EasyBackfillScheduler):
         """
         overrides parent method
         """
+        self.waiting_list_of_unscheduled_jobs = self._unscheduled_jobs_in_backfilling_order(current_time) ## +
+
         result = super(MauiScheduler, self)._backfill_jobs(current_time)
 
         for job in result:
