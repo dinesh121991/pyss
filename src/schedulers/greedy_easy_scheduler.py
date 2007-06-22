@@ -51,19 +51,18 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         if len(self.unscheduled_jobs) == 0:
             return
 
-        first_job = self.unscheduled_jobs.pop(0) ## +
-
         cpu_snapshot_copy = self.cpu_snapshot.copy()
 
         cpu_snapshot_copy.assignJobEarliest(first_job, current_time)
+
+        tail = self.unscheduled_jobs[1:]
 
         max_score_sort_key_func = self.sort_key_functions[0]
         max_score = 0.0
         for sort_key_func in self.sort_key_functions:
             tmp_cpu_snapshot = cpu_snapshot_copy.copy()
             tentative_list_of_jobs = []
-            self.unscheduled_jobs.sort(key=sort_key_func)
-            for job in self.unscheduled_jobs:
+            for job in sorted(tail, key=sort_key_func):
                 if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                     tmp_cpu_snapshot.assignJob(job, current_time)
                     tentative_list_of_jobs.append(job)
@@ -73,8 +72,8 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
                 max_score = score
                 max_score_sort_key_func = sort_key_func
 
-        self.unscheduled_jobs.sort(key=max_score_sort_key_func)
-        self.unscheduled_jobs.append(first_job)
+        first_job = self.unscheduled_jobs[0]
+        self.unscheduled_jobs = sorted(tail, key=max_score_sort_key_func) + [first_job]
 
     def _submit_job_sort_key(self, job):
         return job.submit_time
