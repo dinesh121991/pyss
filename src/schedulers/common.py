@@ -167,11 +167,11 @@ class CpuSnapshot(object):
         """
         assert job.num_required_processors <= self.total_processors
 
-        last = self.slices[-1]
+        snapshot_end_time = self.slices[-1].end_time
         self.slices.append(
             CpuTimeSlice(
                 self.total_processors,
-                last.end_time,
+                snapshot_end_time,
                 time + job.estimated_run_time + 10, # TODO: why +10?
                 self.total_processors
             )
