@@ -4,7 +4,7 @@ from base.prototype import JobStartEvent
 class EasyBackfillScheduler(Scheduler):
 
     def __init__(self, num_processors):
-        Scheduler.__init__(self, num_processors)
+        super(EasyBackfillScheduler, self).__init__(num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_list_of_unscheduled_jobs = []
 

@@ -32,7 +32,7 @@ class BasicScoreFuction(object):
     
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, list_of_compare_functions=None, score_function=None):
-        EasyBackfillScheduler.__init__(self, num_processors)
+        super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
         
         self.list_of_compare_functions = []
         if list_of_compare_functions == None:

@@ -20,7 +20,7 @@ from easy_scheduler import EasyBackfillScheduler
 
 class MauiScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, weights_list=None, weights_backfill=None):
-        EasyBackfillScheduler.__init__(self, num_processors)
+        super(MauiScheduler, self).__init__(num_processors)
         self.maui_counter = 0
 
         # weights for calculation of priorities for the jobs in MAUI style

@@ -4,7 +4,7 @@ from base.prototype import JobStartEvent
 class FcfsScheduler(Scheduler):
 
     def __init__(self, num_processors):
-        Scheduler.__init__(self, num_processors)
+        super(FcfsScheduler, self).__init__(num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.waiting_queue_of_jobs = []
 
