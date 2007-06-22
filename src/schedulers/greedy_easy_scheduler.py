@@ -61,9 +61,6 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         """
         Updates the internal state and returns a list of new events
         """
-        if len(self.waiting_list_of_unscheduled_jobs) <= 1:
-            return []
-
         self._find_an_approximate_best_order_of_the_jobs(current_time) ## +
 
         result = []
@@ -82,6 +79,9 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def _find_an_approximate_best_order_of_the_jobs(self, current_time):
+        if len(self.waiting_list_of_unscheduled_jobs) == 0:
+            return
+
         first_job = self.waiting_list_of_unscheduled_jobs.pop(0) ## +
         shadow_time = self.cpu_snapshot.jobEarliestAssignment(first_job, current_time)
         self.cpu_snapshot.assignJob(first_job, shadow_time)
