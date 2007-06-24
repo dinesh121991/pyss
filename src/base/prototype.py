@@ -47,6 +47,8 @@ class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
 
+#Shouldn't it be:  [JobTerminationEvent, JobSubmissionEvent]?
+
 JobEvent.EVENTS_ORDER = [JobTerminationEvent, JobStartEvent]
 
 class Job(object):

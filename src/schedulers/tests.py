@@ -7,7 +7,7 @@ from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackFillScheduler
-
+from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 
@@ -77,6 +77,17 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time)
+
+                
+    def test_basic_look_ahead_easyBackfill(self):
+        for i in range(15):
+            scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
+            simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time)
+
 
     def test_fcfs(self):
         for i in range(8):
@@ -180,6 +191,17 @@ class test_Simulator(unittest.TestCase):
             scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, cmp_list, bv.valuefunction)
             simulator = run_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, \
+                                 "i="+str(i)+" "+str(job) + str(job.finish_time))
+    
+
+    def test_look_ahead_easyBackfill(self):
+        for i in range(2):
+            scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
+            simulator = run_simulator(scheduler=scheduler, \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/look_ahead." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, \
