@@ -48,7 +48,7 @@ class EasyBackfillScheduler(Scheduler):
             if len(self.unscheduled_jobs) == 0:
                 break
             # Try to schedule the first job
-            if self.cpu_snapshot.canJobStartNow(self.unscheduled_jobs[0], current_time):
+            if self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors:
                 job = self.unscheduled_jobs.pop(0)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
