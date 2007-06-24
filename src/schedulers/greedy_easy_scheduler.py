@@ -76,8 +76,3 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
     def _submit_job_sort_key(self, job):
         return job.submit_time
-
-    def print_waiting_list(self):
-        for job in self.unscheduled_jobs:
-            print job
-        print

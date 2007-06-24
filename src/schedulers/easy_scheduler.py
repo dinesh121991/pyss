@@ -37,7 +37,7 @@ class EasyBackfillScheduler(Scheduler):
         if len(self.unscheduled_jobs) == 0:
             return []
 
-        jobs = self._schedule_head_of_list(current_time)
+        jobs  = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
 
         return jobs
@@ -88,3 +88,9 @@ class EasyBackfillScheduler(Scheduler):
 
         # if true, this means that the 2nd is "independent" of the 1st, and thus can be backfilled
         return temp_cpu_snapshot.canJobStartNow(second_job, current_time)
+
+
+    def print_waiting_list(self):
+        for job in self.unscheduled_jobs:
+            print job
+        print
