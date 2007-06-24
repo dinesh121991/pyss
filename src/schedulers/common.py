@@ -91,32 +91,15 @@ class CpuSnapshot(object):
     def __init__(self, total_processors):
         self.total_processors = total_processors
         self.slices=[]
-        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1, total_processors=total_processors))
+        self.slices.append(CpuTimeSlice(self.total_processors, start_time=0, duration=1000, total_processors=total_processors))
         self.archive_of_old_slices=[]
-
-    def _slice_starts_at(self, time):
-        for slice in self.slices:
-            if slice.start_time == time:
-                return True
-        return False # no slice found
-
-    def _slice_index_to_split(self, split_time):
-        assert not self._slice_starts_at(split_time)
-
-        for index, slice in enumerate(self.slices):
-            if slice.start_time < split_time < slice.end_time:
-                return index
-
-        assert False # should never reach here
-
+        
     @property
     def snapshot_end_time(self):
         assert len(self.slices) > 0
         return self.slices[-1].end_time
 
-    def _append_time_slice(self, free_processors, duration):
-        self.slices.append(CpuTimeSlice(free_processors, self.snapshot_end_time, duration, self.total_processors))
-
+ 
     def _ensure_a_slice_starts_at(self, start_time):
         """
         A preprocessing stage.
@@ -156,6 +139,26 @@ class CpuSnapshot(object):
 
         # add a tail slice, duration is arbitrary
         self._append_time_slice(self.total_processors, 1000)
+       
+    def _slice_starts_at(self, time):
+        for slice in self.slices:
+            if slice.start_time == time:
+                return True
+        return False # no slice found
+
+    def _slice_index_to_split(self, split_time):
+        assert not self._slice_starts_at(split_time)
+
+        for index, slice in enumerate(self.slices):
+            if slice.start_time < split_time < slice.end_time:
+                return index
+
+        assert False # should never reach here
+
+
+    def _append_time_slice(self, free_processors, duration):
+        self.slices.append(CpuTimeSlice(free_processors, self.snapshot_end_time, duration, self.total_processors))
+
 
     def free_processors_available_at(self, time):
         for s in self.slices:
@@ -175,8 +178,7 @@ class CpuSnapshot(object):
         """
         assert job.num_required_processors <= self.total_processors
 
-        # TODO: why +10?
-        self._append_time_slice(self.total_processors, time + job.estimated_run_time + 10)
+        self._append_time_slice(self.total_processors, time + job.estimated_run_time + 1)
 
         partially_assigned = False
         tentative_start_time = accumulated_duration = 0
@@ -218,11 +220,10 @@ class CpuSnapshot(object):
         Important assumption: job_start was returned by jobEarliestAssignment.
         """
         job.start_to_run_at_time = job_start
-        job_estimated_finish_time = job.start_to_run_at_time + job.estimated_run_time
         self._ensure_a_slice_starts_at(job_start)
-        self._ensure_a_slice_starts_at(job_estimated_finish_time)
+        self._ensure_a_slice_starts_at(job.estimated_finish_time)
 
-        for s in self._slices_time_range(job_start, job_estimated_finish_time):
+        for s in self._slices_time_range(job_start, job.estimated_finish_time):
             s.addJob(job)
 
     def assignJobEarliest(self, job, time):
@@ -234,12 +235,7 @@ class CpuSnapshot(object):
         Assumption: job resides at consecutive slices (no preemptions), and
         nothing is archived!
         """
-        job_estimated_finish_time = job.start_to_run_at_time + job.estimated_run_time
-        job_start = job.start_to_run_at_time
-        self._ensure_a_slice_starts_at(job_start)
-        self._ensure_a_slice_starts_at(job_estimated_finish_time)
-
-        for s in self._slices_time_range(job_start, job_estimated_finish_time):
+        for s in self._slices_time_range(job.start_to_run_at_time, job.estimated_finish_time):
             s.delJob(job)
 
     def delTailofJobFromCpuSlices(self, job):
@@ -255,16 +251,15 @@ class CpuSnapshot(object):
 
         if job.actual_run_time ==  job.estimated_run_time:
             return
-        job_finish_time = job.start_to_run_at_time + job.actual_run_time
-        job_estimated_finish_time = job.start_to_run_at_time + job.estimated_run_time
-        self._ensure_a_slice_starts_at(job_finish_time)
-        self._ensure_a_slice_starts_at(job_estimated_finish_time)
+      
+        self._ensure_a_slice_starts_at(job.finish_time)
 
-        for s in self._slices_time_range(job_finish_time, job_estimated_finish_time):
+        for s in self._slices_time_range(job.finish_time, job.estimated_finish_time):
             s.delJob(job)
 
     def archive_old_slices(self, current_time):
         assert self.slices
+        # the former code of this function was more easy to follow....
         while self.slices[:-1] and self.slices[0].end_time < current_time:
             self.archive_of_old_slices.append( self.slices.pop(0) )
         self.unify_slices()

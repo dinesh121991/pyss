@@ -76,6 +76,11 @@ class Job(object):
     def finish_time(self):
         assert self.start_to_run_at_time != -1
         return self.start_to_run_at_time + self.actual_run_time
+    
+    @property
+    def estimated_finish_time(self):
+        assert self.start_to_run_at_time != -1
+        return self.start_to_run_at_time + self.estimated_run_time
 
     def __repr__(self):
         return type(self).__name__ + "<id=%(id)s, estimated_run_time=%(estimated_run_time)s, actual_run_time=%(actual_run_time)s, num_required_processors=%(num_required_processors)s>" % vars(self)

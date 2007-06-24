@@ -102,7 +102,6 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
     def test_easyBackfill(self):
-        import testoob; testoob.testing.skip('missing input file')
         for i in range(9):
             simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
@@ -174,7 +173,6 @@ class test_Simulator(unittest.TestCase):
             self.assertEqual(int(float(job.id)), job.finish_time)
 
     def test_greedy_easyBackfill(self):
-        import testoob; testoob.testing.skip('missing input file')
         bf = BasicCompareFunctionsTest()
         cmp_list = [bf.cmp0, bf.cmp1]
         bv = BasicLocalEvaluationFuctionTest()
