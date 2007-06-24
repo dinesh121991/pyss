@@ -5,10 +5,10 @@ from easy_scheduler import EasyBackfillScheduler
 
 default_sort_key_functions = (
     lambda job : -job.submit_time, # sort by reverse submission time
-    lambda job : job.submit_time,
-    lambda job : job.num_processors,
-    lambda job : job.estimated_run_time,
-    lambda job : job.num_processors * job.estimated_run_time,
+    lambda job :  job.submit_time,
+    lambda job :  job.num_processors,
+    lambda job :  job.estimated_run_time,
+    lambda job :  job.num_processors * job.estimated_run_time,
 )
 
 def basic_score_function(list_of_jobs):
