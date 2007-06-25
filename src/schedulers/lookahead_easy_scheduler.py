@@ -26,12 +26,13 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def _schedule_jobs(self, current_time):
+        print "CURRENT TIME", current_time
+        
         self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
 
         result = super(LookAheadEasyBackFillScheduler, self)._schedule_jobs(current_time)
 
         self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
-
         return result
 
 
@@ -43,7 +44,8 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def _reorder_jobs_in_look_ahead_best_order(self, current_time):
-        if len(self.unscheduled_jobs) == 0:
+        print "current time (before reordering): ", current_time; self.cpu_snapshot.printCpuSlices()
+        if len(self.unscheduled_jobs) <= 1:
             return
 
         free_processors = self.cpu_snapshot.free_processors_available_at(current_time)
@@ -54,18 +56,15 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         cpu_snapshot_with_first_job = self.cpu_snapshot.copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
      
-        M = {}
         # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
-
-        jobs_queue_size =  len(self.unscheduled_jobs)
-       
+        M = {}  
         
         for k in range(free_processors + 1): 
             M[-1, k] = Entry(cpu_snapshot_with_first_job.copy())
-            
-        for j in range(jobs_queue_size):
+
+        for j in range(len(self.unscheduled_jobs)):
             job = self.unscheduled_jobs[j]
-            print "current_time:", current_time; print job
+            # print "current_time:", current_time; print job
             for k in range(free_processors + 1):
                 print "++++", j, k 
                 M[j, k] = Entry()
@@ -87,9 +86,11 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
                 if U1 <= U2:
                     M[j, k].utilization = U2
                     M[j, k].cpu_snapshot = tmp_cpu_snapshot
+                    
+                M[j,k].cpu_snapshot.printCpuSlices()
 
 
-        best_entry = M[jobs_queue_size -1, free_processors]
+        best_entry = M[len(self.unscheduled_jobs) - 1, free_processors]
         for job in self.unscheduled_jobs:
             if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
                 job.look_ahead_key = 1  

@@ -120,7 +120,7 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
-        for i in range(2):
+        for i in range(3):
             simulator = run_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -184,6 +184,7 @@ class test_Simulator(unittest.TestCase):
             self.assertEqual(int(float(job.id)), job.finish_time)
 
     def test_greedy_easyBackfill(self):
+	testoob.testing.skip("not ready yet")
         bf = BasicCompareFunctionsTest()
         cmp_list = [bf.cmp0, bf.cmp1]
         bv = BasicLocalEvaluationFuctionTest()
@@ -198,6 +199,7 @@ class test_Simulator(unittest.TestCase):
     
 
     def test_look_ahead_easyBackfill(self):
+	testoob.testing.skip("not ready yet")
         for i in range(2):
             scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, \
