@@ -199,7 +199,7 @@ class test_Simulator(unittest.TestCase):
     
 
     def test_look_ahead_easyBackfill(self):
-        for i in range(6):
+        for i in range(9):
             scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/look_ahead." + str(i))
