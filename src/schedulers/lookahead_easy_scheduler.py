@@ -25,25 +25,27 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         super(LookAheadEasyBackFillScheduler, self).__init__(num_processors)
 
 
-    def _schedule_jobs(self, current_time):
-        print "CURRENT TIME", current_time
-        
-        self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
-
-        result = super(LookAheadEasyBackFillScheduler, self)._schedule_jobs(current_time)
-
-        self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
-        return result
-
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
-        self._reorder_jobs_in_look_ahead_best_order(current_time)
-        return super(LookAheadEasyBackFillScheduler, self)._backfill_jobs(current_time)
+        self._mark_jobs_in_look_ahead_best_order(current_time)
+        result = []
+
+        tail_of_waiting_list = self.unscheduled_jobs[1:]
+
+        for job in tail_of_waiting_list:
+            if job.look_ahead_key == 1:
+                self.unscheduled_jobs.remove(job)
+                self.cpu_snapshot.assignJob(job, current_time)
+                result.append(job)
+
+        return result
 
 
 
-    def _reorder_jobs_in_look_ahead_best_order(self, current_time):
+
+
+    def _mark_jobs_in_look_ahead_best_order(self, current_time):
         print "current time (before reordering): ", current_time; self.cpu_snapshot.printCpuSlices()
         if len(self.unscheduled_jobs) <= 1:
             return
@@ -94,22 +96,8 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         print "______________the best entry:", best_entry.cpu_snapshot.printCpuSlices()
         for job in self.unscheduled_jobs:
             if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
-                job.look_ahead_key = -1  
+                job.look_ahead_key = 1  
 
-        print "______ before sorting: "; self.print_waiting_list()
-        self.unscheduled_jobs.sort(key = self._backfill_sort_key)
-        print "______ after sorting: "; self.print_waiting_list()
         
 
-
-    def _submit_job_sort_key(self, job):
-        return job.submit_time
-
-    def _backfill_sort_key(self, job):
-        return job.look_ahead_key
-
-
-    def canBeBackfilled(self, job, current_time):
-        "Overriding parent method"
-        return self.cpu_snapshot.canJobStartNow(job, current_time)
 
