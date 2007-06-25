@@ -1,4 +1,4 @@
-# this tests basicaly tests that the lookahead backfills the last two jobs.
+# should backfill the last two jobs.
 # the input variables: 
 # arrival time; job id; user estimated duration; number of required nodes; actual duration  
 0 600 600 90 600 0 0
