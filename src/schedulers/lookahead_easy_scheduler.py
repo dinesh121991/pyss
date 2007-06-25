@@ -55,7 +55,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         first_job = self.unscheduled_jobs[0]
         cpu_snapshot_with_first_job = self.cpu_snapshot.copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
-     
+
         # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
         M = {}  
         
@@ -64,7 +64,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
         for j in range(len(self.unscheduled_jobs)):
             job = self.unscheduled_jobs[j]
-            # print "current_time:", current_time; print job
+            assert job.look_ahead_key == 0 
             for k in range(free_processors + 1):
                 print "++++", j, k 
                 M[j, k] = Entry()
@@ -87,17 +87,18 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
                     M[j, k].utilization = U2
                     M[j, k].cpu_snapshot = tmp_cpu_snapshot
                     
-                M[j,k].cpu_snapshot.printCpuSlices()
+                print "the entry M[",j,",", k,"]: "; M[j,k].cpu_snapshot.printCpuSlices()
 
 
         best_entry = M[len(self.unscheduled_jobs) - 1, free_processors]
+        print "______________the best entry:", best_entry.cpu_snapshot.printCpuSlices()
         for job in self.unscheduled_jobs:
             if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
-                job.look_ahead_key = 1  
+                job.look_ahead_key = -1  
 
-       
+        print "______ before sorting: "; self.print_waiting_list()
         self.unscheduled_jobs.sort(key = self._backfill_sort_key)
-        self.print_waiting_list()
+        print "______ after sorting: "; self.print_waiting_list()
         
 
 
@@ -105,7 +106,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         return job.submit_time
 
     def _backfill_sort_key(self, job):
-        return -job.look_ahead_key
+        return job.look_ahead_key
 
 
     def canBeBackfilled(self, job, current_time):

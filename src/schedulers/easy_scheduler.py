@@ -86,7 +86,7 @@ class EasyBackfillScheduler(Scheduler):
         temp_cpu_snapshot = self.cpu_snapshot.copy()
         temp_cpu_snapshot.assignJobEarliest(first_job, current_time)
 
-        # if true, this means that the 2nd is "independent" of the 1st, and thus can be backfilled
+        # if true, this means that the 2nd job is "independent" of the 1st, and thus can be backfilled
         return temp_cpu_snapshot.canJobStartNow(second_job, current_time)
 
 
