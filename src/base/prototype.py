@@ -74,6 +74,9 @@ class Job(object):
         self.maui_bypass_counter = 0
         self.maui_counter = 0
 
+        #the next is for the look ahead scheduler
+        self.look_ahead_key = 0
+        
     @property
     def finish_time(self):
         assert self.start_to_run_at_time != -1

@@ -46,12 +46,11 @@ class CpuTimeSlice(object):
 
     def addJob(self, job):
         assert job.num_required_processors <= self.free_processors
-        assert job.id not in self.job_ids, "job.id="+str(job.id)+", job_ids"+str(self.job_ids)
+        assert job.id not in self.job_ids, "job.id = "+str(job.id)+", job_ids "+str(self.job_ids)
         self.free_processors -= job.num_required_processors
         self.job_ids.add(job.id)
 
     def delJob(self, job):
-        #print "slice_id=%s, delJob(job_id=%s)" % (id(self), job.id)
         assert job.num_required_processors <= self.busy_processors
         self.free_processors += job.num_required_processors
         self.job_ids.remove(job.id)
@@ -249,7 +248,7 @@ class CpuSnapshot(object):
         are no preemptions.
         """
 
-        if job.actual_run_time ==  job.estimated_run_time:
+        if job.actual_run_time == job.estimated_run_time:
             return
       
         self._ensure_a_slice_starts_at(job.finish_time)
@@ -259,11 +258,15 @@ class CpuSnapshot(object):
 
     def archive_old_slices(self, current_time):
         assert self.slices
-        # the former code of this function was more easy to follow....
-        while self.slices[:-1] and self.slices[0].end_time < current_time:
-            self.archive_of_old_slices.append( self.slices.pop(0) )
         self.unify_slices()
-
+        self._ensure_a_slice_starts_at(current_time)
+        for s in self.slices:
+            if s.end_time <= current_time:
+                self.archive_of_old_slices.append(s)
+                self.slices.pop(0)
+            else:
+                break
+       
     def unify_slices(self):
         assert self.slices
         prev = self.slices[0]

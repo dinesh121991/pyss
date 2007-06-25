@@ -4,9 +4,6 @@ from base.prototype import JobStartEvent
 from easy_scheduler import EasyBackfillScheduler
 
 
-def basic_score_function(list_of_jobs):
-    return sum(job.num_processors for job in list_of_jobs)
-
 class Entry(object):
     def __init__(self, cpu_snapshot = None):
         self.utilization = 0
@@ -24,13 +21,9 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
     Essentially this algorithm uses a dynamic programing method to decide which subset of jobs to backfill
     """
     
-    def __init__(self, num_processors, sort_key_functions=None, score_function=None):
+    def __init__(self, num_processors, sort_key_functions=None):
         super(LookAheadEasyBackFillScheduler, self).__init__(num_processors)
 
-        if score_function is None:
-            self.score_function = basic_score_function
-        else:
-            self.score_function = score_function
 
     def _schedule_jobs(self, current_time):
         self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
@@ -52,23 +45,23 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
     def _reorder_jobs_in_look_ahead_best_order(self, current_time):
         if len(self.unscheduled_jobs) == 0:
             return
-        first_job = self.unscheduled_jobs[0]
-        cpu_snapshot_with_job = self.cpu_snapshot.copy()
-        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
-        cpu_snapshot_with_job._ensure_a_slice_starts_at(current_time)
-        cpu_snapshot_with_job.archive_old_slices(current_time)
+
         free_processors = self.cpu_snapshot.free_processors_available_at(current_time)
         if free_processors == 0:
-            return 
+            return
+        
+        first_job = self.unscheduled_jobs[0]
+        cpu_snapshot_with_first_job = self.cpu_snapshot.copy()
+        cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
+     
         M = {}
-        # M[j, k] represents the best subset of the jobs {1...j} (according to the score function) if k processors are available
+        # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
 
         jobs_queue_size =  len(self.unscheduled_jobs)
        
         
-        
-        for k in range(free_processors + 1):
-            M[-1, k] = Entry(cpu_snapshot_with_job.copy())
+        for k in range(free_processors + 1): 
+            M[-1, k] = Entry(cpu_snapshot_with_first_job.copy())
             
         for j in range(jobs_queue_size):
             job = self.unscheduled_jobs[j]
@@ -82,28 +75,26 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
                 if (k < job.num_required_processors):
                     continue
                 
-                tmp_cpu_snapshot = M[j-1, k - job.num_required_processors].cpu_snapshot.copy()
+                tmp_cpu_snapshot = M[j-1, k-job.num_required_processors].cpu_snapshot.copy()
                 if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                     tmp_cpu_snapshot.assignJob(job, current_time)
                 else:
                     continue
                 
                 U1 = M[j, k].utilization
-                U2 = M[j-1, k - job.num_required_processors].utilization + job.num_required_processors
+                U2 = M[j-1, k-job.num_required_processors].utilization + job.num_required_processors
+
                 if U1 <= U2:
                     M[j, k].utilization = U2
                     M[j, k].cpu_snapshot = tmp_cpu_snapshot
 
-        
+
+        best_entry = M[jobs_queue_size -1, free_processors]
         for job in self.unscheduled_jobs:
-            best_entry = M[jobs_queue_size -1, free_processors]
-            if job.id in best_entry.cpu_snapshot.slices[0].job_ids:
-        
-                job.start_to_run_at_time = -2  ### should be replaced ..... 
-            else:
-                job.start_to_run_at_time = -1
+            if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
+                job.look_ahead_key = 1  
+
        
-        
         self.unscheduled_jobs.sort(key = self._backfill_sort_key)
         self.print_waiting_list()
         
@@ -113,7 +104,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         return job.submit_time
 
     def _backfill_sort_key(self, job):
-        return -job.start_to_run_at_time
+        return -job.look_ahead_key
 
 
     def canBeBackfilled(self, job, current_time):
