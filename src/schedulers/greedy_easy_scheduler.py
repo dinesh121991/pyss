@@ -14,6 +14,8 @@ default_sort_key_functions = (
 def basic_score_function(list_of_jobs):
     return sum(job.num_processors * job.estimated_run_time for job in list_of_jobs)
 
+
+
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     def __init__(self, num_processors, sort_key_functions=None, score_function=None):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
@@ -28,28 +30,52 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         else:
             self.score_function = score_function
 
-    def _schedule_jobs(self, current_time):
-        self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
-
-        result = super(GreedyEasyBackFillScheduler, self)._schedule_jobs(current_time)
-
-        self.unscheduled_jobs.sort(key = self._submit_job_sort_key)
-
-        return result
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
-        self._reorder_jobs_in_approximate_best_order(current_time)
-        return super(GreedyEasyBackFillScheduler, self)._backfill_jobs(current_time)
 
-    def canBeBackfilled(self, job, current_time):
-        "Overriding parent method"
-        return self.cpu_snapshot.canJobStartNow(job, current_time)
+        result = []
+        
+        if len(self.unscheduled_jobs) <= 1:
+            return []
+        
+        best_tail_of_jobs = self._reorder_jobs_in_approximate_best_order(current_time)
+        
+        first_job = self.unscheduled_jobs[0]
+        self.cpu_snapshot.assignJobEarliest(first_job, current_time)
+        
+        for job in best_tail_of_jobs:
+            if self.cpu_snapshot.canJobStartNow(job, current_time): 
+                self.unscheduled_jobs.remove(job)
+                self.cpu_snapshot.assignJob(job, current_time)
+                result.append(job)
+                
+        self.cpu_snapshot.delJobFromCpuSlices(first_job)
 
-    def _scored_tail(self, cpu_snapshot, sort_key_func):
+        return result
+
+
+
+    def _reorder_jobs_in_approximate_best_order(self, current_time):        
+        first_job = self.unscheduled_jobs[0]
+        cpu_snapshot_with_job = self.cpu_snapshot.quick_copy()
+        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
+
+        # get tail from best (score, tail) tuple
+        best_tail = max(
+            self._scored_tail(cpu_snapshot_with_job, sort_key_func, current_time)
+            for sort_key_func in self.sort_key_functions
+        )[1]
+        
+        return best_tail
+
+
+    def _scored_tail(self, cpu_snapshot, sort_key_func, current_time):
         tmp_cpu_snapshot = cpu_snapshot.copy()
         tentative_list_of_jobs = []
-        sorted_tail = sorted(self.unscheduled_jobs[1:], key=sort_key_func)
+        tail = self.unscheduled_jobs[1:]
+        tail = self.list_copy(tail)
+        sorted_tail = sorted(tail, key=sort_key_func)
         for job in sorted_tail:
             if tmp_cpu_snapshot.canJobStartNow(job, current_time):
                 tmp_cpu_snapshot.assignJob(job, current_time)
@@ -57,21 +83,9 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
         return self.score_function(tentative_list_of_jobs), sorted_tail
 
-    def _reorder_jobs_in_approximate_best_order(self, current_time):
-        if len(self.unscheduled_jobs) == 0:
-            return
 
-        cpu_snapshot_with_job = self.cpu_snapshot.copy()
-        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
-
-        # get tail from best (score, tail) tuple
-        best_tail = max(
-            self._scored_tail(cpu_snapshot_with_job, sort_key_func)
-            for sort_key_func in self.sort_key_functions
-        )[1]
-
-        first_job = self.unscheduled_jobs[0]
-        self.unscheduled_jobs = best_tail + [first_job]
-
-    def _submit_job_sort_key(self, job):
-        return job.submit_time
+    def list_copy(self, my_list):
+        result = []
+        for i in my_list:
+            result.append(i)
+        return result 

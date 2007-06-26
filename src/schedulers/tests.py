@@ -183,20 +183,6 @@ class test_Simulator(unittest.TestCase):
         for job in simulator.jobs:
             self.assertEqual(int(float(job.id)), job.finish_time)
 
-    def test_greedy_easyBackfill(self):
-	testoob.testing.skip("not ready yet")
-        bf = BasicCompareFunctionsTest()
-        cmp_list = [bf.cmp0, bf.cmp1]
-        bv = BasicLocalEvaluationFuctionTest()
-        for i in range(6):
-            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, cmp_list, bv.valuefunction)
-            simulator = run_simulator(scheduler=scheduler, \
-                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, \
-                                 "i="+str(i)+" "+str(job) + str(job.finish_time))
-    
 
     def test_look_ahead_easyBackfill(self):
         for i in range(14):
@@ -208,18 +194,28 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, \
                                  "i="+str(i)+" "+str(job) + str(job.finish_time))
 
+    def test_greedy_easyBackfill(self):
+	bf = (
+    		lambda job :  job.estimated_run_time,
+    		lambda job :  job.num_required_processors,
+	)
+        bv = BasicLocalEvaluationFuctionTest()
+        for i in range(6):
+            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, bv.valuefunction)
+            simulator = run_simulator(scheduler=scheduler, \
+                                      num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, \
+                                 "i="+str(i)+" "+str(job) + str(job.finish_time))
+    
+
+
 ###########
 
-class BasicCompareFunctionsTest(object):
 
-    def cmp0(self, job_a, job_b):
-        return cmp(job_a.estimated_run_time, job_b.estimated_run_time)
-
-    def cmp1(self, job_a, job_b):
-        return cmp(job_a.num_required_processors, job_b.num_required_processors)
 
 class BasicLocalEvaluationFuctionTest(object):
-
     def valuefunction(self, list_of_jobs):
         return len(list_of_jobs) # returns the length of the list: and thus a a list of more jobs is ranked higher
 
