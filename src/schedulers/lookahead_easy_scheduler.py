@@ -46,7 +46,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def _mark_jobs_in_look_ahead_best_order(self, current_time):
-        print "current time (before reordering): ", current_time; self.cpu_snapshot.printCpuSlices()
+
         if len(self.unscheduled_jobs) <= 1:
             return
 
@@ -55,7 +55,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
             return
         
         first_job = self.unscheduled_jobs[0]
-        cpu_snapshot_with_first_job = self.cpu_snapshot.quick_copy()
+        cpu_snapshot_with_first_job = self.cpu_snapshot.copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
 
         # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
@@ -68,7 +68,6 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
             job = self.unscheduled_jobs[j]
             assert job.backfill_flag == 0 
             for k in range(free_processors + 1):
-                print "++++", j, k 
                 M[j, k] = Entry()
                 M[j, k].utilization  =  M[j-1, k].utilization
                 M[j, k].cpu_snapshot =  M[j-1, k].cpu_snapshot.copy()
@@ -89,11 +88,8 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
                     M[j, k].utilization = U2
                     M[j, k].cpu_snapshot = tmp_cpu_snapshot
                     
-                print "the entry M[",j,",", k,"]: "; M[j,k].cpu_snapshot.printCpuSlices()
-
 
         best_entry = M[len(self.unscheduled_jobs) - 1, free_processors]
-        print "______________the best entry:", best_entry.cpu_snapshot.printCpuSlices()
         for job in self.unscheduled_jobs:
             if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
                 job.backfill_flag = 1  
