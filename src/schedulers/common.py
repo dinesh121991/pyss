@@ -58,6 +58,17 @@ class CpuTimeSlice(object):
     def __str__(self):
         return '%d %d %d %s' % (self.start_time, self.duration, self.free_processors, self.job_ids)
 
+    def quick_copy(self): # copy the slice without the set of job_ids 
+        result = CpuTimeSlice(
+                free_processors = self.free_processors,
+                start_time = self.start_time,
+                duration = self.duration,
+                total_processors = self.total_processors,
+            )
+
+        return result
+
+
     def copy(self):
         result = CpuTimeSlice(
                 free_processors = self.free_processors,
@@ -293,6 +304,11 @@ class CpuSnapshot(object):
     def copy(self):
         result = CpuSnapshot(self.total_processors)
         result.slices = [slice.copy() for slice in self.slices]
+        return result
+    
+    def quick_copy(self):
+        result = CpuSnapshot(self.total_processors)
+        result.slices = [slice.quick_copy() for slice in self.slices]
         return result
 
     def CpuSlicesTestFeasibility(self):

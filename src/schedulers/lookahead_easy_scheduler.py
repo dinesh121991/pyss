@@ -12,6 +12,11 @@ class Entry(object):
     def __str__(self):
         return '%d' % (self.utilization)
 
+    def printEntry(self):
+        print "utilization is" self.utilization 
+        self.cpu_snapshot.printCpuSlices()
+        
+
   
         
 class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
@@ -25,12 +30,15 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         super(LookAheadEasyBackFillScheduler, self).__init__(num_processors)
 
 
-
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
         self._mark_jobs_in_look_ahead_best_order(current_time)
         result = []
-
+        if len(self.unscheduled_jobs) <= 1:
+            return []
+        if self.cpu_snapshot.free_processors_available_at(current_time) == 0:
+            return []
+        
         tail_of_waiting_list = self.unscheduled_jobs[1:]
 
         for job in tail_of_waiting_list:
@@ -42,20 +50,12 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         return result
 
 
-
-
-
     def _mark_jobs_in_look_ahead_best_order(self, current_time):
         print "current time (before reordering): ", current_time; self.cpu_snapshot.printCpuSlices()
-        if len(self.unscheduled_jobs) <= 1:
-            return
 
-        free_processors = self.cpu_snapshot.free_processors_available_at(current_time)
-        if free_processors == 0:
-            return
-        
+        free_processors = self.cpu_snapshot.free_processors_available_at(current_time)        
         first_job = self.unscheduled_jobs[0]
-        cpu_snapshot_with_first_job = self.cpu_snapshot.copy()
+        cpu_snapshot_with_first_job = self.cpu_snapshot.quick_copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
 
         # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
