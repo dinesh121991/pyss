@@ -12,11 +12,6 @@ class Entry(object):
     def __str__(self):
         return '%d' % (self.utilization)
 
-    def printEntry(self):
-        print "utilization is" self.utilization 
-        self.cpu_snapshot.printCpuSlices()
-        
-
   
         
 class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
@@ -30,19 +25,16 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         super(LookAheadEasyBackFillScheduler, self).__init__(num_processors)
 
 
+
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
         self._mark_jobs_in_look_ahead_best_order(current_time)
         result = []
-        if len(self.unscheduled_jobs) <= 1:
-            return []
-        if self.cpu_snapshot.free_processors_available_at(current_time) == 0:
-            return []
-        
+
         tail_of_waiting_list = self.unscheduled_jobs[1:]
 
         for job in tail_of_waiting_list:
-            if job.look_ahead_key == 1:
+            if job.backfill_flag == 1:
                 self.unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
@@ -50,10 +42,18 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         return result
 
 
+
+
+
     def _mark_jobs_in_look_ahead_best_order(self, current_time):
         print "current time (before reordering): ", current_time; self.cpu_snapshot.printCpuSlices()
+        if len(self.unscheduled_jobs) <= 1:
+            return
 
-        free_processors = self.cpu_snapshot.free_processors_available_at(current_time)        
+        free_processors = self.cpu_snapshot.free_processors_available_at(current_time)
+        if free_processors == 0:
+            return
+        
         first_job = self.unscheduled_jobs[0]
         cpu_snapshot_with_first_job = self.cpu_snapshot.quick_copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
@@ -66,7 +66,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
         for j in range(len(self.unscheduled_jobs)):
             job = self.unscheduled_jobs[j]
-            assert job.look_ahead_key == 0 
+            assert job.backfill_flag == 0 
             for k in range(free_processors + 1):
                 print "++++", j, k 
                 M[j, k] = Entry()
@@ -96,7 +96,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         print "______________the best entry:", best_entry.cpu_snapshot.printCpuSlices()
         for job in self.unscheduled_jobs:
             if job.id in best_entry.cpu_snapshot.slices[0].job_ids:        
-                job.look_ahead_key = 1  
+                job.backfill_flag = 1  
 
         
 

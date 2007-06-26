@@ -75,7 +75,7 @@ class Job(object):
         self.maui_counter = 0
 
         #the next is for the look ahead scheduler
-        self.look_ahead_key = 0
+        self.backfill_flag = 0
         
     @property
     def finish_time(self):
