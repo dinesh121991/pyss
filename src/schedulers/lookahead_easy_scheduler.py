@@ -21,7 +21,10 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
     """
     
     This scheduler implements the LOS Scheduling Algorithm [Edi Shmueli and Dror Feitelson, 2005]
-    Essentially this algorithm uses a dynamic programing method to decide which subset of jobs to backfill
+    It uses a dynamic programing method to decide which subset of jobs to backfill.
+    The implemelmentation of this scheduler is based mainly on the EasyBackfillScheduler class.
+    The single difference is that we only overide the _backfill_jobs function.
+    This function calls the function _mark_jobs_in_look_ahead_best_order before the preforming backfilling itself.
     """
     
     def __init__(self, num_processors, score_function = None):
@@ -47,8 +50,6 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
                 result.append(job)
 
         return result
-
-
 
 
 

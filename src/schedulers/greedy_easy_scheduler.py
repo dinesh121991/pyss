@@ -17,6 +17,15 @@ def basic_score_function(list_of_jobs):
 
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
+    """
+    This scheduler uses a greedy method to decide which subset of jobs to backfill.
+    Specifically, the algorithm sorts the jobs in the waiting list by several orders
+    (e.g. the orders in the default_sort_key_functions) and score each subsets using the given scoring function.
+    Then, the algorithm backfill the list of jobs given by the order with the best score.
+    The implemelmentation of this scheduler is based mainly on the EasyBackfillScheduler class.
+    The single difference is that we only overide the _backfill_jobs function.
+    This function calls _reorder_jobs_in_approximate_best_order before the preforming backfilling itself.
+    """
     def __init__(self, num_processors, sort_key_functions=None, score_function=None):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
 
