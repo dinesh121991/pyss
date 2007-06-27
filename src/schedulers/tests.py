@@ -186,7 +186,7 @@ class test_Simulator(unittest.TestCase):
 
     def test_look_ahead_easyBackfill(self):
         for i in range(14):
-            scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
+            scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS, score_function_for_look_ahead)
             simulator = run_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/look_ahead." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -199,9 +199,8 @@ class test_Simulator(unittest.TestCase):
     		lambda job :  job.estimated_run_time,
     		lambda job :  job.num_required_processors,
 	)
-        bv = BasicLocalEvaluationFuctionTest()
         for i in range(6):
-            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, bv.valuefunction)
+            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, score_function_for_greedy)
             simulator = run_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -213,10 +212,10 @@ class test_Simulator(unittest.TestCase):
 
 ###########
 
+def score_function_for_look_ahead(job):
+    return job.num_required_processors
 
-
-class BasicLocalEvaluationFuctionTest(object):
-    def valuefunction(self, list_of_jobs):
+def score_function_for_greedy(list_of_jobs):
         return len(list_of_jobs) # returns the length of the list: and thus a a list of more jobs is ranked higher
 
 
