@@ -34,15 +34,13 @@ class EasyBackfillScheduler(Scheduler):
 
     def _schedule_jobs(self, current_time):
         "Schedules jobs that can run right now, and returns them"
-        if len(self.unscheduled_jobs) == 0:
-            return []
-
         jobs  = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
 
         return jobs
 
     def _schedule_head_of_list(self, current_time):
+        
         result = []
         while True:
             if len(self.unscheduled_jobs) == 0:
@@ -61,6 +59,9 @@ class EasyBackfillScheduler(Scheduler):
         """
         Find jobs that can be backfilled and update the cpu snapshot.
         """
+        if len(self.unscheduled_jobs) <= 1:
+            return []
+        
         result = []
 
         # need to iterate over a copy, because the list is modified

@@ -38,11 +38,13 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
+        if len(self.unscheduled_jobs) <= 1:
+            return []
+
         self._mark_jobs_in_look_ahead_best_order(current_time)
+
         result = []
-
         tail_of_waiting_list = self.unscheduled_jobs[1:]
-
         for job in tail_of_waiting_list:
             if job.backfill_flag == 1:
                 self.unscheduled_jobs.remove(job)
@@ -54,17 +56,13 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
 
 
     def _mark_jobs_in_look_ahead_best_order(self, current_time):
-
-        if len(self.unscheduled_jobs) <= 1:
-            return
+        assert self.cpu_snapshot.slices[0].start_time == current_time
 
         free_processors = self.cpu_snapshot.free_processors_available_at(current_time)
-        if free_processors == 0:
-            return
-        
         first_job = self.unscheduled_jobs[0]
         cpu_snapshot_with_first_job = self.cpu_snapshot.quick_copy()
         cpu_snapshot_with_first_job.assignJobEarliest(first_job, current_time)
+         
 
         # M[j, k] represents the subset of jobs in {0...j} with the highest utilization if k processors are available
         M = {}  

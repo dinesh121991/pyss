@@ -1,4 +1,4 @@
-from common import CpuSnapshot
+from common import CpuSnapshot, list_copy
 from base.prototype import JobStartEvent
 
 from easy_scheduler import EasyBackfillScheduler
@@ -42,11 +42,10 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
 
     def _backfill_jobs(self, current_time):
         "Overriding parent method"
-
-        result = []
-        
         if len(self.unscheduled_jobs) <= 1:
             return []
+
+        result = []
         
         best_tail_of_jobs = self._reorder_jobs_in_approximate_best_order(current_time)
         
@@ -69,21 +68,20 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         first_job = self.unscheduled_jobs[0]
         cpu_snapshot_with_job = self.cpu_snapshot.quick_copy()
         cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
+        tail =  list_copy(self.unscheduled_jobs[1:])
 
         # get tail from best (score, tail) tuple
         best_tail = max(
-            self._scored_tail(cpu_snapshot_with_job, sort_key_func, current_time)
+            self._scored_tail(cpu_snapshot_with_job, sort_key_func, current_time, tail)
             for sort_key_func in self.sort_key_functions
         )[1]
         
         return best_tail
 
 
-    def _scored_tail(self, cpu_snapshot, sort_key_func, current_time):
-        tmp_cpu_snapshot = cpu_snapshot.copy()
+    def _scored_tail(self, cpu_snapshot, sort_key_func, current_time, tail):
+        tmp_cpu_snapshot = cpu_snapshot.quick_copy()
         tentative_list_of_jobs = []
-        tail = self.unscheduled_jobs[1:]
-        tail = self.list_copy(tail)
         sorted_tail = sorted(tail, key=sort_key_func)
         for job in sorted_tail:
             if tmp_cpu_snapshot.canJobStartNow(job, current_time):
@@ -93,8 +91,4 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         return self.score_function(tentative_list_of_jobs), sorted_tail
 
 
-    def list_copy(self, my_list):
-        result = []
-        for i in my_list:
-            result.append(i)
-        return result 
+   

@@ -1,3 +1,10 @@
+def list_copy(my_list):
+        result = []
+        for i in my_list:
+            result.append(i)
+        return result 
+
+
 class Scheduler(object):
     """
     Assumption: every handler returns a (possibly empty) collection of new events
@@ -43,6 +50,7 @@ class CpuTimeSlice(object):
     @property
     def busy_processors(self):
         return self.total_processors - self.free_processors
+
 
     def addJob(self, job):
         assert job.num_required_processors <= self.free_processors
@@ -109,7 +117,6 @@ class CpuSnapshot(object):
         assert len(self.slices) > 0
         return self.slices[-1].end_time
 
- 
     def _ensure_a_slice_starts_at(self, start_time):
         """
         A preprocessing stage.
