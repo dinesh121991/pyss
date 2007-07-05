@@ -2,7 +2,12 @@ def list_copy(my_list):
         result = []
         for i in my_list:
             result.append(i)
-        return result 
+        return result
+
+def list_print(my_list):
+	for i in my_list:
+            print i 
+        print
 
 
 class Scheduler(object):

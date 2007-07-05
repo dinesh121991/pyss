@@ -39,8 +39,7 @@ class EasyBackfillScheduler(Scheduler):
 
         return jobs
 
-    def _schedule_head_of_list(self, current_time):
-        
+    def _schedule_head_of_list(self, current_time):     
         result = []
         while True:
             if len(self.unscheduled_jobs) == 0:
@@ -91,7 +90,4 @@ class EasyBackfillScheduler(Scheduler):
         return temp_cpu_snapshot.canJobStartNow(second_job, current_time)
 
 
-    def print_waiting_list(self):
-        for job in self.unscheduled_jobs:
-            print job
-        print
+   
