@@ -1,6 +1,4 @@
 from common import CpuSnapshot, list_copy
-from base.prototype import JobStartEvent
-
 from easy_scheduler import EasyBackfillScheduler
 
 default_sort_key_functions = (

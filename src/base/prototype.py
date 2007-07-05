@@ -69,13 +69,16 @@ class Job(object):
         self.start_to_run_at_time = -1 # TODO: convert to None
 
         # the next are essentially for the MauiScheduler
-        self.admin_QoS = admin_QoS # the priority given by the system administration
-        self.user_QoS = user_QoS # the priority given by the user
+        self.admin_QoS  = admin_QoS # the priority given by the system administration
+        self.user_QoS   = user_QoS # the priority given by the user
         self.maui_bypass_counter = 0
         self.maui_counter = 0
 
-        #the next is for the look ahead scheduler
+        # the next is for the look ahead scheduler
         self.backfill_flag = 0
+
+	# the next is the prediction for the running time used mainly by easy_plus_plus
+	self.prediction_run_time = -1  
         
     @property
     def finish_time(self):

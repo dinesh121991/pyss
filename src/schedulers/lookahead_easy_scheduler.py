@@ -1,6 +1,4 @@
 from common import CpuSnapshot
-from base.prototype import JobStartEvent
-
 from easy_scheduler import EasyBackfillScheduler
 
 def default_score_function(job):
