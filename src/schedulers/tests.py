@@ -8,6 +8,7 @@ from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 import os
 INPUT_FILE_DIR = os.path.dirname(__file__) + "/Input_test_files"
 
@@ -82,6 +83,15 @@ class test_Simulator(unittest.TestCase):
     def test_basic_look_ahead_easyBackfill(self):
         for i in range(15):
             scheduler = LookAheadEasyBackFillScheduler(NUM_PROCESSORS)
+            simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time)
+
+    def test_basic_easyPlusPlusBackfill(self):
+        for i in range(15):
+            scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -208,6 +218,14 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, \
                                  "i="+str(i)+" "+str(job) + str(job.finish_time))
     
+    def test_easyPlusPlusBackfill(self):
+        for i in range(1):
+            scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
+            simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      input_file = INPUT_FILE_DIR + "/plus_plus_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time)
 
 
 ###########

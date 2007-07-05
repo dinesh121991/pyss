@@ -12,7 +12,7 @@ default_sort_key_functions = (
 )
 
 def basic_score_function(list_of_jobs):
-    return sum(job.num_processors * job.estimated_run_time for job in list_of_jobs)
+    return sum(job.num_required_processors * job.estimated_run_time for job in list_of_jobs)
 
 
 
