@@ -72,7 +72,7 @@ class EasyBackfillScheduler(Scheduler):
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
 
-        return result
+        return result 
 
     def canBeBackfilled(self, second_job, current_time):
         assert len(self.unscheduled_jobs) >= 2

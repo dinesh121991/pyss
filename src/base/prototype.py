@@ -117,7 +117,7 @@ class Machine(object):
     def __init__(self, event_queue):
         self.event_queue = event_queue
         self.event_queue.add_handler(JobStartEvent, self._start_job_handler)
-
+        
     def _start_job_handler(self, event):
         assert type(event) == JobStartEvent
         if event.job.start_to_run_at_time not in (-1, event.timestamp):
@@ -127,8 +127,15 @@ class Machine(object):
         self._add_job(event.job, event.timestamp)
 
     def _add_job(self, job, current_timestamp):
+        assert job.predicted_run_time <= job.user_estimated_run_time
+        # assert job.actual_run_time    <= job.user_estimated_run_time
+        
         self.event_queue.add_event(JobTerminationEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
-
+        if job.predicted_run_time < job.actual_run_time:
+             self.event_queue.add_event(JobPredictionIsOverEvent(job=job, timestamp=current_timestamp+job.predicted_run_time))
+            
+            
+            
 class ValidatingMachine(Machine):
     """
     Represents the actual parallel machine ('cluster'), validating proper
@@ -226,6 +233,13 @@ class Simulator(object):
         newEvents = self.scheduler.handleTerminationOfJobEvent(event.job, event.timestamp)
         for event in newEvents:
             self.event_queue.add_event(event)
+            
+    def handle_prediction_is_over_event(self, event):
+        assert isinstance(event, JobPredictionIsOverEvent)
+        newEvents = self.scheduler.handlePredictionIsOverEvent(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
+
 
 def simple_job_generator(num_jobs):
     import random

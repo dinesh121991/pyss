@@ -1,11 +1,11 @@
 #!/usr/bin/env python2.4
 
 from base.prototype import Job
-from base.prototype import JobSubmissionEvent, JobTerminationEvent
-from base.event_queue import EventQueue
+from base.prototype import JobSubmissionEvent, JobTerminationEvent, JobPredictionIsOverEvent
 from base.prototype import ValidatingMachine
-
+from base.event_queue import EventQueue
 from common import CpuSnapshot
+from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 
 import sys
 
@@ -63,6 +63,9 @@ class Simulator(object):
 
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
+        if isinstance(scheduler, EasyPlusPlusScheduler):
+            self.event_queue.add_handler(JobPredictionIsOverEvent, self.handle_prediction_event)
+            
 
         for job in self.jobs:
             self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
@@ -79,6 +82,13 @@ class Simulator(object):
         for event in newEvents:
             self.event_queue.add_event(event)
 
+    def handle_prediction_event(self, event):
+        assert isinstance(event, JobPredictionIsOverEvent)
+        newEvents = self.scheduler.new_events_on_job_under_prediction(event.job, event.timestamp)
+        for event in newEvents:
+            self.event_queue.add_event(event)
+
+            
     def run(self):
         while not self.event_queue.is_empty:
             self.event_queue.advance()
