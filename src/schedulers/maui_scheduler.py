@@ -72,7 +72,7 @@ class MauiScheduler(EasyBackfillScheduler):
 
     def aggregated_weight_of_job(self, weights, job, current_time):
         wait = current_time - job.submit_time # wait time since submission of job
-        sld = (wait + job.estimated_run_time) /  job.estimated_run_time
+        sld = (wait + job.user_estimated_run_time) /  job.user_estimated_run_time
 
         return (
             weights.wtime  * wait +

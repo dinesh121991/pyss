@@ -46,21 +46,21 @@ class JobEvent(object):
 class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
+class JobPredictionIsOverEvent(JobEvent):pass
 
-# Shouldn't it be:  [JobTerminationEvent, JobSubmissionEvent]?
-JobEvent.EVENTS_ORDER = [JobTerminationEvent, JobStartEvent]
+JobEvent.EVENTS_ORDER = [JobTerminationEvent, JobPredictionIsOverEvent, JobStartEvent, JobSubmissionEvent]
 
 class Job(object):
-    def __init__(self, id, estimated_run_time, actual_run_time, num_required_processors, \
+    def __init__(self, id, user_estimated_run_time, actual_run_time, num_required_processors, \
             submit_time=0, admin_QoS=0, user_QoS=0, user_id=0): # TODO: are these defaults used?
 
         assert num_required_processors > 0, "job_id=%s"%id
         assert actual_run_time > 0, "job_id=%s"%id
-        assert estimated_run_time > 0, "job_id=%s"%id
+        assert user_estimated_run_time > 0, "job_id=%s"%id
 
         self.id = id
-        self.estimated_run_time = estimated_run_time
-        self.predicted_run_time = estimated_run_time  
+        self.user_estimated_run_time = user_estimated_run_time
+        self.predicted_run_time = user_estimated_run_time  
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
 	self.user_id = user_id
@@ -91,7 +91,7 @@ class Job(object):
         return self.start_to_run_at_time + self.predicted_run_time
 
     def __repr__(self):
-        return type(self).__name__ + "<id=%(id)s, estimated_run_time=%(estimated_run_time)s, actual_run_time=%(actual_run_time)s, num_required_processors=%(num_required_processors)s>" % vars(self)
+        return type(self).__name__ + "<id=%(id)s, user_estimated_run_time=%(user_estimated_run_time)s, actual_run_time=%(actual_run_time)s, num_required_processors=%(num_required_processors)s>" % vars(self)
 
 class StupidScheduler(object):
     "A very simple scheduler - schedules jobs one after the other with no chance of overlap"
@@ -105,7 +105,7 @@ class StupidScheduler(object):
 
         result = [JobStartEvent(timestamp=self.next_free_time, job=job)]
 
-        self.next_free_time += job.estimated_run_time
+        self.next_free_time += job.user_estimated_run_time
 
         return result
 
@@ -178,7 +178,7 @@ def parse_job_lines_quick_and_dirty(lines):
         x = line.split()
         yield int(x[1]), Job(
             id = int(x[0]),
-            estimated_run_time = int(x[8]),
+            user_estimated_run_time = int(x[8]),
             actual_run_time = int(x[3]),
             num_required_processors = max(int(x[7]), int(x[4])), # max(num_requested,max_allocated)
         )
@@ -186,7 +186,7 @@ def parse_job_lines_quick_and_dirty(lines):
 def _job_input_to_job(job_input):
     return Job(
         id = job_input.number,
-        estimated_run_time = job_input.requested_time,
+        user_estimated_run_time = job_input.requested_time,
         actual_run_time = job_input.run_time,
         # TODO: do we want the no. of allocated processors instead of the no. requested?
         num_required_processors = job_input.num_requested_processors,
@@ -234,7 +234,7 @@ def simple_job_generator(num_jobs):
         start_time += random.randrange(0, 15)
         yield start_time, Job(
             id=id,
-            estimated_run_time=random.randrange(400, 2000),
+            user_estimated_run_time=random.randrange(400, 2000),
             actual_run_time=random.randrange(30, 1000),
             num_required_processors=random.randrange(2,100),
         )

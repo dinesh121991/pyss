@@ -278,7 +278,7 @@ class test_Simulator(TestCase):
         job = _job_input_to_job(job_input)
 
         self.assertEqual( job.id, job_input.number )
-        self.assertEqual( job.estimated_run_time, job_input.requested_time )
+        self.assertEqual( job.user_estimated_run_time, job_input.requested_time )
         self.assertEqual( job.actual_run_time, job_input.run_time )
         self.assertEqual( job.num_required_processors, job_input.num_requested_processors )
 
@@ -310,10 +310,10 @@ class test_ValidatingMachine(TestCase):
     def tearDown(self):
         del self.event_queue, self.machine, self.unique_numbers
 
-    def _unique_job(self, estimated_run_time=100, actual_run_time=60, num_required_processors=20):
+    def _unique_job(self, user_estimated_run_time=100, actual_run_time=60, num_required_processors=20):
         return prototype.Job(
                 id = self.unique_numbers.next(),
-                estimated_run_time = estimated_run_time,
+                user_estimated_run_time = user_estimated_run_time,
                 actual_run_time = actual_run_time,
                 num_required_processors = num_required_processors
             )
@@ -401,7 +401,7 @@ class test_StupidScheduler(TestCase):
         del self.scheduler
 
     def test_job_submitted_creates_job_start_event(self):
-        job = prototype.Job(id=1, estimated_run_time=100, actual_run_time=60, num_required_processors=20)
+        job = prototype.Job(id=1, user_estimated_run_time=100, actual_run_time=60, num_required_processors=20)
 
         new_events = self.scheduler.handleSubmissionOfJobEvent(job=job, timestamp=0)
 

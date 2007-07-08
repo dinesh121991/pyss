@@ -208,7 +208,7 @@ class test_Simulator(unittest.TestCase):
 
     def test_greedy_easyBackfill(self):
 	bf = (
-    		lambda job :  job.estimated_run_time,
+    		lambda job :  job.user_estimated_run_time,
     		lambda job :  job.num_required_processors,
 	)
         for i in range(6):
