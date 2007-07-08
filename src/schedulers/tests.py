@@ -92,7 +92,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
     def test_basic_easyPlusPlusBackfill(self):
-        for i in range(1):
+        for i in range(15):
             scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
@@ -219,8 +219,9 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, \
                                  "i="+str(i)+" "+str(job) + str(job.finish_time))
+
     def test_easyPlusPlusBackfill(self):
-        for i in range(0):
+        for i in range(8):
             scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       input_file = INPUT_FILE_DIR + "/plus_plus_easy." + str(i))
