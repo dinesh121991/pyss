@@ -12,8 +12,8 @@ class JobEvent(object):
 
     def __init__(self, timestamp, job):
         self.timestamp = timestamp
+        self.counter   = JobEvent.next_counter()
         self.job = job
-        self.counter = JobEvent.next_counter()
 
     def __repr__(self):
         return type(self).__name__ + "<timestamp=%(timestamp)s, job=%(job)s>" % vars(self)
@@ -47,8 +47,7 @@ class JobSubmissionEvent(JobEvent): pass
 class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
 
-#Shouldn't it be:  [JobTerminationEvent, JobSubmissionEvent]?
-
+# Shouldn't it be:  [JobTerminationEvent, JobSubmissionEvent]?
 JobEvent.EVENTS_ORDER = [JobTerminationEvent, JobStartEvent]
 
 class Job(object):
@@ -60,11 +59,12 @@ class Job(object):
         assert estimated_run_time > 0, "job_id=%s"%id
 
         self.id = id
-        self.estimated_run_time = estimated_run_time
+        self.estimated_run_time  = estimated_run_time
+        self.prediction_run_time = estimated_run_time  
         self.actual_run_time = actual_run_time
         self.num_required_processors = num_required_processors
 	self.user_id = user_id
-
+        
 
         # not used by base
         self.submit_time = submit_time # Assumption: submission time is greater than zero
@@ -79,8 +79,6 @@ class Job(object):
         # the next is for the look ahead scheduler
         self.backfill_flag = 0
 
-	# the next is the prediction for the running time used mainly by easy_plus_plus
-	self.prediction_run_time = -1  
         
     @property
     def finish_time(self):
