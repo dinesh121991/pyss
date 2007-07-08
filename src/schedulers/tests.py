@@ -27,7 +27,7 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
         j.id = job.id
         j.num_required_processors = job.num_required_processors
         j.start_to_run_at_time = job.start_to_run_at_time
-        j.estimated_run_time = j.actual_run_time = job.actual_run_time 
+        j.predicted_run_time = job.actual_run_time 
         cpu_snapshot.delJobFromCpuSlices(j)
 
     assert cpu_snapshot.CpuSlicesTestEmptyFeasibility()

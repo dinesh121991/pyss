@@ -194,13 +194,13 @@ class CpuSnapshot(object):
     def jobEarliestAssignment(self, job, time):
         """
         returns the earliest time right after the given time for which the job
-        can be assigned enough processors for job.estimated_run_time unit of
+        can be assigned enough processors for job.predicted_run_time unit of
         times in an uninterrupted fashion.
         Assumptions: the given is greater than the submission time of the job >= 0.
         """
         assert job.num_required_processors <= self.total_processors
 
-        self._append_time_slice(self.total_processors, time + job.estimated_run_time + 1)
+        self._append_time_slice(self.total_processors, time + job.predicted_run_time + 1)
 
         partially_assigned = False
         tentative_start_time = accumulated_duration = 0
@@ -224,7 +224,7 @@ class CpuSnapshot(object):
                 # job is partially_assigned:
                 accumulated_duration += s.duration
 
-            if accumulated_duration >= job.estimated_run_time:
+            if accumulated_duration >= job.predicted_run_time:
                 self.slices[-1].duration = 1000 # making sure that the last "empty" slice we've just added will not be huge
                 return tentative_start_time
 
@@ -236,20 +236,6 @@ class CpuSnapshot(object):
 
         return (s for s in self.slices if start <= s.start_time < end)
 
-    def assignJob(self, job, job_start):
-        """
-        assigns the job to start at the given job_start time.
-        Important assumption: job_start was returned by jobEarliestAssignment.
-        """
-        job.start_to_run_at_time = job_start
-        self._ensure_a_slice_starts_at(job_start)
-        self._ensure_a_slice_starts_at(job.estimated_finish_time)
-
-        for s in self._slices_time_range(job_start, job.estimated_finish_time):
-            s.addJob(job)
-
-    def assignJobEarliest(self, job, time):
-        self.assignJob(job, self.jobEarliestAssignment(job, time))
 
     def delJobFromCpuSlices(self, job):
         """
@@ -257,27 +243,36 @@ class CpuSnapshot(object):
         Assumption: job resides at consecutive slices (no preemptions), and
         nothing is archived!
         """
-        for s in self._slices_time_range(job.start_to_run_at_time, job.estimated_finish_time):
+        for s in self._slices_time_range(job.start_to_run_at_time, job.predicted_finish_time):
             s.delJob(job)
 
+	    
     def delTailofJobFromCpuSlices(self, job):
         """
         This function is used when the actual duration is smaller than the
         estimated duration, so the tail of the job must be deleted from the
-        slices.
-        We iterate trough the sorted slices until the critical point is found:
+        slices. We iterate trough the sorted slices until the critical point is found:
         the point from which the tail of the job starts.
-        Assumption: job is assigned to successive slices. Specifically, there
-        are no preemptions.
+        Assumptions: job is assigned to successive slices.  
         """
-
-        if job.actual_run_time == job.estimated_run_time:
-            return
-      
-        self._ensure_a_slice_starts_at(job.finish_time)
-
-        for s in self._slices_time_range(job.finish_time, job.estimated_finish_time):
+        for s in self._slices_time_range(job.finish_time, job.predicted_finish_time):
             s.delJob(job)
+
+    def assignJob(self, job, job_start):
+        """
+        assigns the job to start at the given job_start time.
+        Important assumption: job_start was returned by jobEarliestAssignment.
+        """
+        job.start_to_run_at_time = job_start
+        self._ensure_a_slice_starts_at(job_start)
+        self._ensure_a_slice_starts_at(job.predicted_finish_time)
+
+        for s in self._slices_time_range(job_start, job.predicted_finish_time):
+            s.addJob(job)
+
+    def assignJobEarliest(self, job, time):
+        self.assignJob(job, self.jobEarliestAssignment(job, time))
+
 
     def archive_old_slices(self, current_time):
         assert self.slices
