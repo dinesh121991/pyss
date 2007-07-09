@@ -2,11 +2,10 @@ from common import Scheduler, CpuSnapshot, list_copy
 from base.prototype import JobStartEvent
 
 
-
+# shortest job first 
 sjf_sort_key = (
     lambda job :  job.predicted_run_time
 )
-
 
 
 class  EasyPlusPlusScheduler(Scheduler):
@@ -46,7 +45,7 @@ class  EasyPlusPlusScheduler(Scheduler):
 
     def new_events_on_job_under_prediction(self, job, current_time):
         assert job.predicted_run_time <= job.user_estimated_run_time
-        self.cpu_snapshot.assignTailofJobToTheCpuSlices(job)
+        self.cpu_snapshot.assignTailofJobToTheCpuSlices(job) 
         return []
 
 
@@ -80,7 +79,6 @@ class  EasyPlusPlusScheduler(Scheduler):
     
 
     def _backfill_jobs(self, current_time):
-        "Overriding parent method"
         if len(self.unscheduled_jobs) <= 1:
             return []
 
