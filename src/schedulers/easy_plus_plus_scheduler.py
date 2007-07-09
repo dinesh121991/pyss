@@ -17,17 +17,11 @@ class  EasyPlusPlusScheduler(Scheduler):
         super(EasyPlusPlusScheduler, self).__init__(num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.unscheduled_jobs = []
-
         self.user_run_time_prev = {}
         self.user_run_time_last = {}
 
     
     def new_events_on_job_submission(self, just_submitted_job, current_time):
-	print ">>>>>>>>>>>>>>>>> Arrival event"
-	print just_submitted_job
-	self.cpu_snapshot.printCpuSlices()
-	
-
         u_id = str(just_submitted_job.user_id)
         if not self.user_run_time_last.has_key(u_id): 
             self.user_run_time_prev[u_id] = None 
@@ -40,10 +34,6 @@ class  EasyPlusPlusScheduler(Scheduler):
         ]
 
     def new_events_on_job_termination(self, job, current_time):
-	print ">>>>>>>>>>>>>>>>> Termination event"
-	self.cpu_snapshot.printCpuSlices()
-	print self.user_run_time_last
-	print self.user_run_time_prev
         self.user_run_time_prev[job.user_id]  = self.user_run_time_last[job.user_id]
         self.user_run_time_last[job.user_id]  = job.actual_run_time
         self.cpu_snapshot.archive_old_slices(current_time)
@@ -55,9 +45,6 @@ class  EasyPlusPlusScheduler(Scheduler):
 
 
     def new_events_on_job_under_prediction(self, job, current_time):
-	print "<<<<<<<<<<<<<<<< Prediction event"
-	self.cpu_snapshot.printCpuSlices()
-
         assert job.predicted_run_time <= job.user_estimated_run_time
         self.cpu_snapshot.assignTailofJobToTheCpuSlices(job)
         return []
@@ -70,7 +57,6 @@ class  EasyPlusPlusScheduler(Scheduler):
             if self.user_run_time_prev[u_id] is not None and self.user_run_time_last[u_id] is not None: 
                 average =  int((self.user_run_time_last[u_id] + self.user_run_time_prev[u_id])/ 2)
                 job.predicted_run_time = min (job.user_estimated_run_time, average)
-            print job
 
         jobs  = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
@@ -114,7 +100,4 @@ class  EasyPlusPlusScheduler(Scheduler):
         self.cpu_snapshot.delJobFromCpuSlices(first_job)
 
         return result
-
-
-
 
