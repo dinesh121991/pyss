@@ -221,7 +221,7 @@ class test_Simulator(unittest.TestCase):
                                  "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_easyPlusPlusBackfill(self):
-        for i in range(14):
+        for i in range(15):
             scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
             simulator = run_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       input_file = INPUT_FILE_DIR + "/plus_plus_easy." + str(i))
