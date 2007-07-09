@@ -264,7 +264,7 @@ class CpuSnapshot(object):
 	than the user estimated duration, then the function adds more slices to the job accordingly.
 	
 	"""
-	if job.user_estimated_run_time <= job.user_predicted_run_time:
+	if job.user_estimated_run_time <= job.predicted_run_time:
 		return
 
 	job_estimated_finish_time = job.start_to_run_at_time + job.user_estimated_run_time	
