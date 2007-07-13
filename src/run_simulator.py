@@ -8,7 +8,7 @@ if __debug__:
 from base.workload_parser import parse_lines
 from base.prototype import _job_inputs_to_jobs
 from schedulers.simulator import run_simulator
-from schedulers.maui_scheduler import MauiScheduler
+from schedulers.conservative_scheduler import ConservativeScheduler
 
 import optparse
 
@@ -43,7 +43,7 @@ def main():
         run_simulator(
                 num_processors = options.num_processors,
                 jobs = _job_inputs_to_jobs(parse_lines(input_file)),
-                scheduler = MauiScheduler(options.num_processors)
+                scheduler = ConservativeScheduler(options.num_processors)
             )
 
         print "done."
