@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.4
 
-from base.prototype import Job
 from base.prototype import JobSubmissionEvent, JobTerminationEvent, JobPredictionIsOverEvent
 from base.prototype import ValidatingMachine
 from base.event_queue import EventQueue
@@ -8,42 +7,6 @@ from common import CpuSnapshot
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 
 import sys
-
-def parse_jobs(input_file_name):
-    """
-    Assumption: Job details are 'correct': submit_time,
-    num_required_processors and duration are non-negative, job id is
-    unique, and the amount of processors requested by the job is never more
-    than the total available processors
-    """
-    input_file = open(input_file_name) # openning of the specified file for reading
-    jobs = []
-
-    for line in input_file:
-        if len(line.strip()) == 0: # skip empty lines (.strip() removes leading and trailing whitspace)
-            continue
-        if line.startswith('#'): # skip comments
-            continue
-
-        (str_j_submit_time, j_id, str_j_estimated_run_time, str_j_processors, \
-         str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS, j_user_id) = line.split()
-
-        j_submit_time = int(str_j_submit_time)
-        j_estimated_run_time = int(str_j_estimated_run_time)
-        j_actual_run_time = int(str_j_actual_run_time)
-        j_processors = int(str_j_processors)
-	
-
-        if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_processors > 0 and j_actual_run_time >= 0:
-            j_admin_QoS = int(str_j_admin_QoS)
-            j_user_QoS = int(str_j_user_QoS)
-            newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, \
-                         j_processors, j_submit_time, j_admin_QoS, j_user_QoS, j_user_id)
-            jobs.append(newJob)
-
-    input_file.close()
-
-    return jobs
 
 class Simulator(object):
     """
@@ -93,12 +56,9 @@ class Simulator(object):
         while not self.event_queue.is_empty:
             self.event_queue.advance()
 
-def run_simulator(num_processors, input_file, scheduler):
-    simulator = Simulator(parse_jobs(input_file), num_processors, scheduler)
-
+def run_simulator(num_processors, jobs, scheduler):
+    simulator = Simulator(jobs, num_processors, scheduler)
     simulator.run()
-
-    #print_simulator_stats(simulator)
     return simulator
 
 def print_simulator_stats(simulator):
