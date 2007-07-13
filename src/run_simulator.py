@@ -3,25 +3,47 @@
 import sys
 if __debug__:
     import warnings
-    warnings.warn("Running in debug mode, this will be slow... try 'python2.4 -O %s'" % sys.argv[0])
+    #warnings.warn("Running in debug mode, this will be slow... try 'python2.4 -O %s'" % sys.argv[0])
 
 from base.workload_parser import parse_lines
 from base.prototype import _job_inputs_to_jobs
 from schedulers.simulator import run_simulator
 from schedulers.maui_scheduler import MauiScheduler
 
+import optparse
+
+def parse_options():
+    parser = optparse.OptionParser()
+    parser.add_option("--num-processors", type="int")
+    parser.add_option("--input-file")
+
+    options, args = parser.parse_args()
+
+    if options.num_processors is None:
+        parser.error("missing num processors")
+
+    if options.input_file is None:
+        parser.error("missing input file")
+
+    if args:
+        parser.error("unknown extra arguments: %s" % args)
+
+    return options
+
 def main():
-    input_filename = sys.argv[1]
-    print "Reading %r..." % input_filename
+    options = parse_options()
 
-    NUM_PROCESSORS = 100 # TODO: take from input instead of magic number
+    print "num_processors =", options.num_processors
+    print "Reading %r..." % options.input_file
 
-    input_file = open(input_filename)
+    options.num_processors = 100 # TODO: take from input instead of magic number
+
+    input_file = open(options.input_file)
     try:
         run_simulator(
-                num_processors = NUM_PROCESSORS,
+                num_processors = options.num_processors,
                 jobs = _job_inputs_to_jobs(parse_lines(input_file)),
-                scheduler = MauiScheduler(NUM_PROCESSORS)
+                scheduler = MauiScheduler(options.num_processors)
             )
 
         print "done."
