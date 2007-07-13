@@ -3,7 +3,7 @@
 from base.prototype import JobSubmissionEvent, JobTerminationEvent, JobPredictionIsOverEvent
 from base.prototype import ValidatingMachine
 from base.event_queue import EventQueue
-from common import CpuSnapshot
+from common import CpuSnapshot, list_print
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 
 import sys
@@ -62,17 +62,14 @@ def run_simulator(num_processors, jobs, scheduler):
     return simulator
 
 def print_simulator_stats(simulator):
+    simulator.scheduler.cpu_snapshot._restore_old_slices()
     simulator.scheduler.cpu_snapshot.printCpuSlices()
     print_statistics(simulator.jobs)
 
 def print_statistics(jobs):
-    if len(jobs) == 0:
-        print
-        print "STATISTICS: "
-        print "Input file is probably empty"
-        return
-
-    wait_time = sigma_wait_time = flow_time = sigma_flow_time = 0
+    assert jobs is not None, "Input file is probably empty"
+    wait_time = sigma_wait_time = 0
+    flow_time = sigma_flow_time = 0
     counter = 0
 
     for job in jobs:
