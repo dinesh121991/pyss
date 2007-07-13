@@ -58,13 +58,13 @@ class CpuTimeSlice(object):
 
 
     def addJob(self, job):
-        assert job.num_required_processors <= self.free_processors
+        assert job.num_required_processors <= self.free_processors, job
         assert job.id not in self.job_ids, "job.id = "+str(job.id)+", job_ids "+str(self.job_ids)
         self.free_processors -= job.num_required_processors
         self.job_ids.add(job.id)
 
     def delJob(self, job):
-        assert job.num_required_processors <= self.busy_processors
+        assert job.num_required_processors <= self.busy_processors, job
         self.free_processors += job.num_required_processors
         self.job_ids.remove(job.id)
 
@@ -198,7 +198,7 @@ class CpuSnapshot(object):
         times in an uninterrupted fashion.
         Assumptions: the given is greater than the submission time of the job >= 0.
         """
-        assert job.num_required_processors <= self.total_processors
+        assert job.num_required_processors <= self.total_processors, job
 
         self._append_time_slice(self.total_processors, time + job.predicted_run_time + 1)
 
