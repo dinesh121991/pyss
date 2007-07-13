@@ -8,6 +8,7 @@ if __debug__:
 from base.workload_parser import parse_lines
 from base.prototype import _job_inputs_to_jobs
 from schedulers.simulator import run_simulator
+from schedulers.maui_scheduler import MauiScheduler
 
 def main():
     input_filename = sys.argv[1]
