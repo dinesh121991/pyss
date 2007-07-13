@@ -197,6 +197,8 @@ def _job_input_to_job(job_input):
         actual_run_time = job_input.run_time,
         # TODO: do we want the no. of allocated processors instead of the no. requested?
         num_required_processors = job_input.num_requested_processors,
+        submit_time = job_input.submit_time, 
+        user_id = job_input.user_id, 
     )
 
 def _job_inputs_to_jobs(job_inputs):
