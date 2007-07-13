@@ -198,7 +198,7 @@ class CpuSnapshot(object):
         times in an uninterrupted fashion.
         Assumptions: the given is greater than the submission time of the job >= 0.
         """
-        assert job.num_required_processors <= self.total_processors, job
+        assert job.num_required_processors <= self.total_processors, str(self.total_processors)
 
         self._append_time_slice(self.total_processors, time + job.predicted_run_time + 1)
 

@@ -36,8 +36,6 @@ def main():
     print "num_processors =", options.num_processors
     print "Reading %r..." % options.input_file
 
-    options.num_processors = 100 # TODO: take from input instead of magic number
-
     input_file = open(options.input_file)
     try:
         run_simulator(
