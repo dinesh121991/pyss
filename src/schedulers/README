@@ -409,3 +409,17 @@ head -5000 ../../temp/stam2/input > ! input ; time simulator.py > ! output
 testoob.testing.skip("not ready yet")
 
 ./runtests.sh --regex='test_.*easy'
+---------------------------------------------------------------------------------
+5000 line of input file, the integrated code before profiling on pentium 4: 
+
+time run_simulator.sh --num-processors=128 --input-file=5K_sample
+32.106u 0.140s 1:01.98 52.0%    0+0k 0+0io 0pf+0w
+
+20000 line of input file, the integrated code before profiling on pentium 4: 
+time run_simulator.sh --num-processors=128 --input-file=20K_sample
+417.242u 0.896s 8:24.15 82.9%   0+0k 0+0io 0pf+0w
+
+
+
+run_simulator.sh --num-processors=128 --input-file=20K_sample
+
