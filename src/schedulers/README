@@ -1,3 +1,7 @@
+Avi Nissimov files: 
+/cs/par/users/abradina/lab/thesis/java/iml_em
+/cs/par/users/abradina/lab/thesis/java/backfilling
+
  Python 2.3.5 (#2, Aug 30 2005, 15:50:26) 
 [GCC 4.0.2 20050821 (prerelease) (Debian 4.0.1-6)] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
@@ -414,6 +418,7 @@ testoob.testing.skip("not ready yet")
 
 time run_simulator.sh --num-processors=128 --input-file=5K_sample
 32.106u 0.140s 1:01.98 52.0%    0+0k 0+0io 0pf+0w
+
 
 20000 line of input file, the integrated code before profiling on pentium 4: 
 time run_simulator.sh --num-processors=128 --input-file=20K_sample
