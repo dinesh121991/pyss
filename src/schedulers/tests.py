@@ -3,14 +3,16 @@
 import unittest
 import os
 from simulator import run_simulator
+from base.prototype import Job
+
 from fcfs_scheduler import FcfsScheduler
-from conservative_scheduler import ConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
+from conservative_scheduler import ConservativeScheduler
 from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
-from base.prototype import Job
+from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 
 def parse_jobs_test_input(input_file_name):
     """
@@ -143,6 +145,17 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+
+               
+    def test_basic_probabilistic_easy(self): 
+        for i in range(15):
+            scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+
 
 
     def test_fcfs(self):
