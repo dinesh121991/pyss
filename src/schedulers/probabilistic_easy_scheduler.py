@@ -35,10 +35,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
     
     def __init__(self, num_processors, threshold = 0.05):
         super(ProbabilisticEasyScheduler, self).__init__(num_processors)
+        self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.unscheduled_jobs = []
-        self.user_distribution = {}
         self.currently_running_jobs = []
+        self.user_distribution = {}
+    
     
     def new_events_on_job_submission(self, job, current_time):
         if not self.user_distribution.has_key(job.user_id): 
@@ -98,7 +100,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         tail =  self.unscheduled_jobs[1:]
                 
         for job in tail:
-            if self.cpu_snapshot.can_be_probabilistically_backfilled(job, current_time): 
+            if self.can_be_probabilistically_backfilled(job, current_time): 
                 self.unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
@@ -116,7 +118,26 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
         first_job = self.unscheduled_jobs[0]
+        second_job_distribution_bins = self.user_distribution[second_job.user_id].bins
+
+        bottle_neck_prediction = 0
         
+        for t in sorted(second_job_distribution_bins.keys()):
+            print t, second_job_distribution_bins[t]
+            bottle_neck_prediction += second_job_distribution_bins[t] * self.max_bottle_neck_up_to_time(t, second_job)
+
+        if bottle_neck_prediction < self.threshold:
+            return True
+        else:
+            return False
+
+    def max_bottle_neck_up_to_time(self, t, second_job):
+        return 0
+    
+        
+             
+
+        """
         M = {}
 
         C = first_job.num_required_processors + second_job.num_required_processors
@@ -126,5 +147,5 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         for j in range(len(self.running_jobs)):
             pass # bla bla bla 
-        
+        """
         return True ########################### ????????
