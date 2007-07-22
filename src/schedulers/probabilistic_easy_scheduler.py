@@ -14,7 +14,7 @@ class Distribution(object):
 
 
     def touch(self, time): # just add empty entries
-        rounded_up_time = pow(2, int(log(time, 2)) + 1)
+        rounded_up_time = pow(2, int(log(time, 2)) + 2)
         while rounded_up_time > 1: # we add entries with logarithmically smaller keys and zero values   
             rounded_up_time = rounded_up_time / 2
             if not self.bins.has_key(rounded_up_time):
@@ -115,7 +115,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         result = []  
         first_job = self.unscheduled_jobs[0]        
-        tail =  self.unscheduled_jobs[1:]
+        tail      = self.unscheduled_jobs[1:]
                 
         for job in tail:
             if self.can_be_probabilistically_backfilled(job, current_time): 
@@ -139,7 +139,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         if second_job_distribution.number_of_jobs_added == 0: # we still haven't collected any information about the user
             upper_bound = second_job.user_estimated_run_time
-            if self.max_bottle_neck_up_to(upper_bound, second_job, current_time) < self.threshold:
+            if self.max_bottle_neck_up_to(upper_bound, second_job, first_job, current_time) < self.threshold:
                 return True
             else:
                 return False
@@ -149,7 +149,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         for t in sorted(second_job_distribution.bins.keys()):
             print t, second_job_distribution.bins[t]
             second_job_probability_to_end_at_t = second_job_distribution.bins[t] / second_job_distribution.number_of_jobs_added
-            bad_prediction += second_job_probability_to_end_at_t * self.max_bottle_neck_up_to(t, second_job, current_time)
+            bad_prediction += second_job_probability_to_end_at_t * self.max_bottle_neck_up_to(t, second_job, first_job, current_time)
     
         if bad_prediction < self.threshold:
             return True
@@ -157,27 +157,33 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
 
-    def max_bottle_neck_up_to(self, t, second_job, current_time):
+    def max_bottle_neck_up_to(self, time, second_job, first_job, current_time):
         for job in self.currently_running_jobs:
-            self.user_distribution[job.user_id].touch(t)
+            self.user_distribution[job.user_id].touch(time)
 
+        result = 0.0
+        tmp_time = 1
+        
+        while tmp_time <= time:
+            M = {}
+            C = first_job.num_required_processors + second_job.num_required_processors
+            
+            #M[n, c] = M[n-1][c] + \
+                      #(M[n-1][c - self.currently_running_jobs[n].num_required_processors]-M[n-1][c]) * P[n]
+         
+
+            tmp_time *= 2
+            
 
         """
-        M = {}
-
-        C = first_job.num_required_processors + second_job.num_required_processors
-        
         for k in range(C + 1):
             M[0, k] = 0.0
 
-        for j in range(len(self.running_jobs)):
-            pass # bla bla bla 
-        """
             
         rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
         self.user_distribution[job.user_id].bins
             
-        
+        """
         # for int(log(job.actual_run_time, 2))
         return 0
     
