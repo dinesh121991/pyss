@@ -38,7 +38,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(num_processors)
         self.unscheduled_jobs = []
         self.user_distribution = {}
-        self.running_jobs = []
+        self.currently_running_jobs = []
     
     def new_events_on_job_submission(self, job, current_time):
         if not self.user_distribution.has_key(job.user_id): 
@@ -54,7 +54,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
     def new_events_on_job_termination(self, job, current_time):
         self.user_distribution[job.user_id].add_job(job)
-        self.running_jobs.remove(job)
+        self.currently_running_jobs.remove(job)
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return [
@@ -68,10 +68,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
         "Schedules jobs that can run right now, and returns them"
         jobs  = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
-        
         for job in jobs:
-            self.running_jobs.append(job)
-            
+            self.currently_running_jobs.append(job)
         return jobs
 
 
