@@ -6,12 +6,13 @@ class Distribution(object):
     def __init__(self):
         self.bins = {}
         self.bins[1] = 0 # adding the first entry to the distribution main data structure
-
+        self.number_of_jobs_added = 0
          
     def add_job(self, job):
         assert job.actual_run_time > 0
         
-        tmp = rounded_run_time = int(log(job.actual_run_time, 2))
+        rounded_run_time = int(log(job.actual_run_time, 2))
+        self.number_of_jobs_added += 1
 
         if self.bins.has_key(rounded_run_time):
             self.bins[rounded_run_time] += 1 # incrementing the numbers of the numbers of terminated jobs encountered so far
@@ -19,6 +20,7 @@ class Distribution(object):
         
         # else: False == self.bins.has_key(rounded_run_time):
         self.bins[rounded_run_time] = 1   # we add a new entry initialized to 1
+        tmp = rounded_run_time
         while tmp > 1:                    # and then we add entries with logarithmically smaller keys  
             tmp = tmp / 2
             if not self.bins.has_key(tmp):
@@ -118,20 +120,30 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
         first_job = self.unscheduled_jobs[0]
-        second_job_distribution_bins = self.user_distribution[second_job.user_id].bins
+        second_job_distribution = self.user_distribution[second_job.user_id]
 
-        bottle_neck_prediction = 0
-        
-        for t in sorted(second_job_distribution_bins.keys()):
-            print t, second_job_distribution_bins[t]
-            bottle_neck_prediction += second_job_distribution_bins[t] * self.max_bottle_neck_up_to_time(t, second_job)
+        if second_job_distribution.number_of_jobs_added == 0: # we still haven't collected any information about the user
+            upper_bound = second_job.user_estimated_run_time
+            if self.max_bottle_neck_up_to(upper_bound, second_job, current_time) < self.threshold:
+                return True
+            else:
+                return False
+            
+    
+        # main loop
+        bad_prediction = 0
+        for t in sorted(second_job_distribution.bins.keys()):
+            second_job_probability_to_end_at_t = second_job_distribution.bins[t] / second_job_distribution.number_of_jobs_added
+            
+            bad_prediction += second_job_probability_to_end_at_t * self.max_bottle_neck_up_to(t, second_job, current_time)
 
-        if bottle_neck_prediction < self.threshold:
+        if bad_prediction < self.threshold:
             return True
         else:
             return False
 
-    def max_bottle_neck_up_to_time(self, t, second_job):
+
+    def max_bottle_neck_up_to(self, t, second_job, current_time):
         return 0
     
         
