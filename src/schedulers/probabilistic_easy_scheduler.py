@@ -5,20 +5,21 @@ from math import log
 class Distribution(object):
     def __init__(self):
         self.bins = {}
-        self.bins[1] = 0
-        
+        self.bins[1] = 0 # adding the first entry to the distribution main data structure
+
+         
     def add_job(self, job):
         assert job.actual_run_time > 0
         
         tmp = rounded_run_time = int(log(job.actual_run_time, 2))
 
         if self.bins.has_key(rounded_run_time):
-            self.bins[rounded_run_time] += 1
+            self.bins[rounded_run_time] += 1 # incrementing the numbers of the numbers of terminated jobs encountered so far
             return
         
         # else: False == self.bins.has_key(rounded_run_time):
-        self.bins[rounded_run_time] = 1   # we add a new entry 
-        while tmp > 1:                    # and then add entries with logarithmically smaller keys  
+        self.bins[rounded_run_time] = 1   # we add a new entry initialized to 1
+        while tmp > 1:                    # and then we add entries with logarithmically smaller keys  
             tmp = tmp / 2
             if not self.bins.has_key(tmp):
                 self.bins[tmp] = 0
