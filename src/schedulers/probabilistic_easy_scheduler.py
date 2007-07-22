@@ -6,12 +6,14 @@ class Distribution(object):
     def __init__(self):
         self.bins = {}
         self.bins[1] = 0 # adding the first entry to the distribution main data structure
+        self.max_key = 1
         self.number_of_jobs_added = 0
+
          
     def add_job(self, job):
         assert job.actual_run_time > 0
         
-        rounded_run_time = int(log(job.actual_run_time, 2))
+        rounded_run_time = pow(2, int(log(job.actual_run_time, 2)) + 1)
         self.number_of_jobs_added += 1
 
         if self.bins.has_key(rounded_run_time):
@@ -20,6 +22,7 @@ class Distribution(object):
         
         # else: False == self.bins.has_key(rounded_run_time):
         self.bins[rounded_run_time] = 1   # we add a new entry initialized to 1
+        self.max_key = rounded_run_time
         tmp = rounded_run_time
         while tmp > 1:                    # and then we add entries with logarithmically smaller keys  
             tmp = tmp / 2
@@ -72,8 +75,6 @@ class  ProbabilisticEasyScheduler(Scheduler):
         "Schedules jobs that can run right now, and returns them"
         jobs  = self._schedule_head_of_list(current_time)
         jobs += self._backfill_jobs(current_time)
-        for job in jobs:
-            self.currently_running_jobs.append(job)
         return jobs
 
 
@@ -85,6 +86,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
             # Try to schedule the first job
             if self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors:
                 job = self.unscheduled_jobs.pop(0)
+                self.currently_running_jobs.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
             else:
@@ -104,6 +106,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         for job in tail:
             if self.can_be_probabilistically_backfilled(job, current_time): 
                 self.unscheduled_jobs.remove(job)
+                self.currently_running_jobs.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
                 
@@ -133,8 +136,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
         # main loop
         bad_prediction = 0
         for t in sorted(second_job_distribution.bins.keys()):
+            print t, second_job_distribution.bins[t]
             second_job_probability_to_end_at_t = second_job_distribution.bins[t] / second_job_distribution.number_of_jobs_added
-            
             bad_prediction += second_job_probability_to_end_at_t * self.max_bottle_neck_up_to(t, second_job, current_time)
 
         if bad_prediction < self.threshold:
@@ -144,6 +147,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
 
     def max_bottle_neck_up_to(self, t, second_job, current_time):
+
+        # for int(log(job.actual_run_time, 2))
+
         return 0
     
         
