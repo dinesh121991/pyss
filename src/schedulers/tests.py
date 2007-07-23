@@ -6,9 +6,12 @@ from simulator import run_simulator
 from base.prototype import Job
 
 from fcfs_scheduler import FcfsScheduler
+
+from conservative_scheduler import ConservativeScheduler
+from double_conservative_scheduler import DoubleConservativeScheduler
+
 from easy_scheduler import EasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
-from conservative_scheduler import ConservativeScheduler
 from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
@@ -177,6 +180,14 @@ class test_Simulator(unittest.TestCase):
         for i in range(2):
             simulator = run_test_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+
+    def test_double_conservative(self):
+        for i in range(1):
+            simulator = run_test_simulator(scheduler=DoubleConservativeScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/double_cons." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))

@@ -127,8 +127,7 @@ class Machine(object):
         self._add_job(event.job, event.timestamp)
 
     def _add_job(self, job, current_timestamp):
-        assert job.predicted_run_time <= job.user_estimated_run_time
-        # assert job.actual_run_time    <= job.user_estimated_run_time
+        assert job.actual_run_time  <= job.user_estimated_run_time
         
         self.event_queue.add_event(JobTerminationEvent(job=job, timestamp=current_timestamp+job.actual_run_time))
         if job.predicted_run_time < job.actual_run_time:
