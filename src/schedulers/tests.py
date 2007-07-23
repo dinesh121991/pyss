@@ -2,6 +2,7 @@
 
 import unittest
 import os
+
 from simulator import run_simulator
 from base.prototype import Job
 
@@ -11,11 +12,13 @@ from conservative_scheduler import ConservativeScheduler
 from double_conservative_scheduler import DoubleConservativeScheduler
 
 from easy_scheduler import EasyBackfillScheduler
+from double_easy_scheduler import DoubleEasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackFillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
+
 
 def parse_jobs_test_input(input_file_name):
     """
@@ -185,12 +188,12 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
     def test_double_conservative(self):
-        for i in range(1):
+        for i in range(2):
             simulator = run_test_simulator(scheduler=DoubleConservativeScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/double_cons." + str(i))
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/double_bf." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_easyBackfill(self):
         for i in range(9):
@@ -198,7 +201,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
         for i in range(4):
             simulator = run_test_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
@@ -207,6 +210,15 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
+    def test_double_easyBackfill(self):
+        for i in range(2):
+            simulator = run_test_simulator(scheduler=DoubleEasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/double_bf." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+                
     # below we test the weigths of maui: w_wtime, w_sld, w_user, w_bypass, w_admin, w_size
 
     def test_maui_wtime(self):
