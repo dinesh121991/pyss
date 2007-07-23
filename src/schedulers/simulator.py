@@ -18,6 +18,7 @@ class Simulator(object):
     def __init__(self, jobs, num_processors, scheduler):
         self.num_processors = num_processors
         self.jobs = jobs
+        self.terminated_jobs=[]
         self.scheduler = scheduler
 
         self.event_queue = EventQueue()
@@ -42,6 +43,7 @@ class Simulator(object):
     def handle_termination_event(self, event):
         assert isinstance(event, JobTerminationEvent)
         newEvents = self.scheduler.new_events_on_job_termination(event.job, event.timestamp)
+        self.terminated_jobs.append(event.job)
         for event in newEvents:
             self.event_queue.add_event(event)
 
@@ -59,31 +61,38 @@ class Simulator(object):
 def run_simulator(num_processors, jobs, scheduler):
     simulator = Simulator(jobs, num_processors, scheduler)
     simulator.run()
+    print_simulator_stats(simulator)
     return simulator
 
 def print_simulator_stats(simulator):
     simulator.scheduler.cpu_snapshot._restore_old_slices()
-    simulator.scheduler.cpu_snapshot.printCpuSlices()
-    print_statistics(simulator.jobs)
-
+    # simulator.scheduler.cpu_snapshot.printCpuSlices()
+    print_statistics(simulator.terminated_jobs)
+    
 def print_statistics(jobs):
     assert jobs is not None, "Input file is probably empty"
-    wait_time = sigma_wait_time = 0
-    flow_time = sigma_flow_time = 0
-    counter = 0
+    
+    sigma_slowdowns = sigma_bounded_slowdowns = 0.0
+    counter = 0.0
 
     for job in jobs:
+
         counter += 1
 
-        wait_time = job.start_to_run_at_time - job.submit_time
-        sigma_wait_time += wait_time
+        wait_time = float(job.start_to_run_at_time - job.submit_time)
+        run_time  = float(job.actual_run_time)
 
-        flow_time = wait_time + job.actual_run_time
-        sigma_flow_time += flow_time
+        sigma_slowdowns += (wait_time + run_time) / run_time
+
+        if run_time > 10:
+            sigma_bounded_slowdowns += (wait_time + run_time) / run_time
+        else:
+            sigma_bounded_slowdowns += (wait_time + run_time) / 10
+
 
     print
     print "STATISTICS: "
-    print "Average wait time is: ", sigma_wait_time / counter
-    print "Average flow time is: ", sigma_flow_time / counter
+    print "Average slowdown is: ", float(sigma_slowdowns / counter)
+    print "Average bounded slowdown is: ", float(sigma_bounded_slowdowns / counter) 
     print "Number of jobs: ", counter
 
