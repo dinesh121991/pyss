@@ -175,7 +175,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
                         M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
 
                         
-            print M 
+            print M
+            print 
             result = max (M[n, first_job.num_required_processors] - M[n, C], result)
             
             tmp_time *= 2
