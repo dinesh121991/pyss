@@ -5,6 +5,7 @@ from base.prototype import ValidatingMachine
 from base.event_queue import EventQueue
 from common import CpuSnapshot, list_print
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
+from shrinking_easy_scheduler import ShrinkingEasyScheduler
 
 import sys
 
@@ -27,7 +28,7 @@ class Simulator(object):
 
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
-        if isinstance(scheduler, EasyPlusPlusScheduler):
+        if isinstance(scheduler, EasyPlusPlusScheduler) or isinstance(scheduler, ShrinkingEasyScheduler):
             self.event_queue.add_handler(JobPredictionIsOverEvent, self.handle_prediction_event)
             
 

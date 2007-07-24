@@ -20,6 +20,7 @@ from schedulers.double_easy_scheduler import DoubleEasyBackfillScheduler
 from schedulers.greedy_easy_scheduler import GreedyEasyBackFillScheduler
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
 
 
 def parse_options():
@@ -45,7 +46,7 @@ def main():
 
     input_file = open(options.input_file)
     
-    scheduler = LookAheadEasyBackFillScheduler(options.num_processors)
+    scheduler =  DoubleConservativeScheduler(options.num_processors)
     try:
         run_simulator(
                 num_processors = options.num_processors,
