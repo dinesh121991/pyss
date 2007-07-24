@@ -4,14 +4,14 @@ from easy_scheduler import EasyBackfillScheduler
 default_sort_key_functions = (
     lambda job : -job.submit_time, # sort by reverse submission time
     lambda job :  job.submit_time,
-    lambda job :  job.num_processors,
+    lambda job :  job.num_required_processors,
     lambda job :  job.user_estimated_run_time,
-    lambda job :  job.num_processors * job.user_estimated_run_time,
+    lambda job :  job.num_required_processors * job.user_estimated_run_time,
 )
 
 def basic_score_function(list_of_jobs):
-    return sum(job.num_required_processors * job.user_estimated_run_time for job in list_of_jobs)
-
+    # return sum(job.num_required_processors * job.user_estimated_run_time for job in list_of_jobs)
+    return sum(job.num_required_processors for job in list_of_jobs)
 
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):

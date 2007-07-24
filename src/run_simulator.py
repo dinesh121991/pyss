@@ -8,9 +8,19 @@ if __debug__:
 from base.workload_parser import parse_lines
 from base.prototype import _job_inputs_to_jobs
 from schedulers.simulator import run_simulator
-from schedulers.easy_scheduler import EasyBackfillScheduler
-
 import optparse
+
+from schedulers.fcfs_scheduler import FcfsScheduler
+
+from schedulers.conservative_scheduler import ConservativeScheduler
+from schedulers.double_conservative_scheduler import DoubleConservativeScheduler
+
+from schedulers.easy_scheduler import EasyBackfillScheduler
+from schedulers.double_easy_scheduler import DoubleEasyBackfillScheduler
+from schedulers.greedy_easy_scheduler import GreedyEasyBackFillScheduler
+from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
+from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+
 
 def parse_options():
     parser = optparse.OptionParser()
@@ -34,7 +44,8 @@ def main():
     options = parse_options()
 
     input_file = open(options.input_file)
-    scheduler = EasyBackfillScheduler(options.num_processors) 
+    
+    scheduler = EasyPlusPlusScheduler(options.num_processors)
     try:
         run_simulator(
                 num_processors = options.num_processors,

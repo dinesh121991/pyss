@@ -20,19 +20,22 @@ class  EasyPlusPlusScheduler(Scheduler):
         self.user_run_time_last = {}
 
     
-    def new_events_on_job_submission(self, just_submitted_job, current_time):
-        u_id = str(just_submitted_job.user_id)
-        if not self.user_run_time_last.has_key(u_id): 
-            self.user_run_time_prev[u_id] = None 
-            self.user_run_time_last[u_id] = None
+    def new_events_on_job_submission(self, job, current_time):
+        if not self.user_run_time_last.has_key(job.user_id): 
+            self.user_run_time_prev[job.user_id] = None 
+            self.user_run_time_last[job.user_id] = None
+
         self.cpu_snapshot.archive_old_slices(current_time)
-        self.unscheduled_jobs.append(just_submitted_job)
+        self.unscheduled_jobs.append(job)
         return [
             JobStartEvent(current_time, job)
             for job in self._schedule_jobs(current_time)
         ]
 
     def new_events_on_job_termination(self, job, current_time):
+        assert self.user_run_time_last.has_key(job.user_id) == True
+        assert self.user_run_time_prev.has_key(job.user_id) == True
+
         self.user_run_time_prev[job.user_id]  = self.user_run_time_last[job.user_id]
         self.user_run_time_last[job.user_id]  = job.actual_run_time
         self.cpu_snapshot.archive_old_slices(current_time)
@@ -51,10 +54,10 @@ class  EasyPlusPlusScheduler(Scheduler):
 
     def _schedule_jobs(self, current_time):
         "Schedules jobs that can run right now, and returns them"
+   
         for job in self.unscheduled_jobs:
-            u_id = str(job.user_id)
-            if self.user_run_time_prev[u_id] is not None and self.user_run_time_last[u_id] is not None: 
-                average =  int((self.user_run_time_last[u_id] + self.user_run_time_prev[u_id])/ 2)
+            if self.user_run_time_prev[job.user_id] != None: 
+                average =  int((self.user_run_time_last[job.user_id] + self.user_run_time_prev[job.user_id])/ 2)
                 job.predicted_run_time = min (job.user_estimated_run_time, average)
 
         jobs  = self._schedule_head_of_list(current_time)
