@@ -6,15 +6,17 @@ class Distribution(object):
     def __init__(self, job = None):
         self.bins = {}
         self.bins[1] = 0 # adding the first entry to the distribution main data structure
-        self.max_key = 1
         self.number_of_jobs_added = 0
 
-        if job is not None:
+        if job is not None: # we init the distribution to be Uniform 
             self.touch(job.user_estimated_run_time)
-
+            for key in self.bins.keys():
+                self.bins[key] = 1
+                self.number_of_jobs_added += 1 
+            
 
     def touch(self, time): # just add empty entries
-        rounded_up_time = pow(2, int(log(time, 2)) + 2)
+        rounded_up_time = pow(2, int(log(time, 2)) + 1)
         while rounded_up_time > 1: # we add entries with logarithmically smaller keys and zero values   
             rounded_up_time = rounded_up_time / 2
             if not self.bins.has_key(rounded_up_time):
@@ -22,32 +24,20 @@ class Distribution(object):
             else:
                 break
 
-    
-         
+            
     def add_job(self, job):
         assert job.actual_run_time > 0
         
         rounded_up_run_time = pow(2, int(log(job.actual_run_time, 2)) + 1)
         self.number_of_jobs_added += 1
-
+        
         if self.bins.has_key(rounded_up_run_time):
             self.bins[rounded_up_run_time] += 1 # incrementing the numbers of the numbers of terminated jobs encountered so far
-            return
-        
-        # else: False == self.bins.has_key(rounded_run_time):
-        self.bins[rounded_up_run_time] = 1   # we add a new entry initialized to 1
-        self.max_key = rounded_up_run_time
-        self.touch(rounded_up_run_time)
+        else: 
+            self.bins[rounded_up_run_time]  = 1   # we add a new entry initialized to 1
+            self.touch(rounded_up_run_time)
         
             
-    def copy(self):
-        result = Distribution()
-        for key in self.bins.keys():
-            result.bins[key] = self.bins[key]
-        result.max_key = self.max_key
-        result.number_of_jobs_added = self.number_of_jobs_added
-
-
         
 class  ProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements the algorithm in the paper of Tsafrir, Etzion, Feitelson, june 2007?
@@ -64,8 +54,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
     
     def new_events_on_job_submission(self, job, current_time):
         if not self.user_distribution.has_key(job.user_id): 
-            self.user_distribution[job.user_id] = Distribution(job)
-            
+            self.user_distribution[job.user_id] = Distribution(job)            
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unscheduled_jobs.append(job)
         return [
@@ -113,7 +102,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         if len(self.unscheduled_jobs) <= 1:
             return []
 
-        result = []  
+        result    = []  
         first_job = self.unscheduled_jobs[0]        
         tail      = self.unscheduled_jobs[1:]
                 
@@ -137,14 +126,6 @@ class  ProbabilisticEasyScheduler(Scheduler):
         if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False
 
-        if second_job_distribution.number_of_jobs_added == 0: # we still haven't collected any information about the user
-            upper_bound = second_job.user_estimated_run_time
-            if self.max_bottle_neck_up_to(upper_bound, second_job, first_job, current_time) < self.threshold:
-                return True
-            else:
-                return False
-                
-        # main loop
         bad_prediction = 0
         for t in sorted(second_job_distribution.bins.keys()):
             print t, second_job_distribution.bins[t]

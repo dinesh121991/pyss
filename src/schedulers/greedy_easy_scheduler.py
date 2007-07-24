@@ -30,7 +30,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     the job is totally unatractive for backfilling, and thus probabaly has either huge demand for processing time
     or num of processors to run, relatively to the current waiting and running jobs.   
     """
-    def __init__(self, num_processors, sort_key_functions=None, score_function=None, delay_factor=0.2):
+    def __init__(self, num_processors, sort_key_functions=None, score_function=None, delay_factor=1):
         super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
         self.delay_factor = delay_factor
         
