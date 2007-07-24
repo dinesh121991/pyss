@@ -77,12 +77,9 @@ def print_statistics(jobs):
     counter = 0
 
     for job in jobs:
-
         counter += 1
-
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
-
         sigma_slowdowns += (wait_time + run_time) / run_time
 
         if run_time > 10:
@@ -90,10 +87,8 @@ def print_statistics(jobs):
         else:
             sigma_bounded_slowdowns += (wait_time + run_time) / 10
 
-
     print
     print "STATISTICS: "
     print "Average slowdown: ", float(sigma_slowdowns / counter)
     print "Average bounded slowdown: ", float(sigma_bounded_slowdowns / counter) 
     print "Number of jobs: ", counter
-

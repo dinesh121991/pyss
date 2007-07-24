@@ -138,35 +138,55 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
 
+    def probability_to_end_upto(self, time, job):
+            return 1.0
+                     
+
     def max_bottle_neck_up_to(self, time, second_job, first_job, current_time):
+        
         for job in self.currently_running_jobs:
             self.user_distribution[job.user_id].touch(time)
 
         result = 0.0
         tmp_time = 1
-        
+
         while tmp_time <= time:
             M = {}
             C = first_job.num_required_processors + second_job.num_required_processors
-            
-            #M[n, c] = M[n-1][c] + \
-                      #(M[n-1][c - self.currently_running_jobs[n].num_required_processors]-M[n-1][c]) * P[n]
-         
 
+            #M[n,c] denotes the probablity that at tmp_time the first n jobs among those that
+            # are currently running have released at least c processors
+
+            for c in range(C + 1): 
+                M[-1, c] = 0.0
+
+            for n in range(len(self.currently_running_jobs)):
+                M[n, 0] = 1.0
+
+            for n in range(len(self.currently_running_jobs)):
+                job = self.currently_running_jobs[n]
+
+                Pn = self.probability_to_end_upto(tmp_time, job)
+                
+                for c in range (C + 1):
+                    if c >= job.num_required_processors:  
+                        M[n, c] = M[n-1, c] + (M[n-1, c-job.num_required_processors] - M[n-1, c]) * Pn 
+                    else:
+                        M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
+
+                        
+            print M 
+            result = max (M[n, first_job.num_required_processors] - M[n, C], result)
+            
             tmp_time *= 2
-            
 
-        """
-        for k in range(C + 1):
-            M[0, k] = 0.0
+        return result 
+
 
             
-        rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
-        self.user_distribution[job.user_id].bins
-            
-        """
+        #rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
+        #self.user_distribution[job.user_id].bins
         # for int(log(job.actual_run_time, 2))
-        return 0
-    
-        
-             
+        # return 0
+
+     

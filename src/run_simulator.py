@@ -46,7 +46,7 @@ def main():
 
     input_file = open(options.input_file)
     
-    scheduler =  DoubleConservativeScheduler(options.num_processors)
+    scheduler =  LookAheadEasyBackFillScheduler(options.num_processors)
     try:
         run_simulator(
                 num_processors = options.num_processors,
