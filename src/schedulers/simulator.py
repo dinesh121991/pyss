@@ -73,7 +73,7 @@ def print_statistics(jobs):
     assert jobs is not None, "Input file is probably empty"
     
     sigma_slowdowns = sigma_bounded_slowdowns = 0.0
-    counter = 0.0
+    counter = 0
 
     for job in jobs:
 
@@ -92,7 +92,7 @@ def print_statistics(jobs):
 
     print
     print "STATISTICS: "
-    print "Average slowdown is: ", float(sigma_slowdowns / counter)
-    print "Average bounded slowdown is: ", float(sigma_bounded_slowdowns / counter) 
+    print "Average slowdown: ", float(sigma_slowdowns / counter)
+    print "Average bounded slowdown: ", float(sigma_bounded_slowdowns / counter) 
     print "Number of jobs: ", counter
 

@@ -41,11 +41,12 @@ def main():
         run_simulator(
                 num_processors = options.num_processors,
                 jobs = _job_inputs_to_jobs(parse_lines(input_file)),
-                scheduler = EasyBackfillScheduler(options.num_processors)
+                scheduler = EasyBackfillScheduler(options.num_processors) 
             )
-
-        print "done."
-
+        print "Num of Processors: ", options.num_processors
+        print "Input file: ", options.input_file
+       
+        
     finally:
         input_file.close()
 
