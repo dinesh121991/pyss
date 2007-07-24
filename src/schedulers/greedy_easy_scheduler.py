@@ -11,22 +11,29 @@ default_sort_key_functions = (
 
 def basic_score_function(list_of_jobs):
     # return sum(job.num_required_processors * job.user_estimated_run_time for job in list_of_jobs)
-    return sum(job.num_required_processors for job in list_of_jobs)
-
+    # return sum(job.num_required_processors for job in list_of_jobs)
+    return sum(1 for job in list_of_jobs)
 
 class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     """
     This scheduler uses a greedy method to decide which subset of jobs to backfill.
     Specifically, the algorithm sorts the jobs in the waiting list by several orders
     (e.g. the orders in the default_sort_key_functions) and score each subsets using the given scoring function.
-    Then, the algorithm backfill the list of jobs given by the order with the best score.
+    Then, the algorithm backfills the list of jobs given by the order with the highest score.
     The implemelmentation of this scheduler is based mainly on the EasyBackfillScheduler class.
     The single difference is that we only overide the _backfill_jobs function.
     This function calls _reorder_jobs_in_approximate_best_order before the preforming backfilling itself.
-    """
-    def __init__(self, num_processors, sort_key_functions=None, score_function=None):
-        super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
 
+    Another parameter of this algorithm is the delay factor. The reservation time of the
+    first job in the waiting queue is delayed by this factor. The intuitive idea is that the algorithm
+    many chances to each job to be backfilled. However, if the job is not backfilled this means that
+    the job is totally unatractive for backfilling, and thus probabaly has either huge demand for processing time
+    or num of processors to run, relatively to the current waiting and running jobs.   
+    """
+    def __init__(self, num_processors, sort_key_functions=None, score_function=None, delay_factor=0.2):
+        super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
+        self.delay_factor = delay_factor
+        
         if sort_key_functions is None:
             self.sort_key_functions = default_sort_key_functions
         else:
@@ -48,7 +55,10 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
         best_tail_of_jobs = self._reorder_jobs_in_approximate_best_order(current_time)
         
         first_job = self.unscheduled_jobs[0]
-        self.cpu_snapshot.assignJobEarliest(first_job, current_time)
+
+        delay = self.delay_factor * first_job.user_estimated_run_time 
+    
+        self.cpu_snapshot.assignJobEarliest(first_job, current_time + delay)
         
         for job in best_tail_of_jobs:
             if self.cpu_snapshot.canJobStartNow(job, current_time): 

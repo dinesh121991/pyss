@@ -2,7 +2,7 @@ from common import CpuSnapshot
 from easy_scheduler import EasyBackfillScheduler
 
 def default_score_function(job):
-    return job.num_required_processors * job.estimated_run_time
+    return job.num_required_processors * job.user_estimated_run_time
 
 
 class Entry(object):

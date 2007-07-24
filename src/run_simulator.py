@@ -45,7 +45,7 @@ def main():
 
     input_file = open(options.input_file)
     
-    scheduler = EasyPlusPlusScheduler(options.num_processors)
+    scheduler = GreedyEasyBackFillScheduler(options.num_processors)
     try:
         run_simulator(
                 num_processors = options.num_processors,

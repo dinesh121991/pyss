@@ -292,7 +292,7 @@ class test_Simulator(unittest.TestCase):
     		lambda job :  job.num_required_processors,
 	)
         for i in range(6):
-            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, score_function_for_greedy)
+            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, score_function_for_greedy, 0)
             simulator = run_test_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
