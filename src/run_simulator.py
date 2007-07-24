@@ -33,20 +33,18 @@ def parse_options():
 def main():
     options = parse_options()
 
-    print "num_processors =", options.num_processors
-    print "Reading %r..." % options.input_file
-
     input_file = open(options.input_file)
+    scheduler = EasyBackfillScheduler(options.num_processors) 
     try:
         run_simulator(
                 num_processors = options.num_processors,
                 jobs = _job_inputs_to_jobs(parse_lines(input_file)),
-                scheduler = EasyBackfillScheduler(options.num_processors) 
+                scheduler = scheduler 
             )
+        
         print "Num of Processors: ", options.num_processors
         print "Input file: ", options.input_file
-       
-        
+        print "Scheduler:", type(scheduler)
     finally:
         input_file.close()
 
