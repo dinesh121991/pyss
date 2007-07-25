@@ -126,11 +126,17 @@ class  ProbabilisticEasyScheduler(Scheduler):
         if self.cpu_snapshot.free_processors_available_at(current_time) < second_job.num_required_processors:
             return False
 
+        for job in self.currently_running_jobs:
+            self.user_distribution[job.user_id].touch(max(second_job_distribution.bins.keys()))
+
         bad_prediction = 0
-        for t in sorted(second_job_distribution.bins.keys()):
-            print t, second_job_distribution.bins[t]
+        max_bottle_neck = 0 
+        t = 1
+        while t <= max(second_job_distribution.bins.keys()):
             second_job_probability_to_end_at_t = second_job_distribution.bins[t] / second_job_distribution.number_of_jobs_added
-            bad_prediction += second_job_probability_to_end_at_t * self.max_bottle_neck_up_to(t, second_job, first_job, current_time)
+            max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, second_job, first_job, current_time))
+            bad_prediction += second_job_probability_to_end_at_t * max_bottle_neck
+            t = t * 2 
     
         if bad_prediction < self.threshold:
             return True
@@ -142,46 +148,38 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return 1.0
                      
 
-    def max_bottle_neck_up_to(self, time, second_job, first_job, current_time):
+    def bottle_neck(self, time, second_job, first_job, current_time):
+        M = {}
+        C = first_job.num_required_processors + second_job.num_required_processors
         
-        for job in self.currently_running_jobs:
-            self.user_distribution[job.user_id].touch(time)
-
-        result = 0.0
-        tmp_time = 1
-
-        while tmp_time <= time:
-            M = {}
-            C = first_job.num_required_processors + second_job.num_required_processors
-
-            #M[n,c] denotes the probablity that at tmp_time the first n jobs among those that
-            # are currently running have released at least c processors
-
-            for c in range(C + 1): 
-                M[-1, c] = 0.0
-
-            for n in range(len(self.currently_running_jobs)):
-                M[n, 0] = 1.0
-
-            for n in range(len(self.currently_running_jobs)):
-                job = self.currently_running_jobs[n]
-
-                Pn = self.probability_to_end_upto(tmp_time, job)
-                
-                for c in range (C + 1):
-                    if c >= job.num_required_processors:  
-                        M[n, c] = M[n-1, c] + (M[n-1, c-job.num_required_processors] - M[n-1, c]) * Pn 
-                    else:
-                        M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
-
-                        
-            print M
-            print 
-            result = max (M[n, first_job.num_required_processors] - M[n, C], result)
+        #M[n,c] denotes the probablity that at tmp_time the first n jobs among those that
+        # are currently running have released at least c processors
+        
+        for c in range(C + 1): 
+            M[-1, c] = 0.0
             
-            tmp_time *= 2
+        for n in range(len(self.currently_running_jobs)):
+            M[n, 0] = 1.0
 
-        return result 
+        for n in range(len(self.currently_running_jobs)):
+            job = self.currently_running_jobs[n]
+            
+            Pn = self.probability_to_end_upto(time, job)
+            
+            for c in range (C + 1):
+                if c >= job.num_required_processors:  
+                    M[n, c] = M[n-1, c] + (M[n-1, c-job.num_required_processors] - M[n-1, c]) * Pn 
+                else:
+                    M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
+                    
+        print "time: ", time, "bottle neck:", M[n, first_job.num_required_processors] - M[n, C]     
+        for c in range (C + 1):
+            for n in range(len(self.currently_running_jobs)):
+                print "[", n, ",",  c, "]", M[n, c]
+
+                
+        return M[n, first_job.num_required_processors] - M[n, C]
+            
 
 
             

@@ -126,7 +126,7 @@ class test_Simulator(unittest.TestCase):
 
     def test_basic_greedy_easyBackfill(self):
         for i in range(15):
-            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS)
+            scheduler = GreedyEasyBackfillScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -292,13 +292,12 @@ class test_Simulator(unittest.TestCase):
     		lambda job :  job.num_required_processors,
 	)
         for i in range(6):
-            scheduler = GreedyEasyBackFillScheduler(NUM_PROCESSORS, bf, score_function_for_greedy, 0)
+            scheduler = GreedyEasyBackfillScheduler(NUM_PROCESSORS, bf, score_function_for_greedy, 0)
             simulator = run_test_simulator(scheduler=scheduler, \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/greedyBF." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, \
-                                 "i="+str(i)+" "+str(job) + str(job.finish_time))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
 
     def test_easyPlusPlusBackfill(self):
         for i in range(15):
@@ -307,10 +306,10 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/plus_plus_easy." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time)
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
 
     def test_easy_Probabilistic_Backfill(self):
-        for i in range(1):
+        for i in range(3):
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
