@@ -14,7 +14,7 @@ from double_conservative_scheduler import DoubleConservativeScheduler
 from easy_scheduler import EasyBackfillScheduler
 from double_easy_scheduler import DoubleEasyBackfillScheduler
 from maui_scheduler import MauiScheduler, Weights
-from greedy_easy_scheduler import GreedyEasyBackFillScheduler
+from greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler

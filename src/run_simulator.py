@@ -17,7 +17,7 @@ from schedulers.double_conservative_scheduler import DoubleConservativeScheduler
 
 from schedulers.easy_scheduler import EasyBackfillScheduler
 from schedulers.double_easy_scheduler import DoubleEasyBackfillScheduler
-from schedulers.greedy_easy_scheduler import GreedyEasyBackFillScheduler
+from schedulers.greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
@@ -27,7 +27,8 @@ def parse_options():
     parser = optparse.OptionParser()
     parser.add_option("--num-processors", type="int")
     parser.add_option("--input-file")
-
+    parser.add_option("--scheduler")
+    
     options, args = parser.parse_args()
 
     if options.num_processors is None:
@@ -35,6 +36,9 @@ def parse_options():
 
     if options.input_file is None:
         parser.error("missing input file")
+
+    if options.scheduler is None:
+         parser.error("missing scheduler")
 
     if args:
         parser.error("unknown extra arguments: %s" % args)
@@ -45,8 +49,38 @@ def main():
     options = parse_options()
 
     input_file = open(options.input_file)
-    
-    scheduler =  LookAheadEasyBackFillScheduler(options.num_processors)
+
+    if options.scheduler == "FcfsScheduler" or options.scheduler == "1":
+        scheduler =  FcfsScheduler(options.num_processors)
+
+    elif options.scheduler == "ConservativeScheduler" or options.scheduler =="2":
+        scheduler = ConservativeScheduler(options.num_processors)
+
+    elif options.scheduler == "DoubleConservativeScheduler" or options.scheduler == "3":
+        scheduler = DoubleConservativeScheduler(options.num_processors)
+
+    elif options.scheduler == "EasyBackfillScheduler" or options.scheduler == "4":
+        scheduler = EasyBackfillScheduler(options.num_processors)
+        
+    elif options.scheduler == "DoubleEasyBackfillScheduler" or options.scheduler == "5":
+        scheduler = DoubleEasyBackfillScheduler(options.num_processors)
+
+    elif options.scheduler == "GreedyEasyBackfillScheduler" or options.scheduler == "6":
+        scheduler = GreedyEasyBackfillScheduler(options.num_processors)
+
+    elif options.scheduler == "EasyPlusPlusScheduler" or options.scheduler == "7":
+        scheduler = EasyPlusPlusScheduler(options.num_processors)
+        
+    elif options.scheduler == "ShrinkingEasyScheduler" or options.scheduler == "8":
+        scheduler = ShrinkingEasyScheduler(options.num_processors)
+
+    elif options.scheduler == "LookAheadEasyBackFillScheduler" or options.scheduler == "9":
+        scheduler = LookAheadEasyBackFillScheduler(options.num_processors)
+        
+    else:
+        print "No such scheduler"
+        return 
+
     try:
         run_simulator(
                 num_processors = options.num_processors,

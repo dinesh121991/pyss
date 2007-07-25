@@ -14,7 +14,7 @@ def basic_score_function(list_of_jobs):
     # return sum(job.num_required_processors for job in list_of_jobs)
     return sum(1 for job in list_of_jobs)
 
-class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
+class  GreedyEasyBackfillScheduler(EasyBackfillScheduler):
     """
     This scheduler uses a greedy method to decide which subset of jobs to backfill.
     Specifically, the algorithm sorts the jobs in the waiting list by several orders
@@ -31,7 +31,7 @@ class  GreedyEasyBackFillScheduler(EasyBackfillScheduler):
     or num of processors to run, relatively to the current waiting and running jobs.   
     """
     def __init__(self, num_processors, sort_key_functions=None, score_function=None, delay_factor=1):
-        super(GreedyEasyBackFillScheduler, self).__init__(num_processors)
+        super(GreedyEasyBackfillScheduler, self).__init__(num_processors)
         self.delay_factor = delay_factor
         
         if sort_key_functions is None:
