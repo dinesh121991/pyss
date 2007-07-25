@@ -428,3 +428,4 @@ time run_simulator.sh --num-processors=128 --input-file=20K_sample
 
 run_simulator.sh --num-processors=128 --input-file=20K_sample
 
+run_simulator.sh --num-processors=128 --input-file=schedulers/workload_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=9 >! result9 &
