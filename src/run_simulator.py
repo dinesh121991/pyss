@@ -25,9 +25,12 @@ from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
 
 def parse_options():
     parser = optparse.OptionParser()
-    parser.add_option("--num-processors", type="int")
-    parser.add_option("--input-file")
-    parser.add_option("--scheduler")
+    parser.add_option("--num-processors", type="int", \
+                      help="the number of available processors in the simulated parallel machine")
+    parser.add_option("--input-file", \
+                      help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
+    parser.add_option("--scheduler", 
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler") 
     
     options, args = parser.parse_args()
 
