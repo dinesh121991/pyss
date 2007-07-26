@@ -73,22 +73,22 @@ def print_simulator_stats(simulator):
 def print_statistics(jobs):
     assert jobs is not None, "Input file is probably empty"
     
-    sigma_slowdowns = sigma_bounded_slowdowns = 0.0
+    sigma_waits = sigma_slowdowns = sigma_bounded_slowdowns = 0.0
     counter = 0
 
     for job in jobs:
         counter += 1
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
+        
+        sigma_waits += wait_time
         sigma_slowdowns += (wait_time + run_time) / run_time
+        sigma_bounded_slowdowns += max(1,  ((wait_time + run_time) / max(run_time, 10)))
 
-        if run_time > 10:
-            sigma_bounded_slowdowns += (wait_time + run_time) / run_time
-        else:
-            sigma_bounded_slowdowns += (wait_time + run_time) / 10
 
     print
     print "STATISTICS: "
-    print "Average slowdown: ", float(sigma_slowdowns / counter)
-    print "Average bounded slowdown: ", float(sigma_bounded_slowdowns / counter) 
+    print "Averaga wait (Tw):  ", float(sigma_waits / counter) 
+    print "Average slowdown (Tw + Tr) / Tr:  ", float(sigma_slowdowns / counter)
+    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", float(sigma_bounded_slowdowns / counter) 
     print "Number of jobs: ", counter

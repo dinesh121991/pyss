@@ -54,7 +54,7 @@ def main():
     input_file = open(options.input_file)
 
     if options.scheduler == "FcfsScheduler" or options.scheduler == "1":
-        scheduler =  FcfsScheduler(options.num_processors)
+        scheduler = FcfsScheduler(options.num_processors)
 
     elif options.scheduler == "ConservativeScheduler" or options.scheduler =="2":
         scheduler = ConservativeScheduler(options.num_processors)

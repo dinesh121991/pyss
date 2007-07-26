@@ -428,4 +428,14 @@ time run_simulator.sh --num-processors=128 --input-file=20K_sample
 
 run_simulator.sh --num-processors=128 --input-file=20K_sample
 
-run_simulator.sh --num-processors=128 --input-file=schedulers/workload_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=9 >! result9 &
+run_simulator.sh --num-processors=128 --input-file=schedulers/workload_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=1 > ! result1 &
+
+-------------------------------------------------------------
+_cleaned_ swf files used by Etzman, dants, and feit:  
+
+CTC 1.1 Cornell Theory Center 512 77,222 Jun 96 May 97 56% 123
+KTH 1.0 Swedish Royal Instit. of Tech. 100 28,490 Sep 96 Aug 97 69% 188
+SDSC 2.1 San-Diego Supercomputer Center 128 59,725 Apr 98 Apr 00 84% 148
+BLUE 2.1 San-Diego Supercomputer Center 1,152 243,314 Apr 00 Jun 03 76% 73
+-------------------------------------------------------------
+
