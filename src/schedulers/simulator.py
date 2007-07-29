@@ -21,22 +21,24 @@ class Simulator(object):
         self.jobs = jobs
         self.terminated_jobs=[]
         self.scheduler = scheduler
-
+        self.time_of_last_job_submission = 0
         self.event_queue = EventQueue()
 
         self.machine = ValidatingMachine(num_processors=num_processors, event_queue=self.event_queue)
 
         self.event_queue.add_handler(JobSubmissionEvent, self.handle_submission_event)
         self.event_queue.add_handler(JobTerminationEvent, self.handle_termination_event)
+
         if isinstance(scheduler, EasyPlusPlusScheduler) or isinstance(scheduler, ShrinkingEasyScheduler):
             self.event_queue.add_handler(JobPredictionIsOverEvent, self.handle_prediction_event)
             
-
         for job in self.jobs:
             self.event_queue.add_event( JobSubmissionEvent(job.submit_time, job) )
+        
 
     def handle_submission_event(self, event):
         assert isinstance(event, JobSubmissionEvent)
+        self.time_of_last_job_submission = event.timestamp
         newEvents = self.scheduler.new_events_on_job_submission(event.job, event.timestamp)
         for event in newEvents:
             self.event_queue.add_event(event)
@@ -68,16 +70,41 @@ def run_simulator(num_processors, jobs, scheduler):
 def print_simulator_stats(simulator):
     simulator.scheduler.cpu_snapshot._restore_old_slices()
     # simulator.scheduler.cpu_snapshot.printCpuSlices()
-    print_statistics(simulator.terminated_jobs)
+    print_statistics(simulator.terminated_jobs, simulator.time_of_last_job_submission)
+
+
+by_finish_time_sort_key = (
+    lambda job : job.finish_time
+)
     
-def print_statistics(jobs):
+def print_statistics(jobs, time_of_last_job_submission):
     assert jobs is not None, "Input file is probably empty"
     
     sigma_waits = sigma_slowdowns = sigma_bounded_slowdowns = 0.0
-    counter = 0
+    counter = tmp_counter = 0
+    
+    size = len(jobs)
 
-    for job in jobs:
+    for job in sorted(jobs, key=by_finish_time_sort_key):
+        tmp_counter += 1
+        
+        print "----> now processing the job:"
+        print job
+        print "time_of_last_job_submission", time_of_last_job_submission
+        print "size, , tmp_counter", size, tmp_counter 
+        
+        if size >= 100 and tmp_counter * 100 <= size:
+            print "skipped head", job 
+            continue
+        
+        if job.finish_time > time_of_last_job_submission:
+            print "skiped tail", job
+            print "time_of_last_job_submission", time_of_last_job_submission
+            continue
+        
+        
         counter += 1
+        
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
         
@@ -88,7 +115,12 @@ def print_statistics(jobs):
 
     print
     print "STATISTICS: "
-    print "Averaga wait (Tw):  ", float(sigma_waits / counter) 
-    print "Average slowdown (Tw + Tr) / Tr:  ", float(sigma_slowdowns / counter)
-    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", float(sigma_bounded_slowdowns / counter) 
-    print "Number of jobs: ", counter
+    print "Averaga wait (Tw):  ", float(sigma_waits / max(counter,1)) 
+    print "Average slowdown (Tw + Tr) / Tr:  ", float(sigma_slowdowns / max(counter, 1))
+    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", float(sigma_bounded_slowdowns / max(counter, 1)) 
+    print "Total Number of jobs: ", size
+    print "Number of jobs used to calculate statistics: ", counter
+    print
+    print
+    print 
+
