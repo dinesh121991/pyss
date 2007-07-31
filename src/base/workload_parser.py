@@ -88,6 +88,10 @@ def parse_lines(lines_iterator):
             (len(line.strip()) == 0) or
             # status is 2 or 3 or 4
             fields[10]==2 or fields[10]==3 or fields[10]==4 or
+            # if job has no arrival nor dependency
+            (fields[1] == -1 and fields[16]== -1) or 
+            # submit time is not positive
+            fields[1] <= 0 or 
             # runtime is not positive
             fields[3] <= 0 or 
             # num of allocated processors is not positive
