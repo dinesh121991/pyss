@@ -163,7 +163,6 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
 
-
     def test_fcfs(self):
         for i in range(8):
             simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), \
@@ -309,7 +308,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
 
     def test_easy_Probabilistic_Backfill(self):
-        for i in range(3):
+        for i in [5]:
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))

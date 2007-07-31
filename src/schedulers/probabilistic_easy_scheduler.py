@@ -128,18 +128,20 @@ class  ProbabilisticEasyScheduler(Scheduler):
         job_distribution = self.user_distribution[job.user_id]
 
         for tmp_job in self.currently_running_jobs:
-            self.user_distribution[tmp_job.user_id].touch(max(job_distribution.bins.keys()))
+            self.user_distribution[tmp_job.user_id].touch(job.user_estimated_run_time)
 
         bad_prediction  = 0
         max_bottle_neck = 0 
         t = 1        
-        while t <= max(job_distribution.bins.keys()):
+        while t <= job.user_estimated_run_time:
+            job_distribution.touch(t)
             job_probability_to_end_at_t = float(job_distribution.bins[t] / job_distribution.number_of_jobs_added)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
             t = t * 2 
     
         if bad_prediction < self.threshold:
+            print "prediction:", bad_prediction
             return True
         else:
             return False
@@ -174,9 +176,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
             for n in range(len(self.currently_running_jobs)):
                 print "[", n, ",",  c, "]", M[n, c]
 
-                
-        return M[n, first_job.num_required_processors] - M[n, C]
-            
+    
+        
+        result = M[n, first_job.num_required_processors] - M[n, C]
+        assert 0 <= result <= 1
+        return result 
+
 
     def probability_to_end_upto(self, time, current_time, job):
         rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
@@ -185,15 +190,19 @@ class  ProbabilisticEasyScheduler(Scheduler):
         num_of_jobs_in_middle_bins = 0
         job_distribution = self.user_distribution[job.user_id]
 
+        print job 
         for key in job_distribution.bins.keys():
+            print "key, num: ", key, job_distribution.bins[key] 
             if key < rounded_down_run_time:
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
             elif key <= time:
                 num_of_jobs_in_middle_bins  += job_distribution.bins[key]
-        
-        return float(num_of_jobs_in_middle_bins / (job_distribution.number_of_jobs_added - num_of_jobs_in_first_bins))
-                      
 
+        
+        result = float(num_of_jobs_in_middle_bins / (job_distribution.number_of_jobs_added - num_of_jobs_in_first_bins))
+        assert 0 <= result <= 1
+        return result 
+        
 
             
     
