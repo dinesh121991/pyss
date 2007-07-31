@@ -1,6 +1,10 @@
-check statiscics, add response times, add wait times in minutes (diveded by 60)
+ask dants to send us his log input parser code
+ 
+check statistics, add response times, add wait times in minutes (diveded by 60)
+
 add tests to the shrinking easy scheduler
-Chnage the LookAhead scheduler, to  give better statistics 
+
+Change the LookAhead scheduler, to  give better statistics .........
 
  
 ----------------------------------------------- 
