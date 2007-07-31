@@ -50,7 +50,7 @@ class JobInput(object):
         return int(self.fields[9])
     @property
     def status(self):
-        return int(self.fields[10]) # TODO: parse into different meanings
+        return int(self.fields[10]) 
     @property
     def user_id(self):
         return int(self.fields[11])
@@ -80,11 +80,18 @@ def parse_lines(lines_iterator):
     "returns an iterator of JobInput objects"
 
     def _should_skip(line):
+        fields = line.split()
         return (
             # comment
             line.lstrip().startswith(';') or
             # empty line
-            (len(line.strip()) == 0)
+            (len(line.strip()) == 0) or
+            # status is 2 or 3 or 4
+            fields[10]==2 or fields[10]==3 or fields[10]==4 or
+            # runtime is not positive
+            fields[3] <= 0 or 
+            # num of allocated processors is not positive
+            fields[4] <= 0 
         )
 
     for line in lines_iterator:
