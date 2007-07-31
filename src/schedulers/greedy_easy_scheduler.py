@@ -72,10 +72,12 @@ class  GreedyEasyBackfillScheduler(EasyBackfillScheduler):
 
 
 
-    def _reorder_jobs_in_approximate_best_order(self, current_time):        
+    def _reorder_jobs_in_approximate_best_order(self, current_time):
+        
         first_job = self.unscheduled_jobs[0]
+        delay = self.delay_factor * first_job.user_estimated_run_time 
         cpu_snapshot_with_job = self.cpu_snapshot.quick_copy()
-        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time)
+        cpu_snapshot_with_job.assignJobEarliest(first_job, current_time + delay)
         tail =  list_copy(self.unscheduled_jobs[1:])
 
         # get tail from best (score, tail) tuple
