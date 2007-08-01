@@ -90,7 +90,7 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 class test_Simulator(unittest.TestCase):
 
     def test_basic_fcfs(self):
-        for i in range(26):
+        for i in range(28):
             simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
@@ -101,7 +101,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(expected_finish_time, job.finish_time, "i="+str(i))
 
     def test_basic_conservative(self):
-        for i in range(26):
+        for i in range(28):
             simulator = run_test_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -109,7 +109,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
     def test_basic_easyBackfill(self):
-        for i in range(26):
+        for i in range(28):
             simulator = run_test_simulator(scheduler =EasyBackfillScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -117,7 +117,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
 
     def test_basic_maui(self):
-        for i in range(26):
+        for i in range(28):
             simulator = run_test_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -315,6 +315,7 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time)
+
 
 
 ###########

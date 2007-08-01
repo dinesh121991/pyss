@@ -98,7 +98,7 @@ def print_statistics(jobs, time_of_last_job_submission):
         
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
-        
+
         sigma_waits += wait_time
         sigma_slowdowns += ((wait_time + run_time) / run_time)
         sigma_bounded_slowdowns += max( 1,  ( (wait_time + run_time) / max(run_time, 10) ) )
