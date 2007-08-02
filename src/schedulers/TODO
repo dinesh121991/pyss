@@ -1,6 +1,6 @@
 ask dants to send us his log input parser code
  
-statistics: check, add response times, add wait times in minutes (diveded by 60), change the "way" the 1% is chopped
+statistics: check, add response times, change the "way" the 1% is chopped
 
 add tests to the shrinking easy scheduler
 

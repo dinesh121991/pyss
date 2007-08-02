@@ -80,7 +80,8 @@ by_finish_time_sort_key = (
 def print_statistics(jobs, time_of_last_job_submission):
     assert jobs is not None, "Input file is probably empty."
     
-    sigma_waits = sigma_slowdowns = sigma_bounded_slowdowns = 0.0
+    sigma_waits = sigma_run_times = 0
+    sigma_slowdowns = sigma_bounded_slowdowns = 0.0
     counter = tmp_counter = 0
     
     size = len(jobs)
@@ -88,11 +89,11 @@ def print_statistics(jobs, time_of_last_job_submission):
     for job in sorted(jobs, key=by_finish_time_sort_key):
         tmp_counter += 1
         
-        if size >= 100 and tmp_counter * 100 <= size:
-            continue
+        #if size >= 100 and tmp_counter * 100 <= size:
+            #continue
         
-        if job.finish_time > time_of_last_job_submission:
-            break
+        #if job.finish_time > time_of_last_job_submission:
+            #break
         
         counter += 1
         
@@ -100,16 +101,24 @@ def print_statistics(jobs, time_of_last_job_submission):
         run_time  = float(job.actual_run_time)
 
         sigma_waits += wait_time
+        sigma_run_times += run_time
         sigma_slowdowns += ((wait_time + run_time) / run_time)
         sigma_bounded_slowdowns += max( 1,  ( (wait_time + run_time) / max(run_time, 10) ) )
 
 
     print
     print "STATISTICS: "
-    print "Averaga wait (Tw):  ", float( sigma_waits / max(counter, 1) ) 
-    print "Average slowdown (Tw + Tr) / Tr:  ", float(sigma_slowdowns / max(counter, 1))
-    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", float(sigma_bounded_slowdowns / max(counter, 1)) 
+    
+    print "Average wait (Tw) [minutes]: ", float(sigma_waits) / (60 * max(counter, 1))
+
+    print "Average response time (Tw + Tr) [minutes]: ", float(sigma_waits + sigma_run_times) / (60 * max(counter, 1))
+    
+    print "Average slowdown (Tw + Tr) / Tr:  ", sigma_slowdowns / max(counter, 1)
+
+    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", sigma_bounded_slowdowns / max(counter, 1)
+    
     print "Total Number of jobs: ", size
+    
     print "Number of jobs used to calculate statistics: ", counter
     print
 
