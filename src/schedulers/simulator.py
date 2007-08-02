@@ -85,15 +85,16 @@ def print_statistics(jobs, time_of_last_job_submission):
     counter = tmp_counter = 0
     
     size = len(jobs)
-
+    precent_of_size = int(size / 100)
+    
     for job in sorted(jobs, key=by_finish_time_sort_key):
         tmp_counter += 1
         
-        #if size >= 100 and tmp_counter * 100 <= size:
-            #continue
+        if size >= 100 and tmp_counter <= precent_of_size:
+            continue
         
-        #if job.finish_time > time_of_last_job_submission:
-            #break
+        if job.finish_time > time_of_last_job_submission:
+            break 
         
         counter += 1
         
@@ -102,8 +103,9 @@ def print_statistics(jobs, time_of_last_job_submission):
 
         sigma_waits += wait_time
         sigma_run_times += run_time
-        sigma_slowdowns += ((wait_time + run_time) / run_time)
-        sigma_bounded_slowdowns += max( 1,  ( (wait_time + run_time) / max(run_time, 10) ) )
+        sigma_slowdowns += float(wait_time + run_time) / run_time
+        sigma_bounded_slowdowns += max( 1,  (float(wait_time + run_time) / max(run_time, 10)) ) 
+
 
 
     print

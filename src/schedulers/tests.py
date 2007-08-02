@@ -90,19 +90,6 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 class test_Simulator(unittest.TestCase):
 
 
-    def test_basic_bla_fcfs(self):
-        for i in [28]:
-            simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                # the input jobs have their expected finish time encoded in their name.
-                # to prevent id collisions their names are 'XX.YY' where XX is the expected time
-                expected_finish_time = int(job.id.split(".")[0])
-
-                self.assertEqual(expected_finish_time, job.finish_time, "i="+str(i))
-
-
-    """
     def test_basic_fcfs(self):
         for i in range(29):
             simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
@@ -112,7 +99,7 @@ class test_Simulator(unittest.TestCase):
                 # to prevent id collisions their names are 'XX.YY' where XX is the expected time
                 expected_finish_time = int(job.id.split(".")[0])
 
-                self.assertEqual(expected_finish_time, job.finish_time, "i="+str(i))
+                self.assertEqual(expected_finish_time, job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_basic_conservative(self):
         for i in range(29):
@@ -120,7 +107,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_basic_easyBackfill(self):
         for i in range(29):
@@ -128,7 +115,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_basic_maui(self):
         for i in range(29):
@@ -136,7 +123,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_basic_greedy_easyBackfill(self):
         for i in range(15):
@@ -145,7 +132,7 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
                 
     def test_basic_look_ahead_easyBackfill(self):
@@ -155,7 +142,7 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_basic_easyPlusPlusBackfill(self):
         for i in range(15):
@@ -164,7 +151,7 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
                
     def test_basic_probabilistic_easy(self): 
@@ -174,7 +161,7 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
 
     def test_fcfs(self):
@@ -183,7 +170,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/fcfs_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_conservative(self):
         for i in range(9):
@@ -191,14 +178,14 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
         for i in range(2):
             simulator = run_test_simulator(scheduler=ConservativeScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/cons_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_double_conservative(self):
         for i in range(3):
@@ -221,7 +208,7 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_double_easyBackfill(self):
         for i in range(3):
@@ -241,14 +228,14 @@ class test_Simulator(unittest.TestCase):
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
         for i in range(1):
             simulator = run_test_simulator(scheduler=MauiScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/easy_bf_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i))
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_maui_wait_and_size(self):
         # testing w_size = number of processors (vs. w_wait):
@@ -260,7 +247,7 @@ class test_Simulator(unittest.TestCase):
         simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/maui.size")
         feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
-            self.assertEqual(int(float(job.id)), job.finish_time)
+            self.assertEqual(int(float(job.id)), job.finish_time, str(job)+" "+str(job.finish_time))
 
     def test_maui_admin_vs_userQoS(self):
         # testing the w_admin = admin QoS and w_user = user QoS:
@@ -273,7 +260,7 @@ class test_Simulator(unittest.TestCase):
                                   num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/maui.admin_vs_user")
         feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
-            self.assertEqual(int(float(job.id)), job.finish_time)
+            self.assertEqual(int(float(job.id)), job.finish_time, str(job)+" "+str(job.finish_time))
 
     def test_maui_bypass_vs_slow_down(self):
         # testing the w_admin = admin QoS and w_user = user QoS:
@@ -286,7 +273,7 @@ class test_Simulator(unittest.TestCase):
                                   num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/maui.bypass_vs_sld")
         feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
         for job in simulator.jobs:
-            self.assertEqual(int(float(job.id)), job.finish_time)
+            self.assertEqual(int(float(job.id)), job.finish_time, str(job)+" "+str(job.finish_time))
 
 
     def test_look_ahead_easyBackfill(self):
@@ -328,10 +315,10 @@ class test_Simulator(unittest.TestCase):
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time)
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
 
 
-    """
+
 ###########
 
 def score_function_for_look_ahead(job):
