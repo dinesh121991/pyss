@@ -239,7 +239,7 @@ SAMPLE_JOB_INPUT = """
 
 class test_Simulator(TestCase):
     def setUp(self):
-        self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT)))
+        self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT, 1000)))
         self.scheduler = prototype.StupidScheduler()
 
         self.simulator = prototype.Simulator(
