@@ -41,7 +41,7 @@ class Distribution(object):
             
         
 class  ProbabilisticEasyScheduler(Scheduler):
-    """ This algorithm implements the algorithm of Feitelson and Nissimov, June 2007
+    """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
     def __init__(self, num_processors, threshold = 0.05):
@@ -54,8 +54,11 @@ class  ProbabilisticEasyScheduler(Scheduler):
     
     
     def new_events_on_job_submission(self, job, current_time):
-        if not self.user_distribution.has_key(job.user_id): 
-            self.user_distribution[job.user_id] = Distribution(job)            
+        if self.user_distribution.has_key(job.user_id):
+            self.user_distribution[job.user_id].touch(job.user_estimated_run_time)
+        else:
+            self.user_distribution[job.user_id] = Distribution(job)
+            
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unscheduled_jobs.append(job)
         return [
@@ -129,13 +132,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         for tmp_job in self.currently_running_jobs:
             self.user_distribution[tmp_job.user_id].touch(job.user_estimated_run_time)
-
+        job_distribution.touch(job.user_estimated_run_time)
         bad_prediction  = 0
         max_bottle_neck = 0 
         t = 1        
         while t <= job.user_estimated_run_time:
-            job_distribution.touch(t)
-            job_probability_to_end_at_t = float(job_distribution.bins[t] / job_distribution.number_of_jobs_added)
+            job_probability_to_end_at_t = self.probability_to_end_at(t, job)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
             t = t * 2 
@@ -163,7 +165,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         for n in range(len(self.currently_running_jobs)):
             job = self.currently_running_jobs[n]
             
-            Pn = self.probability_to_end_upto(time, current_time, job)
+            Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
             
             for c in range (C + 1):
                 if c >= job.num_required_processors:  
@@ -183,28 +185,50 @@ class  ProbabilisticEasyScheduler(Scheduler):
         return result 
 
 
-    def probability_to_end_upto(self, time, current_time, job):
-        rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
+    def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
+        rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
         num_of_jobs_in_first_bins  = 0
         num_of_jobs_in_middle_bins = 0
+        num_of_jobs_in_last_bins = 0
         job_distribution = self.user_distribution[job.user_id]
 
-        print job 
+        time = min(time, job.user_estimated_run_time) 
+        
         for key in job_distribution.bins.keys():
-            print "key, num: ", key, job_distribution.bins[key] 
+            print "+ key, num: ", key, job_distribution.bins[key] 
             if key < rounded_down_run_time:
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
+            elif key > job.user_estimated_run_time: 
+                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
             elif key <= time:
                 num_of_jobs_in_middle_bins  += job_distribution.bins[key]
+          
+        num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs
+        result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
 
-        
-        result = float(num_of_jobs_in_middle_bins / (job_distribution.number_of_jobs_added - num_of_jobs_in_first_bins))
+        print "prob job upto time:", time, "is:", result, job 
         assert 0 <= result <= 1
         return result 
-        
 
-            
-    
+
+    def probability_to_end_at(self, time, job):         
+        job_distribution = self.user_distribution[job.user_id]
+        assert job_distribution.bins.has_key(time) == True 
+        num_of_jobs_in_last_bins = 0
+        
+        for key in job_distribution.bins.keys():
+            print "- key, num: ", key, job_distribution.bins[key] 
+            if key > time: 
+                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
+ 
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins
+        result = float(job_distribution.bins[time]) / num_of_relevant_jobs
+        print "probability to finish at time: ", time, "is: ", result, job         
+        assert 0 <= result <= 1
+        return result 
+     
+     
 
      
