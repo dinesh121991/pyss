@@ -17,7 +17,7 @@ class Distribution(object):
 
     def touch(self, time): # just add empty bins.
         # Assumtion: if there's a bin with a certain key, then all bins with smaller keys exist as well.
-        rounded_up_time = pow(2, int(log(time, 2)) + 1)
+        rounded_up_time = pow(2, int(log(time, 2)) + 2)
         while rounded_up_time > 1: 
             rounded_up_time = rounded_up_time / 2
             if not self.bins.has_key(rounded_up_time):  
@@ -55,10 +55,10 @@ class  ProbabilisticEasyScheduler(Scheduler):
     
     def new_events_on_job_submission(self, job, current_time):
         if self.user_distribution.has_key(job.user_id):
-            self.user_distribution[job.user_id].touch(job.user_estimated_run_time)
+            self.user_distribution[job.user_id].touch(job.user_estimated_run_time )
         else:
             self.user_distribution[job.user_id] = Distribution(job)
-            
+
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unscheduled_jobs.append(job)
         return [
@@ -208,7 +208,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs
         result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
 
-        print "prob job upto time:", time, "is:", result, job 
+        print "prob job upto time:", time, "is:", result, job
+        print
         assert 0 <= result <= 1
         return result 
 
@@ -225,7 +226,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
  
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins
         result = float(job_distribution.bins[time]) / num_of_relevant_jobs
-        print "probability to finish at time: ", time, "is: ", result, job         
+        print "probability to finish at time: ", time, "is: ", result, job
+        print
         assert 0 <= result <= 1
         return result 
      
