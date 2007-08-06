@@ -48,7 +48,7 @@ class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
 class JobPredictionIsOverEvent(JobEvent):pass
 
-JobEvent.EVENTS_ORDER = [JobPredictionIsOverEvent, JobTerminationEvent,  JobStartEvent, JobSubmissionEvent]
+JobEvent.EVENTS_ORDER = [JobPredictionIsOverEvent, JobSubmissionEvent, JobTerminationEvent, JobStartEvent]
 
 class Job(object):
     def __init__(self, id, user_estimated_run_time, actual_run_time, num_required_processors, \
