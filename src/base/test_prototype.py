@@ -239,7 +239,7 @@ SAMPLE_JOB_INPUT = """
 
 class test_Simulator(TestCase):
     def setUp(self):
-        self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT, 1000)))
+        self.jobs = list(prototype._job_inputs_to_jobs(workload_parser.parse_lines(SAMPLE_JOB_INPUT), 1000))
         self.scheduler = prototype.StupidScheduler()
 
         self.simulator = prototype.Simulator(
@@ -275,7 +275,7 @@ class test_Simulator(TestCase):
     def test_job_input_to_job(self):
         job_input = workload_parser.JobInput(SAMPLE_JOB_INPUT[0])
         from prototype import _job_input_to_job
-        job = _job_input_to_job(job_input)
+        job = _job_input_to_job(job_input, job_input.num_requested_processors)
 
         self.assertEqual( job.id, job_input.number )
         self.assertEqual( job.user_estimated_run_time, job_input.requested_time )

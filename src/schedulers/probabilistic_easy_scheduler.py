@@ -4,7 +4,7 @@ from math import log
 
 class Distribution(object):
     def __init__(self, job):
-        self.bins = {}
+        self.bins    = {}
         self.bins[1] = 0 # adding the first entry to the main data structure of the distribution 
         self.number_of_jobs_added = 0
 
@@ -48,13 +48,15 @@ class  ProbabilisticEasyScheduler(Scheduler):
         super(ProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
+        
+        self.user_distribution = {}
         self.unscheduled_jobs  = []
         self.currently_running_jobs = []
-        self.user_distribution = {}
+     
     
     
     def new_events_on_job_submission(self, job, current_time):
-        if self.user_distribution.has_key(job.user_id):
+        if  self.user_distribution.has_key(job.user_id):
             self.user_distribution[job.user_id].touch(job.user_estimated_run_time )
         else:
             self.user_distribution[job.user_id] = Distribution(job)
@@ -129,14 +131,14 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         first_job = self.unscheduled_jobs[0]
         job_distribution = self.user_distribution[job.user_id]
-
+        job_distribution.touch(job.user_estimated_run_time)
         for tmp_job in self.currently_running_jobs:
             self.user_distribution[tmp_job.user_id].touch(job.user_estimated_run_time)
-        job_distribution.touch(job.user_estimated_run_time)
+      
         bad_prediction  = 0
         max_bottle_neck = 0 
         t = 1        
-        while t <= job.user_estimated_run_time:
+        while t <= 2 * job.user_estimated_run_time:
             job_probability_to_end_at_t = self.probability_to_end_at(t, job)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
@@ -173,7 +175,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
                 else:
                     M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
                     
-        print "time: ", time, "bottle neck:", M[n, first_job.num_required_processors] - M[n, C]     
+        # print "time: ", time, "bottle neck:", M[n, first_job.num_required_processors] - M[n, C]     
         for c in range (C + 1):
             for n in range(len(self.currently_running_jobs)):
                 print "[", n, ",",  c, "]", M[n, c]
@@ -188,38 +190,39 @@ class  ProbabilisticEasyScheduler(Scheduler):
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
         rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
-        rounded_up_estimated_remaining_duration = pow(2, int(log(job.user_estimated_run_time - rounded_down_run_time, 2) + 1))
+        rounded_up_estimated_remaining_duration = pow(2, int(log(job.user_estimated_run_time - rounded_down_run_time, 2)))
         num_of_jobs_in_first_bins  = 0
         num_of_jobs_in_middle_bins = 0
-        num_of_jobs_in_last_bins = 0
+        num_of_jobs_in_last_bins   = 0
         job_distribution = self.user_distribution[job.user_id]
 
-        print "---- current time, job_start", current_time, job.start_to_run_at_time
+        print "in function probability_of_running_job_to_end_upto:"
+        print "---- current time, job_start", current_time, job.start_to_run_at_time, job 
         print "---- rounded_down_run_time", rounded_down_run_time
         print "---- rounded_up_estimated_remaining_duration", rounded_up_estimated_remaining_duration
         
         time = min(time, rounded_up_estimated_remaining_duration) 
         
         for key in job_distribution.bins.keys():
-            print "+ key, num: ", key, job_distribution.bins[key] 
-            if key < rounded_down_run_time:
-                print "case 1 key, num: ", key, job_distribution.bins[key] 
+            #print "+ key, num: ", key, job_distribution.bins[key] 
+            if key <= rounded_down_run_time:
+                #print "case 1 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
-            elif key > rounded_up_estimated_duration:
-                print "case 2 key, num: ", key, job_distribution.bins[key] 
+            elif key > rounded_up_estimated_remaining_duration:
+                #print "case 2 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
             elif key <= time:
-                print "case 3 key, num: ", key, job_distribution.bins[key] 
+                #print "case 3 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += job_distribution.bins[key]
           
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs
         result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
     
-        print "prob job upto time:", time, "is:", result, job
-        print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
-        print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
-        print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
+        #print "prob job upto time:", time, "is:", result, job
+        #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
+        #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
+        #print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
 
         assert 0 <= result <= 1
         return result 
@@ -238,9 +241,10 @@ class  ProbabilisticEasyScheduler(Scheduler):
  
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins
         result = float(job_distribution.bins[time]) / num_of_relevant_jobs
-        # print "probability to finish at time: ", time, "is: ", result, job
-        # print "num of relevant jobs: ", num_of_relevant_jobs
-        # print  "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
+        print "in  probability_to_end_at:"
+        print "probability to finish at time: ", time, "is: ", result, job
+        print "num of relevant jobs: ", num_of_relevant_jobs
+        print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
     
         print
         assert 0 <= result <= 1

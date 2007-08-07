@@ -76,7 +76,7 @@ class JobInput(object):
     def __str__(self):
         return "JobInput<number=%s>" % self.number
 
-def parse_lines(lines_iterator, total_num_processors):
+def parse_lines(lines_iterator):
     "returns an iterator of JobInput objects"
 
     def _should_skip(line):
@@ -97,7 +97,7 @@ def parse_lines(lines_iterator, total_num_processors):
             # num of allocated processors is not positive
             fields[4] <= 0 or
             # problematic num_required_processors
-            fields[7] <= 0 or fields[7] > total_num_processors
+            fields[7] <= 0
         )
 
     for line in lines_iterator:

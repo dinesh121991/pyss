@@ -86,14 +86,15 @@ def main():
 
     try:
         run_simulator(
-                num_processors = options.num_processors, # TODO: read this from the workload input file 
-                jobs = _job_inputs_to_jobs(parse_lines(input_file, options.num_processors)),
+                num_processors = options.num_processors, 
+                jobs = _job_inputs_to_jobs(parse_lines(input_file), options.num_processors),
                 scheduler = scheduler 
             )
         
         print "Num of Processors: ", options.num_processors
         print "Input file: ", options.input_file
         print "Scheduler:", type(scheduler)
+
     finally:
         input_file.close()
 
