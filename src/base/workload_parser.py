@@ -101,9 +101,9 @@ def parse_lines(lines_iterator):
             # problematic runtime 
             fields[3] <= 0 or 
             # problematic num of allocated processors 
-            fields[4] <= 0 or
+            fields[4] <= 0 # or
             # problematic num_required_processors
-            fields[7] <= 0 
+            # fields[7] <= 0 
         )
 
     for line in lines_iterator:
