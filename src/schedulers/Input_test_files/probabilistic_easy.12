@@ -1,0 +1,28 @@
+# arrival time; job id == finishing time; user estimated duration; number of required nodes; actual duration  
+0 4.0 4 1 4 0 0 uid_1
+0 4.1 4 1 4 0 0 uid_1
+0 4.2 4 1 4 0 0 uid_1
+0 4.3 4 1 4 0 0 uid_1
+0 4.4 4 1 4 0 0 uid_1
+0 4.5 4 1 4 0 0 uid_1
+0 4.6 4 1 4 0 0 uid_1
+0 4.7 4 1 4 0 0 uid_1
+0 4.8 4 1 4 0 0 uid_1
+0 4.9 4 1 4 0 0 uid_1
+
+0 4.10 4 1 4 0 0 uid_3
+0 4.20 4 1 4 0 0 uid_3
+0 4.30 4 1 4 0 0 uid_3
+0 4.40 4 1 4 0 0 uid_3
+0 4.50 4 1 4 0 0 uid_3
+0 4.60 4 1 4 0 0 uid_3
+0 4.70 4 1 4 0 0 uid_3
+0 4.80 4 1 4 0 0 uid_3
+0 4.90 4 1 4 0 0 uid_3
+0 4.100 4 1 4 0 0 uid_3
+
+
+100 132 32 95 32 0 0 uid_4
+100 104 4 4 4 0 0 uid_1
+111 110 4 5 4 0 0 uid_2
+112 110 4 1 4 0 0 uid_3
