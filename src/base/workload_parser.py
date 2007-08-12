@@ -87,7 +87,7 @@ def parse_lines(lines_iterator):
             # empty line
             (len(line.strip()) == 0) or
             # bad status 
-            fields[10]==2 or fields[10]==3 or fields[10]==4 or
+            fields[10]==2 or fields[10]==3 or fields[10]==4 or fields[10]==5 or
             # if job has no arrival nor dependency
             (fields[1] == -1 and fields[16]== -1) or
             # problematic job id
@@ -97,13 +97,11 @@ def parse_lines(lines_iterator):
             # problematic group id
             fields[12] < 0 or
             # problematic submit time 
-            fields[1] <= 0 or 
-            # problematic runtime 
-            fields[3] <= 0 or 
+            fields[1] < 0 or 
+            # problematic actual runtime or requested runtime
+            fields[3] < 1 or fields[8] < 1 or 
             # problematic num of allocated processors 
-            fields[4] <= 0 # or
-            # problematic num_required_processors
-            # fields[7] <= 0 
+            fields[4] < 1 
         )
 
     for line in lines_iterator:

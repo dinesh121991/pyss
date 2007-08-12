@@ -193,11 +193,11 @@ def _job_input_to_job(job_input, total_num_processors):
     assert job_input.submit_time >= 0
     assert job_input.num_requested_processors >= 0
     
+    
     return Job(
         id = job_input.number,
-        user_estimated_run_time = int(max(job_input.requested_time, job_input.run_time, 1)), #TODO: reconsider this max and this int
-        actual_run_time = int(max(job_input.run_time, 1)), 
-        # TODO: do we want the no. of allocated processors instead of the no. requested?
+        user_estimated_run_time = int(max(job_input.requested_time, job_input.run_time, 1)),
+        actual_run_time = int(max(min(job_input.requested_time, job_input.run_time), 1)), 
         num_required_processors = max(min(job_input.num_allocated_processors, total_num_processors), 1), 
         submit_time = job_input.submit_time, 
         user_id = job_input.user_id, 
