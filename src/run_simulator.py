@@ -21,7 +21,9 @@ from schedulers.greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
-
+from schedulers.easy_sjbf_scheduler import EasySJBFScheduler
+from schedulers.perfect_easy_scheduler import PerfectEasyBackfillScheduler
+from schedulers.double_perfect_easy_scheduler import DoublePerfectEasyBackfillScheduler
 
 def parse_options():
     parser = optparse.OptionParser()
@@ -30,7 +32,7 @@ def parse_options():
     parser.add_option("--input-file", \
                       help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
     parser.add_option("--scheduler", 
-                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler") 
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) PerfectEasyBackfillScheduler, 12)DoublePerfectEasyBackfillScheduler")
     
     options, args = parser.parse_args()
 
@@ -79,6 +81,15 @@ def main():
 
     elif options.scheduler == "LookAheadEasyBackFillScheduler" or options.scheduler == "9":
         scheduler = LookAheadEasyBackFillScheduler(options.num_processors)
+
+    elif options.scheduler == "EasySJBFScheduler" or options.scheduler == "10":
+        scheduler = EasySJBFScheduler(options.num_processors)
+
+    elif options.scheduler == "PerfectEasyBackfillScheduler" or options.scheduler == "11":
+        scheduler = PerfectEasyBackfillScheduler(options.num_processors)
+        
+    elif options.scheduler == "DoublePerfectEasyBackfillScheduler" or options.scheduler == "12":
+        scheduler = DoublePerfectEasyBackfillScheduler(options.num_processors)
         
     else:
         print "No such scheduler"

@@ -190,18 +190,16 @@ def parse_job_lines_quick_and_dirty(lines):
         )
 
 def _job_input_to_job(job_input, total_num_processors):
-    assert job_input.submit_time >= 0
-    assert job_input.num_requested_processors >= 0
-    
-    if job_input.run_time <= 0  or job_input.num_allocated_processors <= 0:
+    # if job input seems to be problematic  
+    if job_input.run_time <= 0 or job_input.num_allocated_processors <= 0 or job_input.submit_time < 0 :
         return Job(
             id = job_input.number,
             user_estimated_run_time = 1,
             actual_run_time = 1, 
-            num_required_processors = 1, 
-            submit_time = job_input.submit_time, 
+            num_required_processors = max(1, job_input.num_allocated_processors),  
+            submit_time = max(job_input.submit_time, 1), 
             user_id = job_input.user_id, 
-            )
+        )
 
     return Job(
         id = job_input.number,

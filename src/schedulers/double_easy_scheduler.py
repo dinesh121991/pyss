@@ -5,7 +5,7 @@ from easy_scheduler import EasyBackfillScheduler
 #this scheduler only doubles the user estimation and then apply the regular Easy Backfill Schedular
 
 class DoubleEasyBackfillScheduler(EasyBackfillScheduler):
-    def __init__(self, num_processors, weights_list=None, weights_backfill=None):
+    def __init__(self, num_processors):
         super(DoubleEasyBackfillScheduler, self).__init__(num_processors)
 
     def new_events_on_job_submission(self, job, current_time):

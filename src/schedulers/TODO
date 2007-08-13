@@ -1,8 +1,7 @@
-ask dants to send us his log input parser code
- 
-statistics: check, add response times, change the "way" the 1% is chopped
+statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
-add tests to the shrinking easy scheduler
+
+add tests to the shrinking easy scheduler + perfect easy + easySJBF
 
 Change the LookAhead scheduler, to  give better statistics .........
 

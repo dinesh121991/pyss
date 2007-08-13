@@ -80,33 +80,11 @@ def parse_lines(lines_iterator):
     "returns an iterator of JobInput objects"
 
     def _should_skip(line):
-        fields = line.split()
-        return (
-            # comment
-            line.lstrip().startswith(';') or
-            # empty line
-            (len(line.strip()) == 0) or
-            # bad status 
-            fields[10]==2 or fields[10]==3 or fields[10]==4 or fields[10]==5 or
-            # if job has no arrival nor dependency
-            (fields[1] == -1 and fields[16]== -1) or
-            # problematic job id
-            fields[0] < 1 or
-            # problematic user id
-            fields[11] < 0 or
-            # problematic group id
-            fields[12] < 0 or
-            # problematic submit time 
-            fields[1] < 0 or 
-            # problematic actual runtime or requested runtime
-            fields[3] < 1 or fields[8] < 1 or 
-            # problematic num of allocated processors 
-            fields[4] < 1 
-        )
+        return (line.lstrip().startswith(';') or (len(line.strip()) == 0)) # comment or empty line 
+         
 
     for line in lines_iterator:
         if _should_skip(line):
-            print line
             continue # skipping
 
         yield JobInput(line)

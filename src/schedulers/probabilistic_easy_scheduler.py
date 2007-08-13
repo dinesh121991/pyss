@@ -14,7 +14,7 @@ class Distribution(object):
             
 
     def touch(self, time): # just add bins.
-        rounded_up_time = pow(2, int(log(2 * time - 1 , 2)))
+        rounded_up_time = pow(2, int(log(max(2 * time - 1, 1), 2)))
        	while rounded_up_time > 1: 
             if not self.bins.has_key(rounded_up_time) or self.bins[rounded_up_time] == 0:  
                 self.bins[rounded_up_time] = 1  
@@ -23,7 +23,7 @@ class Distribution(object):
             
 
     def empty_touch(self, time): # just add bins.
-        rounded_up_time = pow(2, int(log(2 * time - 1 , 2))) 
+        rounded_up_time = pow(2, int(log(max(2 * time - 1, 1) , 2))) 
        	while rounded_up_time > 1: 
             if not self.bins.has_key(rounded_up_time):  
                 self.bins[rounded_up_time] = 0  
@@ -33,7 +33,7 @@ class Distribution(object):
     def add_job(self, job): #to be called when a termination event has occured
         assert job.actual_run_time > 0
         
-        rounded_up_run_time = pow(2, int(log(2 * job.actual_run_time - 1, 2)))
+        rounded_up_run_time = pow(2, int(log(max(2 * job.actual_run_time - 1, 1), 2)))
         self.number_of_jobs_added += 1
         
         if self.bins.has_key(rounded_up_run_time):
@@ -167,14 +167,13 @@ class  ProbabilisticEasyScheduler(Scheduler):
         
         # M[n,c] denotes the probablity that at time the first n jobs among those that
         # are currently running have released at least c processors
-        print ">>> in bootle neck, current time is:", current_time
+        print ">>> in bottle neck, current time is:", current_time
 
         for c in range(C + 1): 
             M[-1, c] = 0.0
             
         for n in range(len(self.currently_running_jobs)):
             M[n, 0] = 1.0
-            print "M[n,0]", M[n, 0]
 
         for n in range(len(self.currently_running_jobs)):
 
@@ -209,8 +208,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
-        rounded_down_run_time = pow(2, int(log(current_time - job.start_to_run_at_time, 2)))
-        rounded_up_estimated_remaining_duration = pow(2, int(log(2*(job.user_estimated_run_time - rounded_down_run_time)-1, 2)))
+        rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
+        rounded_up_estimated_remaining_duration = pow(2, int(log(max(2*(job.user_estimated_run_time - rounded_down_run_time)-1, 1), 2)))
 	if time >=  rounded_up_estimated_remaining_duration:
         	print "prob job upto time:", time, "is: >>> 1"
 		return 1.0
