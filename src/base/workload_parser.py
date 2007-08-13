@@ -106,6 +106,7 @@ def parse_lines(lines_iterator):
 
     for line in lines_iterator:
         if _should_skip(line):
+            print line
             continue # skipping
 
         yield JobInput(line)
