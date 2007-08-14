@@ -80,8 +80,12 @@ by_finish_time_sort_key = (
 def print_statistics(jobs, time_of_last_job_submission):
     assert jobs is not None, "Input file is probably empty."
     
-    sigma_waits = sigma_run_times = 0
-    sigma_slowdowns = sigma_bounded_slowdowns = 0.0
+    sum_waits = 0
+    sum_run_times = 0
+    sum_slowdowns = 0.0
+    sum_bounded_slowdowns = 0.0
+    sum_estimated_bounded_slowdowns = 0.0
+    
     counter = tmp_counter = 0
     
     size = len(jobs)
@@ -100,24 +104,26 @@ def print_statistics(jobs, time_of_last_job_submission):
         
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
+        estimated_run_time = float(job.user_estimated_run_time)
 
-        sigma_waits += wait_time
-        sigma_run_times += run_time
-        sigma_slowdowns += float(wait_time + run_time) / run_time
-        sigma_bounded_slowdowns += max( 1,  (float(wait_time + run_time) / max(run_time, 10)) ) 
-
-
+        sum_waits += wait_time
+        sum_run_times += run_time
+        sum_slowdowns += float(wait_time + run_time) / run_time
+        sum_bounded_slowdowns += max( 1,  (float(wait_time + run_time) / max(run_time, 10)) ) 
+        sum_estimated_bounded_slowdowns += max (1, (float(estimated_run_time / run_time))*(float(wait_time+run_time)/max(run_time, 10)))
 
     print
     print "STATISTICS: "
     
-    print "Average wait (Tw) [minutes]: ", float(sigma_waits) / (60 * max(counter, 1))
+    print "Avg. wait (Tw) [minutes]: ", float(sum_waits) / (60 * max(counter, 1))
 
-    print "Average response time (Tw + Tr) [minutes]: ", float(sigma_waits + sigma_run_times) / (60 * max(counter, 1))
+    print "Avg. response time (Tw+Tr) [minutes]: ", float(sum_waits + sum_run_times) / (60 * max(counter, 1))
     
-    print "Average slowdown (Tw + Tr) / Tr:  ", sigma_slowdowns / max(counter, 1)
+    print "Avg. slowdown (Tw+Tr) / Tr:  ", sum_slowdowns / max(counter, 1)
 
-    print "Average bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", sigma_bounded_slowdowns / max(counter, 1)
+    print "Avg. bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", sum_bounded_slowdowns / max(counter, 1)
+    
+    print "Avg. estimated bounded slowdown [minutes] max(1, (Tw+Tr) / max(10, Tr)) * Te / Tr: ", sum_estimated_bounded_slowdowns / (60 * max(counter, 1))
     
     print "Total Number of jobs: ", size
     
