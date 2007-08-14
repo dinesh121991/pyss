@@ -149,7 +149,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
             job_probability_to_end_at_t = self.probability_to_end_at(t, job)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
-            print "current bad_prediction", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
+	    print "t is:", t
+            print "current bad_prediction (job prob to end at t X max_bottle_neck)", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
             t = t * 2 
     
         if bad_prediction < self.threshold:
@@ -199,9 +200,13 @@ class  ProbabilisticEasyScheduler(Scheduler):
                 print "[", n, ",",  c, "]", M[n, c]
 
     
-        
-        result = M[n, first_job.num_required_processors] - M[n, C]
-        print ">>> TiME: ", time, "bottle nec:", result  
+        # IMPORTANT: NOTE THE DIFFERNCE IN THE RETURNED RESULT
+	if M[n, first_job.num_required_processors] > 0.15:
+            result = M[n, first_job.num_required_processors] - M[n, C] 
+	else: 
+	    result = max(M[n, first_job.num_required_processors] - M[n, C], M[n, first_job.num_required_processors])
+ 
+        print ">>> TiME: ", time, "result", result  
         assert 0 <= result <= 1
         return result 
 
