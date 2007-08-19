@@ -1,10 +1,22 @@
+
 statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
-
 add tests to the shrinking easy scheduler + perfect easy + easySJBF
+add the "selective_double_scheduler"
 
-Change the LookAhead scheduler, to  give better statistics .........
+finish debugging probabilistic easy 
 
+add the probabilistic w evaluation to user estimation
+
+Change the LookAhead scheduler to give better statistics .........
+
+commenting the code 
+
+profiling the code 
+
+add maui to the tuntests (take the system quality of service from somewhere ....) 
+
+implement another schedulers from Dror's list 
  
 ----------------------------------------------- 
 
@@ -16,7 +28,6 @@ assertRaises() to verify that an expected exception gets raised.
 /cs/par/users/ouaknine/simus/sim_orig
 
 ----------------------------------------------- 
-
 
 Maui scheduler 
 

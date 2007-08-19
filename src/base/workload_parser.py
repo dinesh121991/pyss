@@ -79,7 +79,7 @@ class JobInput(object):
 def parse_lines(lines_iterator):
     "returns an iterator of JobInput objects"
 
-    def _should_skip(line):
+    def _should_skip(line): # TODO: skip if runtime, num allocated processors, submit time is problematic
         return (line.lstrip().startswith(';') or (len(line.strip()) == 0)) # comment or empty line 
          
 

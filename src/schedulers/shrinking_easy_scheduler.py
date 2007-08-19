@@ -2,7 +2,7 @@ from common import CpuSnapshot
 from easy_scheduler import EasyBackfillScheduler
 
 class  ShrinkingEasyScheduler(EasyBackfillScheduler):
-    """ This algorithm implements the algorithm in the paper of Tsafrir, Etzion, Feitelson, june 2007?
+    """ This "toy" algorithm follows an the paper of Tsafrir, Etzion, Feitelson, june 2007
     """
     
     def __init__(self, num_processors):
@@ -11,7 +11,10 @@ class  ShrinkingEasyScheduler(EasyBackfillScheduler):
         self.unscheduled_jobs = []
 
     def new_events_on_job_submission(self, job, current_time):
-        job.predicted_run_time = min (int(0.5 * job.user_estimated_run_time), 1)
+	if job.user_estimated_run_time > 1: 
+		job.predicted_run_time = int(job.user_estimated_run_time / 2)
+	else: 
+		job.predicted_run_time = 1 
         return super(ShrinkingEasyScheduler, self).new_events_on_job_submission(job, current_time)
 
     def new_events_on_job_under_prediction(self, job, current_time):

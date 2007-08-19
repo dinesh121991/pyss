@@ -48,6 +48,7 @@ class JobStartEvent(JobEvent): pass
 class JobTerminationEvent(JobEvent): pass
 class JobPredictionIsOverEvent(JobEvent):pass
 
+# tie break rule order for events occuring at the same time 
 JobEvent.EVENTS_ORDER = [JobPredictionIsOverEvent, JobSubmissionEvent, JobTerminationEvent, JobStartEvent]
 
 class Job(object):

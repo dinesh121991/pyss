@@ -84,15 +84,19 @@ def print_statistics(jobs, time_of_last_job_submission):
     sum_run_times = 0
     sum_slowdowns = 0.0
     sum_bounded_slowdowns = 0.0
-    sum_estimated_bounded_slowdowns = 0.0
+    sum_estimated_slowdowns = 0.0
+    sum_tail_slowdowns = 0.0
     
-    counter = tmp_counter = 0
+    counter = tmp_counter = tail_counter = 0
     
     size = len(jobs)
     precent_of_size = int(size / 100)
     
     for job in sorted(jobs, key=by_finish_time_sort_key):
         tmp_counter += 1
+
+        if job.user_estimated_run_time == 1 and job.num_required_processors == 1: # ignore tiny jobs for the statistics
+            continue
         
         if size >= 100 and tmp_counter <= precent_of_size:
             continue
@@ -105,25 +109,34 @@ def print_statistics(jobs, time_of_last_job_submission):
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
         estimated_run_time = float(job.user_estimated_run_time)
+	avg_run_time = int(run_time + estimated_run_time) 
 
         sum_waits += wait_time
         sum_run_times += run_time
         sum_slowdowns += float(wait_time + run_time) / run_time
-        sum_bounded_slowdowns += max( 1,  (float(wait_time + run_time) / max(run_time, 10)) ) 
-        sum_estimated_bounded_slowdowns += max (1, (float(estimated_run_time / run_time))*(float(wait_time+run_time)/max(run_time, 10)))
+        sum_bounded_slowdowns   += max(1, (float(wait_time + run_time)/ max(run_time, 10))) 
+        sum_estimated_slowdowns += max(1, (float(wait_time + avg_run_time)/ max(run_time, 10)))
 
+        if max(1, (float(wait_time + run_time)/ max(run_time, 10))) >= 3:
+            tail_counter += 1
+            sum_tail_slowdowns += max(1, (float(wait_time + run_time)/ max(run_time, 10)))
+        
+        
     print
     print "STATISTICS: "
     
-    print "Avg. wait (Tw) [minutes]: ", float(sum_waits) / (60 * max(counter, 1))
+    print "Aait (Tw) [minutes]: ", float(sum_waits) / (60 * max(counter, 1))
 
-    print "Avg. response time (Tw+Tr) [minutes]: ", float(sum_waits + sum_run_times) / (60 * max(counter, 1))
+    print "Response time (Tw+Tr) [minutes]: ", float(sum_waits + sum_run_times) / (60 * max(counter, 1))
     
-    print "Avg. slowdown (Tw+Tr) / Tr:  ", sum_slowdowns / max(counter, 1)
+    print "Slowdown (Tw+Tr) / Tr: ", sum_slowdowns / max(counter, 1)
 
-    print "Avg. bounded slowdown max(1, (Tw+Tr) / max(10, Tr):  ", sum_bounded_slowdowns / max(counter, 1)
+    print "Bounded slowdown max(1, (Tw+Tr) / max(10, Tr): ", sum_bounded_slowdowns / max(counter, 1)
     
-    print "Avg. estimated bounded slowdown [minutes] max(1, (Tw+Tr) / max(10, Tr)) * Te / Tr: ", sum_estimated_bounded_slowdowns / (60 * max(counter, 1))
+    print "Estimated slowdown max(1, (Tw+(Tr+Te)/2)) / max(10, Tr): ", sum_estimated_slowdowns / max(counter, 1)
+
+    print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
+    
     
     print "Total Number of jobs: ", size
     
