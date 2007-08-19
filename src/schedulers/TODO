@@ -1,11 +1,8 @@
 
 statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
-add tests to the shrinking easy scheduler
-
 add tests to perfect easy 
-
-add tests to easySJBF
+add tests to double perfect easy 
 
 finish debugging probabilistic easy 
 

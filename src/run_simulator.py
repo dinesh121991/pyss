@@ -16,14 +16,22 @@ from schedulers.conservative_scheduler import ConservativeScheduler
 from schedulers.double_conservative_scheduler import DoubleConservativeScheduler
 
 from schedulers.easy_scheduler import EasyBackfillScheduler
+
 from schedulers.double_easy_scheduler import DoubleEasyBackfillScheduler
+from schedulers.head_double_easy_scheduler import HeadDoubleEasyScheduler
+from schedulers.tail_double_easy_scheduler import TailDoubleEasyScheduler
+
 from schedulers.greedy_easy_scheduler import GreedyEasyBackfillScheduler
+
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
-from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
 from schedulers.easy_sjbf_scheduler import EasySJBFScheduler
 from schedulers.perfect_easy_scheduler import PerfectEasyBackfillScheduler
 from schedulers.double_perfect_easy_scheduler import DoublePerfectEasyBackfillScheduler
+
+from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+
+
 
 def parse_options():
     parser = optparse.OptionParser()
@@ -32,7 +40,7 @@ def parse_options():
     parser.add_option("--input-file", \
                       help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
     parser.add_option("--scheduler", 
-                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) PerfectEasyBackfillScheduler, 12)DoublePerfectEasyBackfillScheduler")
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) PerfectEasyBackfillScheduler, 14)DoublePerfectEasyBackfillScheduler")
     
     options, args = parser.parse_args()
 
@@ -85,10 +93,16 @@ def main():
     elif options.scheduler == "EasySJBFScheduler" or options.scheduler == "10":
         scheduler = EasySJBFScheduler(options.num_processors)
 
-    elif options.scheduler == "PerfectEasyBackfillScheduler" or options.scheduler == "11":
+    elif options.scheduler == "HeadDoubleEasyScheduler" or options.scheduler == "11":
+        scheduler = HeadDoubleEasyScheduler(options.num_processors)
+        
+    elif options.scheduler == "TailDoubleEasyScheduler" or options.scheduler == "12":
+        scheduler = TailDoubleEasyScheduler(options.num_processors)
+        
+    elif options.scheduler == "PerfectEasyBackfillScheduler" or options.scheduler == "13":
         scheduler = PerfectEasyBackfillScheduler(options.num_processors)
         
-    elif options.scheduler == "DoublePerfectEasyBackfillScheduler" or options.scheduler == "12":
+    elif options.scheduler == "DoublePerfectEasyBackfillScheduler" or options.scheduler == "14":
         scheduler = DoublePerfectEasyBackfillScheduler(options.num_processors)
         
     else:

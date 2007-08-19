@@ -17,10 +17,12 @@ from double_easy_scheduler import DoubleEasyBackfillScheduler
 from head_double_easy_scheduler import HeadDoubleEasyScheduler
 from tail_double_easy_scheduler import TailDoubleEasyScheduler
 from shrinking_easy_scheduler import ShrinkingEasyScheduler
+from easy_sjbf_scheduler import EasySJBFScheduler
 
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 
@@ -274,7 +276,6 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
 
-
     def test_easyBackfill(self):
         for i in range(9):
             simulator = run_test_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
@@ -321,7 +322,7 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
-    def test_tail_double_easyBackfill(self):
+    def test_tail_double_easy(self):
         for i in range(3):
             simulator = run_test_simulator(scheduler=TailDoubleEasyScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/tail_double_bf." + str(i))
@@ -345,6 +346,22 @@ class test_Simulator(unittest.TestCase):
                 
         for i in [0]: # tiny number test 
             simulator = run_test_simulator(scheduler=ShrinkingEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/tiny_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+
+    def test_SJBF_easy(self): 
+        for i in range(3):
+            simulator = run_test_simulator(scheduler=EasySJBFScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/sjbf." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+                
+        for i in [0]: # tiny number test 
+            simulator = run_test_simulator(scheduler=EasySJBFScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/tiny_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
