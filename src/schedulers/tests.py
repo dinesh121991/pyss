@@ -26,6 +26,9 @@ from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 
+from perfect_easy_scheduler import PerfectEasyBackfillScheduler
+from double_perfect_easy_scheduler import DoublePerfectEasyBackfillScheduler
+
 
 def parse_jobs_test_input(input_file_name):
     """
@@ -305,7 +308,6 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
        
     def test_head_double_easy(self):
         for i in range(4):
@@ -367,6 +369,22 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
+    def test_perfect_easy(self): 
+        for i in range(3):
+            simulator = run_test_simulator(scheduler=PerfectEasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/perfect." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+                
+    def test_double_perfect_easy(self): 
+        for i in range(3):
+            simulator = run_test_simulator(scheduler=DoublePerfectEasyBackfillScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/double_perfect." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+                
 
     # below we test the weigths of maui: w_wtime, w_sld, w_user, w_bypass, w_admin, w_size
 

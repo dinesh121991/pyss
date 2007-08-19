@@ -109,7 +109,7 @@ def print_statistics(jobs, time_of_last_job_submission):
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
         estimated_run_time = float(job.user_estimated_run_time)
-	avg_run_time = int(run_time + estimated_run_time) 
+	avg_run_time = int(run_time + estimated_run_time) / 2 
 
         sum_waits += wait_time
         sum_run_times += run_time
