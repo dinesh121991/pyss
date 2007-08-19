@@ -12,9 +12,12 @@ from conservative_scheduler import ConservativeScheduler
 from double_conservative_scheduler import DoubleConservativeScheduler
 
 from easy_scheduler import EasyBackfillScheduler
+
 from double_easy_scheduler import DoubleEasyBackfillScheduler
 from head_double_easy_scheduler import HeadDoubleEasyScheduler
 from tail_double_easy_scheduler import TailDoubleEasyScheduler
+from shrinking_easy_scheduler import ShrinkingEasyScheduler
+
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
@@ -167,6 +170,7 @@ class test_Simulator(unittest.TestCase):
 
 ##########
 
+
     def test_fcfs(self):
         for i in range(8):
             simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), \
@@ -223,8 +227,8 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_head_double_easy(self):
-        for i in range(3):
-            simulator = run_test_simulator(scheduler=DoubleEasyBackfillScheduler(NUM_PROCESSORS), \
+        for i in range(4):
+            simulator = run_test_simulator(scheduler=HeadDoubleEasyScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/head_double_bf." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
@@ -232,14 +236,22 @@ class test_Simulator(unittest.TestCase):
 
     def test_tail_double_easyBackfill(self):
         for i in range(3):
-            simulator = run_test_simulator(scheduler=DoubleEasyBackfillScheduler(NUM_PROCESSORS), \
+            simulator = run_test_simulator(scheduler=TailDoubleEasyScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/tail_double_bf." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
-                
-                
+
+    def test_shrinking_easy(self):
+        for i in range(3):
+            simulator = run_test_simulator(scheduler=ShrinkingEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/shrink_bf." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+
     # below we test the weigths of maui: w_wtime, w_sld, w_user, w_bypass, w_admin, w_size
 
     def test_maui_wtime(self):

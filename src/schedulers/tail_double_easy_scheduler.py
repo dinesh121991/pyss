@@ -10,7 +10,7 @@ class  TailDoubleEasyScheduler(EasyBackfillScheduler):
     """
     
     def __init__(self, num_processors):
-        super(TailDoubleScheduler, self).__init__(num_processors)
+        super(TailDoubleEasyScheduler, self).__init__(num_processors)
         self.cpu_snapshot = CpuSnapshot(num_processors)
 
     
@@ -31,6 +31,7 @@ class  TailDoubleEasyScheduler(EasyBackfillScheduler):
                 self.unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
+		print job
             else:
                 job.predicted_run_time = job.user_estimated_run_time # undoubling is done here 
                 
