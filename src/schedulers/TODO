@@ -1,5 +1,3 @@
-add Btest with huge numbers ....
-
 finish debugging probabilistic easy !!!!!!!!!!!!!!!!!!!!!
 
 add the probabilistic w evaluation to user estimation 
@@ -17,7 +15,7 @@ add maui to the tuntests (take the system quality of service from somewhere ....
 
 implement another schedulers from Dror's list 
 
-check that there are no removing elements from a list while itterating the list  
+loops: check that there are no removing of elements from a list while itterating on the list  
 ----------------------------------------------- 
 
 UnitTesters

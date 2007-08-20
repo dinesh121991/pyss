@@ -537,16 +537,12 @@ class test_Simulator(unittest.TestCase):
         for i in [0,1]: # extreme number test 
             simulator = run_test_simulator(scheduler=ProbabilisticEasyScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-
-            simulator.scheduler.cpu_snapshot.printCpuSlices()
-            simulator.scheduler.cpu_snapshot._restore_old_slices()
-            simulator.scheduler.cpu_snapshot.printCpuSlices()
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_easy_Probabilistic_Backfill(self):
-        for i in range(0):
+        for i in range(1):
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
@@ -561,7 +557,7 @@ def score_function_for_look_ahead(job):
     return job.num_required_processors
 
 def score_function_for_greedy(list_of_jobs):
-        return len(list_of_jobs) # returns the length of the list: and thus a a list of more jobs is ranked higher
+        return len(list_of_jobs) # returns the length of the list: and thus a list with more jobs is ranked higher
 
 
 if __name__ == "__main__":
