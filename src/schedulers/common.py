@@ -1,3 +1,4 @@
+
 def list_copy(my_list):
         result = []
         for i in my_list:
@@ -14,7 +15,6 @@ class Scheduler(object):
     """
     Assumption: every handler returns a (possibly empty) collection of new events
     """
-
     def __init__(self, num_processors):
         self.num_processors = num_processors
 
@@ -55,7 +55,6 @@ class CpuTimeSlice(object):
     @property
     def busy_processors(self):
         return self.total_processors - self.free_processors
-
 
     def addJob(self, job):
         assert job.num_required_processors <= self.free_processors, job
@@ -122,6 +121,7 @@ class CpuSnapshot(object):
         assert len(self.slices) > 0
         return self.slices[-1].end_time
 
+
     def _ensure_a_slice_starts_at(self, start_time):
         """
         A preprocessing stage.
@@ -131,21 +131,19 @@ class CpuSnapshot(object):
         start at a beginning of a slice.
 
         Second, to ensure that the actual end time of the job will end at the
-        ending of slice.  we need this when we add a new job, or delete a tail
+        ending of slice.  we need this for adding a new job, or for deleting a tail
         of job when the user estimation is larger than the actual duration.
 
         The idea: we first append 2 slices, just to make sure that there's a
         slice which ends after the start_time.  We add one more slice just
         because we actually use list.insert() when we add a new slice.
-        After that we iterate through the slices and split a slice if needed
+        After that we iterate through the slices and split a slice if needed.
         """
 
         if self._slice_starts_at(start_time):
             return # already have one
 
-        snapshot_end_time = self.slices[-1].end_time
-
-        if start_time < snapshot_end_time:
+        if start_time < self.snapshot_end_time:
             # split an existing slice
             index = self._slice_index_to_split(start_time)
 
@@ -154,14 +152,15 @@ class CpuSnapshot(object):
             self.slices[index:index] = slice.split(start_time)
             return
 
-        if start_time > snapshot_end_time:
+        if start_time > self.snapshot_end_time:
             # add slice until start_time
-            self._append_time_slice(self.total_processors, start_time - snapshot_end_time)
+            self._append_time_slice(self.total_processors, start_time - self.snapshot_end_time)
             assert self.snapshot_end_time == start_time
 
-        # add a tail slice, duration is arbitrary
-        self._append_time_slice(self.total_processors, 1000)
+	# add a tail slice, duration is arbitrary
+	self._append_time_slice(self.total_processors, 100)
        
+
     def _slice_starts_at(self, time):
         for slice in self.slices:
             if slice.start_time == time:
@@ -179,6 +178,8 @@ class CpuSnapshot(object):
 
 
     def _append_time_slice(self, free_processors, duration):
+        if self.snapshot_end_time > 15000:
+		print "in append: time, duration:", self.snapshot_end_time, duration      
         self.slices.append(CpuTimeSlice(free_processors, self.snapshot_end_time, duration, self.total_processors))
 
 
@@ -230,9 +231,10 @@ class CpuSnapshot(object):
 
         assert False # should never reach here
 
+
     def _slices_time_range(self, start, end):
-        assert self._slice_starts_at(start)
-        assert self._slice_starts_at(end)
+        assert self._slice_starts_at(start), "start time is: " + str(start) 
+        assert self._slice_starts_at(end), "end time is: " + str(end)
 
         return (s for s in self.slices if start <= s.start_time < end)
 
@@ -306,7 +308,8 @@ class CpuSnapshot(object):
         assert self.slices
         prev = self.slices[0]
         for s in self.slices[1: ]:
-            if prev.free_processors == s.free_processors and s.job_ids == prev.job_ids:
+	    assert s.start_time == prev.start_time + prev.duration
+            if s.free_processors == prev.free_processors and s.job_ids == prev.job_ids:
                 prev.duration += s.duration
                 self.slices.remove(s)
             else:

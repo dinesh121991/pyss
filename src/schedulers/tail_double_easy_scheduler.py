@@ -31,7 +31,6 @@ class  TailDoubleEasyScheduler(EasyBackfillScheduler):
                 self.unscheduled_jobs.remove(job)
                 self.cpu_snapshot.assignJob(job, current_time)
                 result.append(job)
-		print job
             else:
                 job.predicted_run_time = job.user_estimated_run_time # undoubling is done here 
                 
