@@ -157,7 +157,7 @@ class CpuSnapshot(object):
             self._append_time_slice(self.total_processors, start_time - self.snapshot_end_time)
             assert self.snapshot_end_time == start_time
 
-	# add a tail slice, duration is arbitrary
+	# add a tail slice, duration is arbitrary whenever start_time >= self.snapshot_end_time
 	self._append_time_slice(self.total_processors, 1000)
 
 
