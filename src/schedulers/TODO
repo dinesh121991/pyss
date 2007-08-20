@@ -16,7 +16,8 @@ profiling the code
 add maui to the tuntests (take the system quality of service from somewhere ....) 
 
 implement another schedulers from Dror's list 
- 
+
+check that there are no removing elements from a list while itterating the list  
 ----------------------------------------------- 
 
 UnitTesters

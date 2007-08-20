@@ -158,8 +158,8 @@ class CpuSnapshot(object):
             assert self.snapshot_end_time == start_time
 
 	# add a tail slice, duration is arbitrary
-	self._append_time_slice(self.total_processors, 100)
-       
+	self._append_time_slice(self.total_processors, 1000)
+
 
     def _slice_starts_at(self, time):
         for slice in self.slices:
@@ -178,8 +178,6 @@ class CpuSnapshot(object):
 
 
     def _append_time_slice(self, free_processors, duration):
-        if self.snapshot_end_time > 15000:
-		print "in append: time, duration:", self.snapshot_end_time, duration      
         self.slices.append(CpuTimeSlice(free_processors, self.snapshot_end_time, duration, self.total_processors))
 
 
@@ -297,12 +295,15 @@ class CpuSnapshot(object):
         assert self.slices
         self.unify_slices()
         self._ensure_a_slice_starts_at(current_time)
-        for s in self.slices:
+	
+	while len(self.slices) > 0:
+	    s = self.slices[0]
             if s.end_time <= current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
             else:
                 break
+	
        
     def unify_slices(self):
         assert self.slices
@@ -311,7 +312,7 @@ class CpuSnapshot(object):
 	    assert s.start_time == prev.start_time + prev.duration
             if s.free_processors == prev.free_processors and s.job_ids == prev.job_ids:
                 prev.duration += s.duration
-                self.slices.remove(s)
+                self.slices.remove(s) # TODO: change the for condition: bad to removing s while itterating through list
             else:
                 prev = s
 
@@ -322,11 +323,16 @@ class CpuSnapshot(object):
             s = self.archive_of_old_slices.pop()
             self.slices.insert(0, s)
 
-    def printCpuSlices(self):
+    def printCpuSlices(self, str=None):
+        if str is not None: 
+		print str
         print "start time | duration | #free processors | jobs"
+	for s in self.archive_of_old_slices:
+	    print s 
         for s in self.slices:
             print s
         print
+
 
     def copy(self):
         result = CpuSnapshot(self.total_processors)

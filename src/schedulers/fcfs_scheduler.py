@@ -24,6 +24,7 @@ class FcfsScheduler(Scheduler):
             for job in self._schedule_jobs(current_time)
         ]
 
+
     def _schedule_jobs(self, current_time):
         result = []
         while len(self.waiting_queue_of_jobs) > 0:
