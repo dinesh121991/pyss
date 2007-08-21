@@ -103,18 +103,6 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 
 class test_Simulator(unittest.TestCase):
 
-    def test_stam(self): 
-        for i in range(2): # extreme number test 
-            simulator = run_test_simulator(scheduler=FcfsScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            
-            simulator.scheduler.cpu_snapshot.printCpuSlices()
-            simulator.scheduler.cpu_snapshot._restore_old_slices()
-            simulator.scheduler.cpu_snapshot.printCpuSlices()
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-                
 
     def test_basic_fcfs(self):
         for i in range(29):
@@ -206,7 +194,7 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
-        for i in [0,1]: # extreme number test 
+        for i in [0,1,2]: # extreme number test 
             simulator = run_test_simulator(scheduler=EasyBackfillScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
