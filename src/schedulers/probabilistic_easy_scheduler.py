@@ -165,6 +165,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
         result = 0.0
         M = {}
         C = first_job.num_required_processors + second_job.num_required_processors
+
+        if C > self.num_processors:
+            return 1
         
         # M[n,c] denotes the probablity that at time the first n jobs among those that
         # are currently running have released at least c processors
@@ -183,28 +186,25 @@ class  ProbabilisticEasyScheduler(Scheduler):
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
             print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
             for c in range (C + 1):
-                print "current c", c
+                # print "current c", c
                 if c >= job.num_required_processors:  
                     M[n, c] = M[n-1, c] + (M[n-1, c - job.num_required_processors] - M[n-1, c]) * Pn
-                    print "case 1"
+                    # print "case 1"
                 elif c >= 1:
                     M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
-                    print "case 2"
-                print "[", n, ",",  c, "]", M[n, c]
+                    # print "case 2"
+                # print "[", n, ",",  c, "]", M[n, c]
 
                     
         print "TiME: ", time, "bottle nec:", M[n, first_job.num_required_processors] - M[n, C]    
  
-        for c in range (C + 1):
-            for n in range(len(self.currently_running_jobs)):
-                print "[", n, ",",  c, "]", M[n, c]
+        # for c in range (C + 1):
+            # for n in range(len(self.currently_running_jobs)):
+                # print "[", n, ",",  c, "]", M[n, c]
 
-    
-        # IMPORTANT: NOTE THE DIFFERNCE IN THE RETURNED RESULT
-	if M[n, first_job.num_required_processors] > 0.15:
-            result = M[n, first_job.num_required_processors] - M[n, C] 
-	else: 
-	    result = max(M[n, first_job.num_required_processors] - M[n, C], M[n, first_job.num_required_processors])
+                
+        result = M[n, first_job.num_required_processors] - M[n, C]
+
  
         print ">>> TiME: ", time, "result", result  
         assert 0 <= result <= 1
@@ -224,34 +224,34 @@ class  ProbabilisticEasyScheduler(Scheduler):
         num_of_jobs_in_last_bins   = 0
         job_distribution = self.user_distribution[job.user_id]
 
-        print "in function probability_of_running_job_to_end_upto:"
-        print "---- current time, job_start", current_time, job.start_to_run_at_time, job 
+        #print "in function probability_of_running_job_to_end_upto:"
+        #print "---- current time, job_start", current_time, job.start_to_run_at_time, job 
         #print "---- rounded_down_run_time", rounded_down_run_time
         #print "---- rounded_up_estimated_remaining_duration", rounded_up_estimated_remaining_duration
         
         time = min(time, rounded_up_estimated_remaining_duration) 
-        print "up to time:", time
+        #print "up to time:", time
         
         for key in sorted(job_distribution.bins.keys()):
-            # print "+ key, num: ", key, job_distribution.bins[key] 
+            #print "+ key, num: ", key, job_distribution.bins[key] 
             if key <= rounded_down_run_time:
-                # print "case 1 key, num: ", key, job_distribution.bins[key] 
+                #print "case 1 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
 
             elif key > rounded_down_run_time + rounded_up_estimated_remaining_duration:
-                # print "case 4 key, num: ", key, job_distribution.bins[key] 
+                #print "case 4 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
 
             elif key < time + rounded_down_run_time:
-                # print "case 2 key, num: ", key, job_distribution.bins[key] 
+                #print "case 2 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += float(job_distribution.bins[key]) 
-                print "num of mid bins:", num_of_jobs_in_middle_bins
+                #print "num of mid bins:", num_of_jobs_in_middle_bins
 
             elif key >= time + rounded_down_run_time > key / 2 :
-                # print "case 3 key, num: ", key, job_distribution.bins[key] 
+                #print "case 3 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + rounded_down_run_time - (key / 2))) / (key 
 / 2) 
-                # print "num of mid bins:", num_of_jobs_in_middle_bins
+                #print "num of mid bins:", num_of_jobs_in_middle_bins
           	
   
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
@@ -261,10 +261,10 @@ class  ProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
     
-        # print "prob job upto time:", time, "is: >>>", result
-        # print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
-        # print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
-        # print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
+        #print "prob job upto time:", time, "is: >>>", result
+        #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
+        #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
+        #print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
 
         assert 0 <= result <= 1
         return result 
@@ -276,9 +276,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
         
         result = 0.0
         num_of_jobs_in_last_bins = 0
-        
+        # print "in  probability_to_end_at:"
         for key in job_distribution.bins.keys():
-            # print "- key, num: ", key, job_distribution.bins[key]
+            #print "- key, num: ", key, job_distribution.bins[key]
             rounded_up_user_estimated_run_time = 2 * job.user_estimated_run_time - 1
             if key > rounded_up_user_estimated_run_time:
                 # print "print added to last bins"
@@ -289,10 +289,10 @@ class  ProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = float(job_distribution.bins[time]) / num_of_relevant_jobs
 
-        # print "in  probability_to_end_at:"
-        # print "probability to finish at time: ", time, "is: ", result, job
-        # print "num of relevant jobs: ", num_of_relevant_jobs
-        # print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
+   
+        #print "probability to finish at time: ", time, "is: ", result, job
+        #print "num of relevant jobs: ", num_of_relevant_jobs
+        #print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
     
         print
         assert 0 <= result <= 1
