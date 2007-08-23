@@ -60,7 +60,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
     
     
     def new_events_on_job_submission(self, job, current_time):
-        print "arrived:", job
+        # print "arrived:", job
         if  self.user_distribution.has_key(job.user_id):
             self.user_distribution[job.user_id].touch(job.user_estimated_run_time)
         else:
@@ -119,7 +119,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
                 
         for job in tail:
             if self.can_be_probabilistically_backfilled(job, current_time):
-                print "+++ job can be backfilled", job
+                # print "+++ job can be backfilled", job
                 self.unscheduled_jobs.remove(job)
                 self.currently_running_jobs.append(job)
                 self.cpu_snapshot.assignJob(job, current_time)
@@ -149,15 +149,15 @@ class  ProbabilisticEasyScheduler(Scheduler):
             job_probability_to_end_at_t = self.probability_to_end_at(t, job)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
-	    print "t is:", t
-            print "current bad_prediction (job prob to end at t X max_bottle_neck)", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
+	    # print "t is:", t
+            # print "current bad_prediction (job prob to end at t X max_bottle_neck)", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
             t = t * 2 
     
-        if bad_prediction < self.threshold:
-            print "prediction:", bad_prediction
+        if bad_prediction <= self.threshold:
+            # print "prediction:", bad_prediction
             return True
         else:
-            print "prediction:", bad_prediction
+            # print "prediction:", bad_prediction
             return False
         
 
@@ -166,12 +166,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
         M = {}
         C = first_job.num_required_processors + second_job.num_required_processors
 
-        if C > self.num_processors:
-            return 1
-        
         # M[n,c] denotes the probablity that at time the first n jobs among those that
         # are currently running have released at least c processors
-        print ">>> in bottle neck, current time is:", current_time
+        # print ">>> in bottle neck, current time is:", current_time
 
         for c in range(C + 1): 
             M[-1, c] = 0.0
@@ -182,31 +179,34 @@ class  ProbabilisticEasyScheduler(Scheduler):
         for n in range(len(self.currently_running_jobs)):
 
             job = self.currently_running_jobs[n]
-            print "current job:", job
+            # print "current job:", job
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
-            print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
+            # print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
             for c in range (C + 1):
                 # print "current c", c
-                if c >= job.num_required_processors:  
+                if c > self.num_processors:
+                    M[n, c] = 0
+                elif c >= job.num_required_processors:  
                     M[n, c] = M[n-1, c] + (M[n-1, c - job.num_required_processors] - M[n-1, c]) * Pn
                     # print "case 1"
                 elif c >= 1:
                     M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
                     # print "case 2"
+                
                 # print "[", n, ",",  c, "]", M[n, c]
 
                     
-        print "TiME: ", time, "bottle nec:", M[n, first_job.num_required_processors] - M[n, C]    
- 
         # for c in range (C + 1):
             # for n in range(len(self.currently_running_jobs)):
                 # print "[", n, ",",  c, "]", M[n, c]
 
                 
         result = M[n, first_job.num_required_processors] - M[n, C]
-
+        if C > self.num_processors:
+            avg = (M[n, first_job.num_required_processors] + M[n, first_job.num_required_processors]) / 2
+            result = max(result, avg, 2 * self.threshold)  
  
-        print ">>> TiME: ", time, "result", result  
+        # print ">>> TiME: ", time, "result", result  
         assert 0 <= result <= 1
         return result 
 
@@ -216,7 +216,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
         rounded_up_estimated_remaining_duration = pow(2, int(log(max(2*(job.user_estimated_run_time - rounded_down_run_time)-1, 1), 2)))
 	if time >=  rounded_up_estimated_remaining_duration:
-        	print "prob job upto time:", time, "is: >>> 1"
+        	# print "prob job upto time:", time, "is: >>> 1"
 		return 1.0
 
         num_of_jobs_in_first_bins  = 0
