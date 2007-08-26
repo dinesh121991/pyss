@@ -466,8 +466,8 @@ BLUE 2.1 San-Diego Supercomputer Center 1,152 243,314 Apr 00 Jun 03 76% 73
 -------------------------------------------------------------
 
 
-run_simulator.sh --num-processors=1152 --input-file=10_sample --scheduler=1
-run_simulator.sh --num-processors=1152 --input-file=5K_sample --scheduler=1 
+run_simulator.sh --num-processors=100 --input-file=10_sample --scheduler=1
+run_simulator.sh --num-processors=100 --input-file=5K_sample --scheduler=1 
 
 mosrun -q -G -b run_simulator.sh --num-processors=512 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=4 >! res_512_CTC_4 &
 mosrun -q -G -b run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=4 >! res_100_kth_4 &
