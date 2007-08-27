@@ -72,10 +72,17 @@ def print_simulator_stats(simulator):
     # simulator.scheduler.cpu_snapshot.printCpuSlices()
     print_statistics(simulator.terminated_jobs, simulator.time_of_last_job_submission)
 
-
-by_finish_time_sort_key = (
+# increasing order 
+by_finish_time_sort_key   = (
     lambda job : job.finish_time
 )
+
+# decreasing order   
+#sort by: bounded slow down == max(1, (float(wait_time + run_time)/ max(run_time, 10))) 
+by_bounded_slow_down_sort_key = (
+    lambda job : -max(1, (float(job.start_to_run_at_time - job.submit_time + job.actual_run_time)/max(job.actual_run_time, 10)))
+)
+
     
 def print_statistics(jobs, time_of_last_job_submission):
     assert jobs is not None, "Input file is probably empty."
@@ -109,23 +116,35 @@ def print_statistics(jobs, time_of_last_job_submission):
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
         estimated_run_time = float(job.user_estimated_run_time)
-	avg_run_time = int(run_time + estimated_run_time) / 2 
+
 
         sum_waits += wait_time
         sum_run_times += run_time
         sum_slowdowns += float(wait_time + run_time) / run_time
         sum_bounded_slowdowns   += max(1, (float(wait_time + run_time)/ max(run_time, 10))) 
-        sum_estimated_slowdowns += max(1, (float(wait_time + avg_run_time)/ max(run_time, 10)))
+        sum_estimated_slowdowns += max(1, (float(wait_time + run_time)/ max(estimated_run_time, 10)))
 
         if max(1, (float(wait_time + run_time)/ max(run_time, 10))) >= 3:
             tail_counter += 1
             sum_tail_slowdowns += max(1, (float(wait_time + run_time)/ max(run_time, 10)))
+            
+    sum_percentile_tail_slowdowns = 0.0
+    percentile_counter = counter
+    
+    for job in sorted(jobs, key=by_bounded_slow_down_sort_key):
+        wait_time = float(job.start_to_run_at_time - job.submit_time)
+        run_time  = float(job.actual_run_time)
+        sum_percentile_tail_slowdowns += float(wait_time + run_time) / run_time
+        percentile_counter -= 1
+        if percentile_counter < (0.9 * counter):
+            break
+        
         
         
     print
     print "STATISTICS: "
     
-    print "Aait (Tw) [minutes]: ", float(sum_waits) / (60 * max(counter, 1))
+    print "Wait (Tw) [minutes]: ", float(sum_waits) / (60 * max(counter, 1))
 
     print "Response time (Tw+Tr) [minutes]: ", float(sum_waits + sum_run_times) / (60 * max(counter, 1))
     
@@ -136,7 +155,9 @@ def print_statistics(jobs, time_of_last_job_submission):
     print "Estimated slowdown max(1, (Tw+(Tr+Te)/2)) / max(10, Tr): ", sum_estimated_slowdowns / max(counter, 1)
 
     print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
-    
+    print "   Number of jobs in the tail: ", tail_counter
+
+    print "Tail Percentile (the 10% top bounded_sld): ", sum_percentile_tail_slowdowns / max(0.1 * counter, 1)    
     
     print "Total Number of jobs: ", size
     

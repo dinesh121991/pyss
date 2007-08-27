@@ -18,6 +18,7 @@ from head_double_easy_scheduler import HeadDoubleEasyScheduler
 from tail_double_easy_scheduler import TailDoubleEasyScheduler
 from shrinking_easy_scheduler import ShrinkingEasyScheduler
 from easy_sjbf_scheduler import EasySJBFScheduler
+from reverse_easy_scheduler import ReverseEasyScheduler
 
 from maui_scheduler import MauiScheduler, Weights
 from greedy_easy_scheduler import GreedyEasyBackfillScheduler
@@ -88,7 +89,6 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
     j = Job(1, 1, 1, 1, 1)
 
     for job in jobs:
-        print job
         j.id = job.id
         j.num_required_processors = job.num_required_processors
         j.start_to_run_at_time = job.start_to_run_at_time
@@ -359,6 +359,22 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
                 
+
+    def test_reverse_easy(self): 
+	for i in range(29):
+            simulator = run_test_simulator(scheduler=ReverseEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0]:
+            simulator = run_test_simulator(scheduler=ReverseEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/reverse." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
                 
     # tests for maui             
     def test_basic_maui(self):
