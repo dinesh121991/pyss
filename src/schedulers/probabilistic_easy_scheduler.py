@@ -37,7 +37,7 @@ class Distribution(object):
         self.number_of_jobs_added += 1
         
         if self.bins.has_key(rounded_up_run_time):
-            self.bins[rounded_up_run_time] += 1 # incrementing the numbers of the numbers of terminated jobs encountered so far
+            self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
         else: 
             self.bins[rounded_up_run_time]  = 1   # we add a new entry initialized to 1
             self.emptytouch(rounded_up_run_time) # and "add" empty entries in between 
@@ -48,7 +48,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
-    def __init__(self, num_processors, threshold = 0.4):
+    def __init__(self, num_processors, threshold = 0.1):
         super(ProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
@@ -143,14 +143,13 @@ class  ProbabilisticEasyScheduler(Scheduler):
         bad_prediction  = 0.0
         max_bottle_neck = 0.0 
         t = 1
-        rounded_up_user_estimated_run_time = 2 * job.user_estimated_run_time - 1 
         
-        while t <= rounded_up_user_estimated_run_time:
+        while t <= job.user_estimated_run_time:
             job_probability_to_end_at_t = self.probability_to_end_at(t, job)
             max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time))
             bad_prediction += job_probability_to_end_at_t * max_bottle_neck
-	    print "t is:", t
-            print "current bad_prediction (job prob to end at t X max_bottle_neck)", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
+	    # print "t is:", t
+            # print "current bad_prediction (job prob to end at t X max_bottle_neck)", job_probability_to_end_at_t, "*", max_bottle_neck, "+=", bad_prediction
             t = t * 2 
     
         if bad_prediction <= self.threshold:
