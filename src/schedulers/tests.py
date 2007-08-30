@@ -50,15 +50,15 @@ def parse_jobs_test_input(input_file_name):
         (str_j_submit_time, j_id, str_j_estimated_run_time, str_j_processors, \
          str_j_actual_run_time, str_j_admin_QoS, str_j_user_QoS, j_user_id) = line.split()
 
-        j_submit_time = int(str_j_submit_time)
+        j_submit_time        = int(str_j_submit_time)
         j_estimated_run_time = int(str_j_estimated_run_time)
-        j_actual_run_time = int(str_j_actual_run_time)
-        j_processors = int(str_j_processors)
+        j_actual_run_time    = int(str_j_actual_run_time)
+        j_processors         = int(str_j_processors)
 	
 
         if j_estimated_run_time >= j_actual_run_time and j_submit_time >= 0 and j_processors > 0 and j_actual_run_time >= 0:
             j_admin_QoS = int(str_j_admin_QoS)
-            j_user_QoS = int(str_j_user_QoS)
+            j_user_QoS  = int(str_j_user_QoS)
             newJob = Job(j_id, j_estimated_run_time, j_actual_run_time, \
                          j_processors, j_submit_time, j_admin_QoS, j_user_QoS, j_user_id)
             jobs.append(newJob)
@@ -102,6 +102,32 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 #       rescheduling a job or checking backfill legality (e.g. Maui)
 
 class test_Simulator(unittest.TestCase):
+
+    def test_basic_probabilistic_easy(self): 
+        for i in range(29):  
+            scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1]: # extreme number test 
+            simulator = run_test_simulator(scheduler=ProbabilisticEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+    def test_easy_Probabilistic_Backfill(self):
+        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20]: #skipped 14, 18 
+            scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
 
 
     def test_basic_fcfs(self):
@@ -529,32 +555,6 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
                
-    def test_basic_probabilistic_easy(self): 
-        for i in range(15):  
-            scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in [0,1]: # extreme number test 
-            simulator = run_test_simulator(scheduler=ProbabilisticEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-    def test_easy_Probabilistic_Backfill(self):
-        for i in [16]:
-            scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
 ###########
 
 def score_function_for_look_ahead(job):

@@ -1,4 +1,13 @@
-Change the the wort Aait to Wait in the print statistics 
+extarct total number of processors from the log file itself "MaxProcs"
+
+
+write a script that run all the schedulers for a specific logs oor assume take a range of numbers from the command line
+
+loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
+
+
+change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
+
 finish debugging probabilistic easy !!!!!!!!!!!!!!!!!!!!!
 
 add the probabilistic w evaluation to user estimation 
@@ -8,15 +17,16 @@ statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
 Change the LookAhead scheduler to give better statistics .........
 
-commenting the code 
+commenting the code .....
 
-profiling the code 
+profiling the code ....
 
-add maui to the tuntests (take the system quality of service from somewhere ....) 
+add maui to the tests (take the system quality of service from somewhere ....) 
 
 implement another schedulers from Dror's list 
 
-loops: check that there are no removing of elements from a list while itterating on the list  
+
+
 ----------------------------------------------- 
 
 UnitTesters
@@ -67,7 +77,6 @@ pri( int job )
           + w_size   * jobs[job].size );
 }
 
-
 ----------------------------------------------- 
 
 
@@ -76,7 +85,7 @@ Checking running time on real data:
 % time runfcfs -s ~/par/logs/l_lanl_cm5_cln.swf
 1.028u 0.048s 0:01.19 89.0%     0+0k 0+0io 0pf+0w
 
-%time runeasy -s ~/par/logs/l_lanl_cm5_cln.swf
+% time runeasy -s ~/par/logs/l_lanl_cm5_cln.swf
 0.892u 0.060s 0:00.97 97.9%     0+0k 0+0io 0pf+0w
 
 

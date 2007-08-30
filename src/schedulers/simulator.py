@@ -122,7 +122,7 @@ def print_statistics(jobs, time_of_last_job_submission):
         sum_run_times += run_time
         sum_slowdowns += float(wait_time + run_time) / run_time
         sum_bounded_slowdowns   += max(1, (float(wait_time + run_time)/ max(run_time, 10))) 
-        sum_estimated_slowdowns += max(1, (float(wait_time + run_time)/ max(estimated_run_time, 10)))
+        sum_estimated_slowdowns += float(wait_time + run_time) / estimated_run_time
 
         if max(1, (float(wait_time + run_time)/ max(run_time, 10))) >= 3:
             tail_counter += 1
@@ -152,12 +152,12 @@ def print_statistics(jobs, time_of_last_job_submission):
 
     print "Bounded slowdown max(1, (Tw+Tr) / max(10, Tr): ", sum_bounded_slowdowns / max(counter, 1)
     
-    print "Estimated slowdown max(1, (Tw+(Tr+Te)/2)) / max(10, Tr): ", sum_estimated_slowdowns / max(counter, 1)
+    print "Estimated slowdown (Tw+Tr) / Te: ", sum_estimated_slowdowns / max(counter, 1)
 
     print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
     print "   Number of jobs in the tail: ", tail_counter
 
-    print "Tail Percentile (the 10% top bounded_sld): ", sum_percentile_tail_slowdowns / max(0.1 * counter, 1)    
+    print "Tail Percentile (the 10% top sld): ", sum_percentile_tail_slowdowns / max(counter - percentile_counter + 1, 1)    
     
     print "Total Number of jobs: ", size
     

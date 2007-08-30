@@ -8,4 +8,6 @@
 
 100 110 10 99 10 0 0 uid_1
 101 114 4 2 4 0 0 uid_2
+
+# intuitively should treat the next job as going to finish in 4 time units in expectation  
 104 112 8 1 8 0 0 uid_3
