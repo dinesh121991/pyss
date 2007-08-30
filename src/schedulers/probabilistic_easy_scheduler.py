@@ -115,7 +115,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         result    = []  
         first_job = self.unscheduled_jobs[0]        
-        tail      = self.unscheduled_jobs[1:]
+        tail      = list_copy(self.unscheduled_jobs[1:]) 
                 
         for job in tail:
             if self.can_be_probabilistically_backfilled(job, current_time):
@@ -197,9 +197,13 @@ class  ProbabilisticEasyScheduler(Scheduler):
         result = M[n, first_job.num_required_processors] - M[n, K]
         if K < C:
             result = max(self.threshold, M[n, first_job.num_required_processors] - M[n, second_job.num_required_processors])
+            
+        if result < 0: # as we are dealing with float numbers we might have some overflows ...  
+            result = 0
+        elif result > 1:
+            result = 1
     
         # print ">>> TiME: ", time, "result", result  
-        assert 0 <= result <= 1, str(result)+str(" ")+ str(M[n, first_job.num_required_processors])+str(" ") + str(M[n,C]) 
         return result 
 
 
