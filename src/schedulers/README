@@ -473,6 +473,16 @@ mosrun -q -G -b run_simulator.sh --num-processors=512 --input-file=schedulers/sw
 mosrun -q -G -b run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=4 >! res_100_kth_4 &
 mosrun -q -G -b run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=4 >! res_128_sdsc_4 &
 mosrun -q -G -b run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=4 >! res_1152_BLU_4 &
+
+mosrun run_simulator.sh --num-processors=512 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=4 >! res_512_CTC_4 &
+mosrun run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=4 >! res_100_kth_4 &
+mosrun run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=4 >! res_128_sdsc_4 &
+mosrun run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=4 >! res_1152_BLU_4 &
+
+mosrun run_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=4 >! res_1664_DS_4 &
+mosrun run_simulator.sh --num-processors=400 --input-file=schedulers/swf_input/SDSC-Par-1995-2.1-cln.swf --scheduler=4 >! res_400_Par95_4 &
+mosrun run_simulator.sh --num-processors=400 --input-file=schedulers/swf_input/SDSC-Par-1996-2.1-cln.swf --scheduler=4 >! res_400_Par96_4 &
+
 -------------------------------------------------------------
 man mosrun
 man mosix

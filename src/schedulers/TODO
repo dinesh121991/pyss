@@ -1,9 +1,19 @@
+loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
+
+important: change the  print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
+to:  print "Tail slowdown (if bounded_sld >= 3): ", sum_tail_slowdowns / max(tail_counter, 1)
+                                                       --------
+in look ahead easy:  assert if  job.backfill_flag == 1
+
+
+
+
+
 extarct total number of processors from the log file itself "MaxProcs"
 
 
-write a script that run all the schedulers for a specific logs oor assume take a range of numbers from the command line
+write a script that runs all the schedulers for a specific logs or that takes a range of numbers from the command line
 
-loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
 
 change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
