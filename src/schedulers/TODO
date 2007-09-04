@@ -1,20 +1,12 @@
-change _two lines_ (estimated + tail >= 3)  in the statistcs printing  
 
 run probabilistic easy with different threashold parameter: 0.05, 0.1, 0.15 ....
 
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
 
-
-
 run_simulator.py: extarct total number of processors from the log file itself "MaxProcs"
-write a script that runs all the schedulers for a specific logs or that takes a range of numbers from the command line
-
 
 change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
-
-
-
 
 
 Change the LookAhead scheduler to give better statistics .........
