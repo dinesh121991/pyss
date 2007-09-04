@@ -25,6 +25,7 @@ from greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
+from alpha_easy_scheduler import AlphaEasyScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 from probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
 
@@ -122,7 +123,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_easy_probabilistic(self):
-        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20]: # skip 14, 18 
+        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20,21]: # skip 14, 18 
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
@@ -149,7 +150,31 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
 
+    def test_basic_alpha_easy(self): 
+        for i in range(29):  
+            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1]: # extreme number test 
+            simulator = run_test_simulator(scheduler=AlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
 	
+    def test_alpha_easy_nodes(self):
+        for i in [0,1,2,3]:  
+            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/alpha_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
 
 
     def test_basic_fcfs(self):
@@ -339,7 +364,7 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
-        for i in range(3):
+        for i in range(4):
             simulator = run_test_simulator(scheduler=ShrinkingEasyScheduler(NUM_PROCESSORS), \
                                       num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/shrink_bf." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
@@ -569,7 +594,7 @@ class test_Simulator(unittest.TestCase):
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
     def test_easyPlusPlusBackfill(self):
-        for i in range(15):
+        for i in range(16):
             scheduler = EasyPlusPlusScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/plus_plus_easy." + str(i))
