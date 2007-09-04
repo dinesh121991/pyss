@@ -3,8 +3,6 @@ from base.prototype import JobStartEvent
 from math import log
 
 
-def distribution_key(job):
-    return str(job.user_id)
     
 class Distribution(object):
     def __init__(self, job):
@@ -51,23 +49,25 @@ class  ProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
-    def __init__(self, num_processors, threshold = 0.05):
+    def __init__(self, num_processors, threshold = 0.05, key=None):
         super(ProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
         
         self.user_distribution = {}
         self.unscheduled_jobs  = []
-        self.currently_running_jobs = []
-     
+        self.currently_running_jobs = []     
     
+    def distribution_key(self, job):
+        return str(job.user_id)
     
     def new_events_on_job_submission(self, job, current_time):
-        job_key = distribution_key(job) 
+        job_key = self.distribution_key(job) 
         # print "arrived:", job
         if  self.user_distribution.has_key(job_key):
             self.user_distribution[job_key].touch(job.user_estimated_run_time)
         else:
+            print "arrival of job, add a key", job_key,job  
             self.user_distribution[job_key] = Distribution(job)
 
         self.cpu_snapshot.archive_old_slices(current_time)
@@ -79,7 +79,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
 
     def new_events_on_job_termination(self, job, current_time):
-        self.user_distribution[distribution_key(job)].add_job(job)
+        self.user_distribution[self.distribution_key(job)].add_job(job)
         self.currently_running_jobs.remove(job)
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
@@ -140,9 +140,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
         first_job = self.unscheduled_jobs[0]
-        job_distribution = self.user_distribution[distribution_key(job)]
+        job_distribution = self.user_distribution[self.distribution_key(job)]
         for tmp_job in self.currently_running_jobs:
-            self.user_distribution[distribution_key(tmp_job)].empty_touch(job.user_estimated_run_time)
+            self.user_distribution[self.distribution_key(tmp_job)].empty_touch(job.user_estimated_run_time)
       
         bad_prediction  = 0.0
         max_bottle_neck = 0.0 
@@ -222,7 +222,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         num_of_jobs_in_first_bins  = 0
         num_of_jobs_in_middle_bins = 0.0
         num_of_jobs_in_last_bins   = 0
-        job_distribution = self.user_distribution[distribution_key(job)]
+        job_distribution = self.user_distribution[self.distribution_key(job)]
 
         #print "in function probability_of_running_job_to_end_upto:"
         #print "---- current time, job_start", current_time, job.start_to_run_at_time, job 
@@ -271,7 +271,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
 
     def probability_to_end_at(self, time, job):         
-        job_distribution = self.user_distribution[distribution_key(job)]
+        job_distribution = self.user_distribution[self.distribution_key(job)]
         assert job_distribution.bins.has_key(time) == True
         
         result = 0.0
