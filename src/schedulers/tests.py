@@ -26,6 +26,8 @@ from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
+from probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
+
 
 from perfect_easy_scheduler import PerfectEasyBackfillScheduler
 from double_perfect_easy_scheduler import DoublePerfectEasyBackfillScheduler
@@ -127,6 +129,16 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
+    def test_basic_probabilistic_nodes_easy(self): 
+        for i in range(29):  
+            scheduler = ProbabilisticNodesEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
 
 
