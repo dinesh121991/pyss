@@ -55,8 +55,6 @@ class  AlphaEasyScheduler(EasyPlusPlusScheduler):
         for job in user_list_of_jobs:
             result += float(job.actual_run_time) / job.user_estimated_run_time
 
-        result = result / len(user_list_of_jobs)
-        print result
-        return result 
+        return result / len(user_list_of_jobs)
 
  

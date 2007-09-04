@@ -34,6 +34,7 @@ from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
 from schedulers.probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 from schedulers.probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
+from schedulers.alpha_easy_scheduler import AlphaEasyScheduler
 
 
 def parse_options():
@@ -116,7 +117,10 @@ def main():
         scheduler = DoublePerfectEasyBackfillScheduler(options.num_processors)
 
     elif options.scheduler == "ProbabilisticNodesEasyScheduler" or options.scheduler == "17":
-        scheduler = ProbabilisticEasyScheduler(options.num_processors)
+        scheduler = ProbabilisticNodesEasyScheduler(options.num_processors)
+
+    elif options.scheduler == "AlphaEasyScheduler" or options.scheduler == "18":
+        scheduler = AlphaEasyScheduler(options.num_processors)
     
         
     else:

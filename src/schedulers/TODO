@@ -2,29 +2,20 @@
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
 
-in look ahead easy:  assert if  job.backfill_flag == 1
 
 
-
-
-
-extarct total number of processors from the log file itself "MaxProcs"
-
-
+run_simulator.py: extarct total number of processors from the log file itself "MaxProcs"
 write a script that runs all the schedulers for a specific logs or that takes a range of numbers from the command line
-
 
 
 change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
 
-finish debugging probabilistic easy !!!!!!!!!!!!!!!!!!!!!
 
-add the probabilistic w evaluation to user estimation 
 
-statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
 
 Change the LookAhead scheduler to give better statistics .........
+	in look ahead easy:  assert if  job.backfill_flag == 1
 
 commenting the code .....
 
@@ -32,7 +23,7 @@ profiling the code ....
 
 add maui to the tests (take the system quality of service from somewhere ....) 
 
-implement another schedulers from Dror's list 
+statistics: add mor harchol slowdowns criteria http://www.cs.cmu.edu/~harchol
 
 
 
