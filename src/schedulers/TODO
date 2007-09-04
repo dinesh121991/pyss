@@ -1,8 +1,7 @@
+
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
-important: change the  print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
-to:  print "Tail slowdown (if bounded_sld >= 3): ", sum_tail_slowdowns / max(tail_counter, 1)
-                                                       --------
+
 in look ahead easy:  assert if  job.backfill_flag == 1
 
 

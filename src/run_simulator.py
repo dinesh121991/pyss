@@ -31,7 +31,9 @@ from schedulers.perfect_easy_scheduler import PerfectEasyBackfillScheduler
 from schedulers.double_perfect_easy_scheduler import DoublePerfectEasyBackfillScheduler
 
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
+
 from schedulers.probabilistic_easy_scheduler import ProbabilisticEasyScheduler
+from schedulers.probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
 
 
 def parse_options():
@@ -41,10 +43,7 @@ def parse_options():
     parser.add_option("--input-file", \
                       help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
     parser.add_option("--scheduler", 
-                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) 
-DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) 
-EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) ProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) 
-PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler")
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) ProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler")
     
     options, args = parser.parse_args()
 
@@ -105,6 +104,7 @@ def main():
 
     elif options.scheduler == "ProbabilisticEasyScheduler" or options.scheduler == "13":
         scheduler = ProbabilisticEasyScheduler(options.num_processors)
+    
 
     elif options.scheduler == "ReverseEasyScheduler" or options.scheduler == "14":
         scheduler = ReverseEasyScheduler(options.num_processors)
@@ -114,6 +114,10 @@ def main():
         
     elif options.scheduler == "DoublePerfectEasyBackfillScheduler" or options.scheduler == "16":
         scheduler = DoublePerfectEasyBackfillScheduler(options.num_processors)
+
+    elif options.scheduler == "ProbabilisticNodesEasyScheduler" or options.scheduler == "17":
+        scheduler = ProbabilisticEasyScheduler(options.num_processors)
+    
         
     else:
         print "No such scheduler"

@@ -4,6 +4,7 @@ from base.prototype import JobSubmissionEvent, JobTerminationEvent, JobPredictio
 from base.prototype import ValidatingMachine
 from base.event_queue import EventQueue
 from common import CpuSnapshot, list_print
+
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from shrinking_easy_scheduler import ShrinkingEasyScheduler
 
@@ -152,7 +153,7 @@ def print_statistics(jobs, time_of_last_job_submission):
 
     print "Bounded slowdown max(1, (Tw+Tr) / max(10, Tr): ", sum_bounded_slowdowns / max(counter, 1)
     
-    print "Estimated slowdown (Tw+Tr) / Te: ", sum_estimated_slowdowns / max(counter, 1)
+    print "Estimated slowdown (Tw+Tr) / Te: ", sum_tail_slowdowns / max(counter, 1)
 
     print "Tail slowdown (if bounded_sld >= 3): ", sum_estimated_slowdowns / max(tail_counter, 1)
     print "   Number of jobs in the tail: ", tail_counter

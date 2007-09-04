@@ -67,7 +67,6 @@ class  ProbabilisticEasyScheduler(Scheduler):
         if  self.user_distribution.has_key(job_key):
             self.user_distribution[job_key].touch(job.user_estimated_run_time)
         else:
-            print "arrival of job, add a key", job_key,job  
             self.user_distribution[job_key] = Distribution(job)
 
         self.cpu_snapshot.archive_old_slices(current_time)

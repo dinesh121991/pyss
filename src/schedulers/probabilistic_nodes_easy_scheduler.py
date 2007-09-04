@@ -18,4 +18,4 @@ class  ProbabilisticNodesEasyScheduler(ProbabilisticEasyScheduler):
     def distribution_key(self, job):
         "Overriding parent method"
         rounded_up_processors = pow(2, int(log(max(2 * job.num_required_processors - 1, 1), 2)))
-        return str(rounded_up_processors) + " " + str(job.user_id)
+        return str(rounded_up_processors) + "#" + str(job.user_id)
