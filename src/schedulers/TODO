@@ -1,4 +1,6 @@
 
+run probabilistic easy with different threashold parameter: 0.05, 0.1, 0.15 ....
+
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
 
