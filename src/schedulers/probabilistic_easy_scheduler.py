@@ -7,8 +7,8 @@ from math import log
 class Distribution(object):
     def __init__(self, job):
         self.bins    = {}
-        self.bins[1] = 1.0 # adding the first entry to the main data structure of the distribution 
-        self.number_of_jobs_added = 1.0
+        self.bins[1] = 0.01 # adding the first entry to the main data structure of the distribution 
+        self.number_of_jobs_added = 0.01
 
         if job is not None: # we init the distribution to be uniform w.r.t. to the user estimation 
             self.touch(job.user_estimated_run_time)
@@ -18,8 +18,8 @@ class Distribution(object):
         rounded_up_time = pow(2, int(log(max(2 * time - 1, 1), 2)))
        	while rounded_up_time > 1: 
             if not self.bins.has_key(rounded_up_time) or self.bins[rounded_up_time] == 0.0:  
-                self.bins[rounded_up_time] = 1.0  
-		self.number_of_jobs_added += 1.0
+                self.bins[rounded_up_time] = 0.01  
+		self.number_of_jobs_added += 0.01
             rounded_up_time = rounded_up_time / 2
             
 
@@ -27,7 +27,8 @@ class Distribution(object):
         rounded_up_time = pow(2, int(log(max(2 * time - 1, 1) , 2))) 
        	while rounded_up_time > 1: 
             if not self.bins.has_key(rounded_up_time):  
-                self.bins[rounded_up_time] = 0.0  
+                self.bins[rounded_up_time] = 0.01
+                self.number_of_jobs_added += 0.01
             rounded_up_time = rounded_up_time / 2
 
             
@@ -214,6 +215,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
         run_time = current_time - job.start_to_run_at_time
         estimated_remaining_duration = job.user_estimated_run_time - run_time
+        
 	if time >=  estimated_remaining_duration:
         	# print "prob job upto time:", time, "is: >>> 1"
 		return 1.0
@@ -243,13 +245,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
             elif key < time + run_time:
                 #print "case 2 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key]) 
+                num_of_jobs_in_middle_bins += job_distribution.bins[key] 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
 
-            elif key >= time + run_time > key / 2 :
+            # elif key >= time + run_time > key / 2 :
                 #print "case 3 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + run_time - (key / 2))) / (key 
-/ 2) 
+                # num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + run_time - (key / 2))) / (key / 2) 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
           	
   
