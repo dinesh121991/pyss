@@ -49,7 +49,6 @@ class  AlphaEasyScheduler(EasyPlusPlusScheduler):
 
     
     def calculate_alpha (self, user_list_of_jobs): # calculates the average of the precision of the user estimation
-        assert user_list_of_jobs >  0 
 
         result = 0.0 
         for job in user_list_of_jobs:

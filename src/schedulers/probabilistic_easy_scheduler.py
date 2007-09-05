@@ -7,7 +7,7 @@ from math import log
 class Distribution(object):
     def __init__(self, job):
         self.bins    = {}
-        self.bins[1] = 1 # adding the first entry to the main data structure of the distribution 
+        self.bins[1] = 1.0 # adding the first entry to the main data structure of the distribution 
         self.number_of_jobs_added = 1.0
 
         if job is not None: # we init the distribution to be uniform w.r.t. to the user estimation 
@@ -17,7 +17,7 @@ class Distribution(object):
     def touch(self, time): # just add bins.
         rounded_up_time = pow(2, int(log(max(2 * time - 1, 1), 2)))
        	while rounded_up_time > 1: 
-            if not self.bins.has_key(rounded_up_time) or self.bins[rounded_up_time] == 0:  
+            if not self.bins.has_key(rounded_up_time) or self.bins[rounded_up_time] == 0.0:  
                 self.bins[rounded_up_time] = 1.0  
 		self.number_of_jobs_added += 1.0
             rounded_up_time = rounded_up_time / 2
@@ -218,9 +218,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
         	# print "prob job upto time:", time, "is: >>> 1"
 		return 1.0
 
-        num_of_jobs_in_first_bins  = 0
+        num_of_jobs_in_first_bins  = 0.0
         num_of_jobs_in_middle_bins = 0.0
-        num_of_jobs_in_last_bins   = 0
+        num_of_jobs_in_last_bins   = 0.0
         job_distribution = self.user_distribution[self.distribution_key(job)]
 
         #print "in function probability_of_running_job_to_end_upto:"
@@ -274,7 +274,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
         assert job_distribution.bins.has_key(time) == True
         
         result = 0.0
-        num_of_jobs_in_last_bins = 0
+        num_of_jobs_in_last_bins = 0.0
         # print "in  probability_to_end_at:"
         for key in job_distribution.bins.keys():
             #print "- key, num: ", key, job_distribution.bins[key]
