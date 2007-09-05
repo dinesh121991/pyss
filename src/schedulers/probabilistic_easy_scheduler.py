@@ -47,7 +47,8 @@ class  ProbabilisticEasyScheduler(Scheduler):
         
         self.user_distribution = {}
         self.unscheduled_jobs  = []
-        self.currently_running_jobs = []     
+        self.currently_running_jobs = []
+     
     
     def distribution_key(self, job):
         return str(job.user_id)
@@ -69,6 +70,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
 
     def new_events_on_job_termination(self, job, current_time):
+        print ".",
         self.user_distribution[self.distribution_key(job)].add_job(job)
         self.currently_running_jobs.remove(job)
         self.cpu_snapshot.archive_old_slices(current_time)
@@ -193,9 +195,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
             result = max(self.threshold, M[n, first_job.num_required_processors] - M[n, second_job.num_required_processors])
             
         if result < 0: # as we are dealing with float numbers we might have some overflows ...  
-            result = 0
+            result = 0.0
         elif result > 1:
-            result = 1
+            result = 1.0
     
         # print ">>> TiME: ", time, "result", result  
         return result 
@@ -255,8 +257,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
         #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
         #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
         #print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
+        
+        if result < 0.0: # as we are dealing with float numbers we might have some overflows ...  
+            result = 0.0
+        elif result > 1.0:
+            result = 1.0
 
-        assert 0 <= result <= 1
         return result 
 
 
@@ -283,8 +289,12 @@ class  ProbabilisticEasyScheduler(Scheduler):
         #print "probability to finish at time: ", time, "is: ", result, job
         #print "num of relevant jobs: ", num_of_relevant_jobs
         #print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
-    
-        assert 0 <= result <= 1
+        
+        if result < 0.0: # as we are dealing with float numbers we might have some overflows ...  
+            result = 0.0
+        elif result > 1.0:
+            result = 1.0
+
         return result 
      
      

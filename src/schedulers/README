@@ -1,3 +1,6 @@
+ps | awk '{print $1}' > ! junk 
+
+
 Test Files Dants: 
 
 /cs/par/users/ouaknine/simus/sim_orig
