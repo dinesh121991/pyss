@@ -1,3 +1,7 @@
+continue testing the prob_alpha (merge() and prepare a specific tests files)
+don't forget to delete the print command after that 
+
+
 ask dror about the number of processors for CTC and the strangeness of SDSC-DS-2004
 run probabilistic easy with different threashold parameter: 0.05, 0.1, 0.15 ....
 
