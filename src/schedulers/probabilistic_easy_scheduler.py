@@ -212,9 +212,9 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
-        rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
-        rounded_up_estimated_remaining_duration = pow(2, int(log(max(2*(job.user_estimated_run_time - rounded_down_run_time)-1, 1), 2)))
-	if time >=  rounded_up_estimated_remaining_duration:
+        run_time = current_time - job.start_to_run_at_time
+        estimated_remaining_duration = job.user_estimated_run_time - run_time
+	if time >=  estimated_remaining_duration:
         	# print "prob job upto time:", time, "is: >>> 1"
 		return 1.0
 
@@ -228,27 +228,27 @@ class  ProbabilisticEasyScheduler(Scheduler):
         #print "---- rounded_down_run_time", rounded_down_run_time
         #print "---- rounded_up_estimated_remaining_duration", rounded_up_estimated_remaining_duration
         
-        time = min(time, rounded_up_estimated_remaining_duration) 
+        time = min(time, estimated_remaining_duration) 
         #print "up to time:", time
         
         for key in sorted(job_distribution.bins.keys()):
             #print "+ key, num: ", key, job_distribution.bins[key] 
-            if key <= rounded_down_run_time:
+            if key <= run_time:
                 #print "case 1 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
 
-            elif key > rounded_down_run_time + rounded_up_estimated_remaining_duration:
+            elif key > job.user_estimated_run_time:
                 #print "case 4 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
 
-            elif key < time + rounded_down_run_time:
+            elif key < time + run_time:
                 #print "case 2 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += float(job_distribution.bins[key]) 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
 
-            elif key >= time + rounded_down_run_time > key / 2 :
+            elif key >= time + run_time > key / 2 :
                 #print "case 3 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + rounded_down_run_time - (key / 2))) / (key 
+                num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + run_time - (key / 2))) / (key 
 / 2) 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
           	
