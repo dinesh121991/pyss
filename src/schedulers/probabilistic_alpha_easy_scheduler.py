@@ -15,10 +15,10 @@ def convex_merge(d1, d2, r):
     while max_key > 1:
         result.bins[max_key] = r * d1.bins[max_key] + (1-r) * d2.bins[max_key]
         max_key = max_key / 2
-    print
-    print d1
-    print d2
-    print result 
+    # print
+    # print d1
+    # print d2
+    # print result 
     return result 
         
 
