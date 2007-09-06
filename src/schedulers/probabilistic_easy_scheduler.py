@@ -40,7 +40,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
-    def __init__(self, num_processors, threshold = 0.05, key=None):
+    def __init__(self, num_processors, threshold = 0.05):
         super(ProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
