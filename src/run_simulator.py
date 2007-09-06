@@ -35,6 +35,7 @@ from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 from schedulers.probabilistic_easy_scheduler import ProbabilisticEasyScheduler
 from schedulers.probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
 from schedulers.alpha_easy_scheduler import AlphaEasyScheduler
+from schedulers.double_alpha_easy_scheduler import DoubleAlphaEasyScheduler
 
 
 def parse_options():
@@ -44,7 +45,7 @@ def parse_options():
     parser.add_option("--input-file", \
                       help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
     parser.add_option("--scheduler", 
-                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) ProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler")
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) ProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler, 18) AlphaEasyScheduler, 19)DoubleAlphaEasyScheduler")
     
     options, args = parser.parse_args()
 
@@ -121,13 +122,17 @@ def main():
 
     elif options.scheduler == "AlphaEasyScheduler" or options.scheduler == "18":
         scheduler = AlphaEasyScheduler(options.num_processors)
-    
+        
+    elif options.scheduler == "DoubleAlphaEasyScheduler" or options.scheduler == "19":
+        scheduler = DoubleAlphaEasyScheduler(options.num_processors)
+
         
     else:
         print "No such scheduler"
         return 
 
     try:
+        print "...." 
         run_simulator(
                 num_processors = options.num_processors, 
                 jobs = _job_inputs_to_jobs(parse_lines(input_file), options.num_processors),
