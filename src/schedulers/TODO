@@ -1,5 +1,6 @@
+
 continue testing the prob_alpha (merge() and prepare a specific tests files)
-don't forget to delete the print command after that 
+don't forget to delete the print command after that (also from the termination event handler ...)  
 
 
 ask dror about the number of processors for CTC and the strangeness of SDSC-DS-2004

@@ -103,7 +103,6 @@ class  ProbabilisticAlphaEasyScheduler(Scheduler):
 
 
     def new_events_on_job_termination(self, job, current_time):
-        print ".",
         self.user_jobs[job.user_id].append(job)
         self.user_distribution[self.distribution_key(job)].add_job(job)
         self.currently_running_jobs.remove(job)
@@ -342,8 +341,7 @@ class  ProbabilisticAlphaEasyScheduler(Scheduler):
         return result 
      
      
-    def calculate_alpha (self, user_list_of_jobs): # calculates the average of the precision of the user estimation
-         
+    def calculate_alpha (self, user_list_of_jobs): # calculates the average of the precision of the user estimation         
         result = 0.0 
         for job in user_list_of_jobs:
             result += float(job.actual_run_time) / job.user_estimated_run_time

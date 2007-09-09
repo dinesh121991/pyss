@@ -70,7 +70,6 @@ class  ProbabilisticEasyScheduler(Scheduler):
 
 
     def new_events_on_job_termination(self, job, current_time):
-        print ".",
         self.user_distribution[self.distribution_key(job)].add_job(job)
         self.currently_running_jobs.remove(job)
         self.cpu_snapshot.archive_old_slices(current_time)
