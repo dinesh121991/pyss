@@ -17,6 +17,8 @@ from double_easy_scheduler import DoubleEasyBackfillScheduler
 from head_double_easy_scheduler import HeadDoubleEasyScheduler
 from tail_double_easy_scheduler import TailDoubleEasyScheduler
 from shrinking_easy_scheduler import ShrinkingEasyScheduler
+from shrinking_alpha_easy_scheduler import ShrinkingAlphaEasyScheduler
+
 from easy_sjbf_scheduler import EasySJBFScheduler
 from reverse_easy_scheduler import ReverseEasyScheduler
 
@@ -109,6 +111,32 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 #       rescheduling a job or checking backfill legality (e.g. Maui)
 
 class test_Simulator(unittest.TestCase):
+
+
+    def test_shrinking_alpha_easy(self):
+        for i in range(1):
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in range(5):
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/shrink_bf." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+                
+        for i in [0,1,3]: # extreme number test 
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+
+
 
     def test_basic_probabilistic_easy(self): 
         for i in range(29):  
@@ -260,6 +288,8 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
 
 
     def test_basic_fcfs(self):
