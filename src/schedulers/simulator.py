@@ -88,12 +88,13 @@ by_bounded_slow_down_sort_key = (
 def print_statistics(jobs, time_of_last_job_submission):
     assert jobs is not None, "Input file is probably empty."
     
-    sum_waits = 0
+    sum_waits     = 0
     sum_run_times = 0
-    sum_slowdowns = 0.0
-    sum_bounded_slowdowns = 0.0
+    sum_slowdowns           = 0.0
+    sum_bounded_slowdowns   = 0.0
     sum_estimated_slowdowns = 0.0
-    sum_tail_slowdowns = 0.0
+    sum_tail_slowdowns      = 0.0
+
     
     counter = tmp_counter = tail_counter = 0
     
@@ -136,7 +137,7 @@ def print_statistics(jobs, time_of_last_job_submission):
         wait_time = float(job.start_to_run_at_time - job.submit_time)
         run_time  = float(job.actual_run_time)
         sum_percentile_tail_slowdowns += float(wait_time + run_time) / run_time
-        percentile_counter -= 1
+        percentile_counter -= 1 # decreamenting the counter 
         if percentile_counter < (0.9 * counter):
             break
         

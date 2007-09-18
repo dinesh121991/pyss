@@ -211,9 +211,13 @@ class  OrigSingleDistProbabilisticEasyScheduler(Scheduler):
 	elif flag == 2: 
 		result = 1 - M[n, first_job.num_required_processors]
 
-	result  = float(int(100 * result)) / 100 # rounding    
+        if   result < 0:
+            result = 0
+        elif result > 1:
+            result = 1
+
         # print ">>> TiME: ", time, "result", result  
-        assert 0 <= result <= 1, str(result)+str(" ")+ str(M[n, first_job.num_required_processors])+str(" ") + str(M[n,C]) 
+        assert 0 <= result <= 1  
         return result 
 
 
@@ -267,7 +271,6 @@ class  OrigSingleDistProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
     
-	result = float(int(100 * result)) / 100 # rounding
         #print "prob job upto time:", time, "is: >>>", result
         #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
         #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
@@ -296,8 +299,6 @@ class  OrigSingleDistProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = float(job_distribution.bins[time]) / num_of_relevant_jobs
 
-	result = float(int(100 * result)) / 100 # rounding
-   
         #print "probability to finish at time: ", time, "is: ", result, job
         #print "num of relevant jobs: ", num_of_relevant_jobs
         #print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins

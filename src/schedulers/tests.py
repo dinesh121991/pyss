@@ -17,7 +17,6 @@ from double_easy_scheduler import DoubleEasyBackfillScheduler
 from head_double_easy_scheduler import HeadDoubleEasyScheduler
 from tail_double_easy_scheduler import TailDoubleEasyScheduler
 from shrinking_easy_scheduler import ShrinkingEasyScheduler
-from shrinking_alpha_easy_scheduler import ShrinkingAlphaEasyScheduler
 
 from easy_sjbf_scheduler import EasySJBFScheduler
 from reverse_easy_scheduler import ReverseEasyScheduler
@@ -27,13 +26,15 @@ from greedy_easy_scheduler import GreedyEasyBackfillScheduler
 from lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
 from easy_plus_plus_scheduler import EasyPlusPlusScheduler
-from alpha_easy_scheduler import AlphaEasyScheduler
-from alpha_easy_plus_plus_scheduler import AlphaEasyPlusPlusScheduler
 
 from probabilistic_easy_scheduler import ProbabilisticEasyScheduler
+
 from probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
 from probabilistic_alpha_easy_scheduler import ProbabilisticAlphaEasyScheduler
 from probabilistic_linear_scale_easy_scheduler import ProbabilisticLinearScaleEasyScheduler
+from shrinking_alpha_easy_scheduler import ShrinkingAlphaEasyScheduler
+from alpha_easy_scheduler import AlphaEasyScheduler
+from alpha_easy_plus_plus_scheduler import AlphaEasyPlusPlusScheduler
 
 
 from perfect_easy_scheduler import PerfectEasyBackfillScheduler
@@ -113,31 +114,6 @@ def feasibility_check_of_cpu_snapshot(jobs, cpu_snapshot):
 class test_Simulator(unittest.TestCase):
 
 
-    def test_shrinking_alpha_easy(self):
-        for i in []: #(29)
-            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in []: #(5)
-            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/shrink_bf." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-                
-        for i in [0]: # [0,1,3] extreme number test 
-            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-
-
-
     def test_basic_probabilistic_easy(self): 
         for i in range(29):  
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
@@ -154,141 +130,15 @@ class test_Simulator(unittest.TestCase):
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
 
+
     def test_easy_probabilistic(self):
-        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20,21]: # skip 14, 18 
+        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20,21]: # skip 14, 18  
             scheduler = ProbabilisticEasyScheduler(NUM_PROCESSORS)
             simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
                                       test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
-    def test_basic_probabilistic_nodes_easy(self): 
-        for i in range(29):  
-            scheduler = ProbabilisticNodesEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-    def test_easy_probabilistic_nodes_easy(self):
-        for i in [0,1]:  
-            scheduler = ProbabilisticNodesEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_nodes_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
-    def test_basic_probabilistic_alpha_easy(self): 
-        for i in range(29):  
-            scheduler = ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in [0,1,3]: # extreme number test 
-            simulator = run_test_simulator(scheduler=ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-    def test_easy_probabilistic_alpha(self):
-        for i in [0,1,2,6,10,11,16,17,19,20]:  
-            scheduler = ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
-    def test_basic_alpha_easy(self): 
-        for i in range(29):  
-            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in [0,1, 3]: # extreme number test 
-            simulator = run_test_simulator(scheduler=AlphaEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-	
-
-    def test_basic_probabilistic_linear_scale_easy(self): 
-        for i in range(29):  
-            scheduler = ProbabilisticLinearScaleEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in [0,1,3]: # extreme number test 
-            simulator = run_test_simulator(scheduler=ProbabilisticEasyScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-    def test_easy_linear_scale_probabilistic(self):
-        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,19,20,21]: # skip 14, 18 , 15
-            scheduler = ProbabilisticLinearScaleEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
-    def test_alpha_easy(self):
-        for i in [0,1,2,3,4]:  
-            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/alpha_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
-
-    def test_basic_alpha_easy_plus_plus(self): 
-        for i in range(29):  
-            scheduler = AlphaEasyPlusPlusScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-        for i in [0,1, 3]: # extreme number test 
-            simulator = run_test_simulator(scheduler=AlphaEasyPlusPlusScheduler(NUM_PROCESSORS), \
-                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
-
-	
-    def test_alpha_easy_plus_plus(self):
-        for i in [0,4]:  
-            scheduler = AlphaEasyPlusPlusScheduler(NUM_PROCESSORS)
-            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
-                                      test_input_file = INPUT_FILE_DIR + "/alpha_easy." + str(i))
-            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
-            for job in simulator.jobs:
-                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
-
 
 
 
@@ -716,6 +566,161 @@ class test_Simulator(unittest.TestCase):
             feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
             for job in simulator.jobs:
                 self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" "+str(job.finish_time))
+
+
+
+"""
+    def test_basic_probabilistic_nodes_easy(self): 
+        for i in range(29):  
+            scheduler = ProbabilisticNodesEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+
+    def test_easy_probabilistic_nodes_easy(self):
+        for i in [0,1]:  
+            scheduler = ProbabilisticNodesEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_nodes_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+    def test_shrinking_alpha_easy(self):
+        for i in []: #(29)
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in []: #(5)
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/shrink_bf." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+                
+        for i in [0]: # [0,1,3] extreme number test 
+            simulator = run_test_simulator(scheduler=ShrinkingAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+    def test_basic_probabilistic_alpha_easy(self): 
+        for i in range(29):  
+            scheduler = ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1,3]: # extreme number test 
+            simulator = run_test_simulator(scheduler=ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+
+    def test_easy_probabilistic_alpha(self):
+        for i in [0,1,2,6,10,11,16,17,19,20]:  
+            scheduler = ProbabilisticAlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
+    def test_basic_alpha_easy(self): 
+        for i in range(29):  
+            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1, 3]: # extreme number test 
+            simulator = run_test_simulator(scheduler=AlphaEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+	
+
+    def test_basic_probabilistic_linear_scale_easy(self): 
+        for i in range(29):  
+            scheduler = ProbabilisticLinearScaleEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1,3]: # extreme number test 
+            simulator = run_test_simulator(scheduler=ProbabilisticEasyScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+    def test_easy_linear_scale_probabilistic(self):
+        for i in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,16,17,19,20,21]: # skip 14, 18 , 15
+            scheduler = ProbabilisticLinearScaleEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/probabilistic_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
+    def test_alpha_easy(self):
+        for i in [0,1,2,3,4]:  
+            scheduler = AlphaEasyScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/alpha_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
+    def test_basic_alpha_easy_plus_plus(self): 
+        for i in range(29):  
+            scheduler = AlphaEasyPlusPlusScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/basic_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+        for i in [0,1, 3]: # extreme number test 
+            simulator = run_test_simulator(scheduler=AlphaEasyPlusPlusScheduler(NUM_PROCESSORS), \
+                                      num_processors=NUM_PROCESSORS, test_input_file = INPUT_FILE_DIR + "/extreme_input." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job) + str(job.finish_time))
+
+	
+    def test_alpha_easy_plus_plus(self):
+        for i in [0,4]:  
+            scheduler = AlphaEasyPlusPlusScheduler(NUM_PROCESSORS)
+            simulator = run_test_simulator(scheduler=scheduler, num_processors=NUM_PROCESSORS, \
+                                      test_input_file = INPUT_FILE_DIR + "/alpha_easy." + str(i))
+            feasibility_check_of_cpu_snapshot(simulator.jobs, simulator.scheduler.cpu_snapshot)
+            for job in simulator.jobs:
+                self.assertEqual(int(float(job.id)), job.finish_time, "i="+str(i)+" "+str(job)+" vs. "+str(job.finish_time))
+
+
+"""
+
                
 ###########
 

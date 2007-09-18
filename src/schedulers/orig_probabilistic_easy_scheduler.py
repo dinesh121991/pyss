@@ -48,7 +48,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
-    def __init__(self, num_processors, threshold = 0.2):
+    def __init__(self, num_processors, threshold = 0.05):
         super(OrigProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold = threshold
         self.cpu_snapshot = CpuSnapshot(num_processors)
@@ -218,8 +218,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 	elif flag == 2: 
 		result = 1 - M[n, first_job.num_required_processors]
 
-        # print ">>> TiME: ", time, "result", result  
-        assert 0 <= result <= 1, str(result)+str(" ")+ str(M[n, first_job.num_required_processors])+str(" ") + str(M[n,C]) 
+        if   result < 0:
+            result = 0
+        elif result > 1:
+            result = 1
+
+        assert 0 <= result <= 1 
         return result 
 
 
