@@ -131,7 +131,6 @@ class  ProbabilisticEasyScheduler(Scheduler):
             return False
 
         first_job = self.unscheduled_jobs[0]
-        job_distribution = self.user_distribution[self.distribution_key(job)]
         for tmp_job in self.currently_running_jobs:
             self.user_distribution[self.distribution_key(tmp_job)].touch(job.user_estimated_run_time)
       

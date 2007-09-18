@@ -40,7 +40,7 @@ class Distribution(object):
             self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
         else: 
             self.bins[rounded_up_run_time]  = 1   # we add a new entry initialized to 1
-            self.emptytouch(rounded_up_run_time) # and "add" empty entries in between  # DO WE NEED THIS LINE ??
+
         
             
         
@@ -136,7 +136,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             return False
 
         first_job = self.unscheduled_jobs[0]
-        job_distribution = self.user_distribution[job.user_id] # DO WE REALLY NEED THIS LINE?
         for tmp_job in self.currently_running_jobs:
             self.user_distribution[tmp_job.user_id].empty_touch(job.user_estimated_run_time)
       
@@ -219,7 +218,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 	elif flag == 2: 
 		result = 1 - M[n, first_job.num_required_processors]
 
-	result  = float(int(100 * result)) / 100 # rounding    
         # print ">>> TiME: ", time, "result", result  
         assert 0 <= result <= 1, str(result)+str(" ")+ str(M[n, first_job.num_required_processors])+str(" ") + str(M[n,C]) 
         return result 
@@ -275,7 +273,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
     
-	result = float(int(100 * result)) / 100 # rounding
         #print "prob job upto time:", time, "is: >>>", result
         #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
         #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
@@ -304,8 +301,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 	if num_of_relevant_jobs > 0: 
         	result = float(job_distribution.bins[time]) / num_of_relevant_jobs
 
-	result = float(int(100 * result)) / 100 # rounding
-   
         #print "probability to finish at time: ", time, "is: ", result, job
         #print "num of relevant jobs: ", num_of_relevant_jobs
         #print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
