@@ -1,4 +1,8 @@
-ps | awk '{print $1}' > ! junk 
+ps aux| grep ahumu| grep mosrun | awk '{print "kill -9 " $2}' > ! junk; chmod +x junk; junk
+
+
+ln -s /cs/par/ahumu/swf/SDSC-BLUE-2000-3.1-cln-Part3.swf SDSC-BLUE-2000-3.1-cln-Part3.swf
+
 
 
 Test Files Dants: 
@@ -487,6 +491,28 @@ mosrun run_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/C
 mosrun run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=13 >! res_1152_BLU_13 &
 mosrun run_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=13 >! res_1664_DS_13 &
 
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=0 >! res_100_kth_0 &; 
+mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=0 >! res_128_sdsc_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=0 >! res_430_CTC_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=0 >! res_1152_BLU_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=0 >! res_1664_DS_0 &; 
+
+
+
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=0 >! res_100_kth_0 &; 
+mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=0 >! res_128_sdsc_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=0 >! res_430_CTC_0 &;
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part1.swf --scheduler=0 >! res_1152_BLU-1_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part2.swf --scheduler=0 >! res_1152_BLU-2_0 &;
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part3.swf --scheduler=0 >! res_1152_BLU-3_0 &;
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part1.swf --scheduler=0 >! res_1664_DS-1_0 &; 
+mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part2.swf --scheduler=0 >! res_1664_DS-2_0 &; 
+
 -------------------------------------------------------------
 man mosrun
 man mosix
+man mosps

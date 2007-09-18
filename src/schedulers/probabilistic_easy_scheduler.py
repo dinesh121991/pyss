@@ -234,7 +234,7 @@ class  ProbabilisticEasyScheduler(Scheduler):
                 #print "case 4 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
 
-            elif key <= time + run_time:
+            elif key <= (2 * time)  + run_time: # recall that the user original estimates was "rounded up" 
                 #print "case 2 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += job_distribution.bins[key] 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins

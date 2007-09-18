@@ -3,19 +3,21 @@ continue testing the prob_alpha (merge() and prepare a specific tests files)
 don't forget to delete the print command after that (also from the termination event handler ...)  
 
 
-ask dror about the number of processors for CTC and the strangeness of SDSC-DS-2004
-run probabilistic easy with different threashold parameter: 0.05, 0.1, 0.15 ....
-
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
+look again at the code of the probabilistic easy .... I think that there is a bit redundancy there ...
 
-run_simulator.py: extarct total number of processors from the log file itself "MaxProcs"
+
+
+run_simulator.py: extract total number of processors from the log file itself "MaxProcs"
+
 
 change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
 
 
 Change the LookAhead scheduler to give better statistics .........
 	in look ahead easy:  assert if  job.backfill_flag == 1
+
 
 commenting the code .....
 
