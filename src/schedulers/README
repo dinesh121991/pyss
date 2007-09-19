@@ -1,7 +1,27 @@
-ps aux| grep ahumu| grep mosrun | awk '{print "kill -9 " $2}' > ! junk; chmod +x junk; junk
+
+ps aux| grep ahumu| grep mosrun | awk '{print "kill -9 " $2}' > ! /tmp/junk; chmod +x /tmp/junk; /tmp/junk
 
 
-ln -s /cs/par/ahumu/swf/SDSC-BLUE-2000-3.1-cln-Part3.swf SDSC-BLUE-2000-3.1-cln-Part3.swf
+
+
+set grid
+set terminal postscript
+set output "plot.ps" 
+set xlabel "Percentile ***"    
+set ylabel "Wait Time ***"
+set title "CTC SP2 ***"
+set key 2.25, 8.5
+set xtics 1, 1.0 ,10  
+set ytics 1, 1.0 ,10
+plot [0:10] "tiny2col.dat" title "***EASY" with lines, "tiny1col.dat" title "***PROB-EASY" with linespoints
+
+
+
+set style line 1 lt 7 lw 1
+set style line 2 lt 9 lw 4
+
+plot [0:10] "tiny2col.dat" ls 1, "tiny1col.dat" ls 2
+plot [0:10] "tiny2col.dat" with linespoints lw 3, "tiny1col.dat" with linespoints lw 3
 
 
 

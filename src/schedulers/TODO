@@ -1,8 +1,4 @@
 
-continue testing the prob_alpha (merge() and prepare a specific tests files)
-don't forget to delete the print command after that (also from the termination event handler ...)  
-
-
 loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
 
 look again at the code of the probabilistic easy .... I think that there is a bit redundancy there ...
@@ -10,6 +6,11 @@ look again at the code of the probabilistic easy .... I think that there is a bi
 
 
 run_simulator.py: extract total number of processors from the log file itself "MaxProcs"
+
+
+continue testing the prob_alpha (merge() and prepare a specific tests files)
+don't forget to delete the print command after that (also from the termination event handler ...)  
+
 
 
 change this ugly line: self.cpu_snapshot.free_processors_available_at(current_time) >= self.unscheduled_jobs[0].num_required_processors
