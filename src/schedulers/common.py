@@ -292,20 +292,24 @@ class CpuSnapshot(object):
 
     def archive_old_slices(self, current_time):
         assert self.slices
-        self.unify_slices()
+	self.unify_slices()
         self._ensure_a_slice_starts_at(current_time)
-	
-	while len(self.slices) > 0:
+
+	size = len(self.slices)
+	while size > 0:
 	    s = self.slices[0]
-            if s.end_time <= current_time:
+            if s.end_time < current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
+		size -= 1 
             else:
                 break
 	
        
     def unify_slices(self):
         assert self.slices
+	if len(self.slices) < 10:
+		return 
         prev = self.slices[0]
         for s in self.slices[1: ]:
 	    assert s.start_time == prev.start_time + prev.duration
@@ -314,6 +318,7 @@ class CpuSnapshot(object):
                 self.slices.remove(s) # TODO: change the for condition: bad to removing s while itterating through list
             else:
                 prev = s
+
 
     def _restore_old_slices(self):
         size = len(self.archive_of_old_slices)
