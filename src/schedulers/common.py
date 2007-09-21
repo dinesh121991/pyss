@@ -88,9 +88,8 @@ class CpuTimeSlice(object):
                 duration = self.duration,
                 total_processors = self.total_processors,
             )
-        if len(self.job_ids) > 0:
-            for j_id in self.job_ids:
-                result.job_ids.add(j_id)
+        for j_id in self.job_ids:
+            result.job_ids.add(j_id)
 
         return result
 
