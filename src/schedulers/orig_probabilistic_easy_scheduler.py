@@ -13,8 +13,12 @@ class Distribution(object):
             self.touch(job.user_estimated_run_time)
             
 
-    def touch(self, time): # just add bins.
-        rounded_up_time = pow(2, int(log(max(2 * time - 1, 1), 2)))
+    def touch(self, time, rounded=False):
+        if rounded:
+            rounded_up_time = time
+        else:
+            rounded_up_time = pow(2, int(log(max(2 * time  - 1, 1), 2)))
+            
         while rounded_up_time > 1: 
             if not self.bins.has_key(rounded_up_time):  
                 self.bins[rounded_up_time] = 1  
@@ -25,10 +29,9 @@ class Distribution(object):
             
             
     def add_job(self, job): #to be called when a termination event has occured
-        assert job.actual_run_time > 0
-
-        self.touch(job.actual_run_time)        
+        assert job.actual_run_time > 0     
         rounded_up_run_time = pow(2, int(log(max(2 * job.actual_run_time - 1, 1), 2)))
+        self.touch(rounded_up_run_time, rounded=True)   
         self.number_of_jobs_added += 1
         self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
 
