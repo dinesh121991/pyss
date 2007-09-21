@@ -16,30 +16,20 @@ class Distribution(object):
     def touch(self, time): # just add bins.
         rounded_up_time = pow(2, int(log(max(2 * time - 1, 1), 2)))
        	while rounded_up_time > 1: 
-            if not self.bins.has_key(rounded_up_time) or self.bins[rounded_up_time] == 0:  
+            if not self.bins.has_key(rounded_up_time):  
                 self.bins[rounded_up_time] = 1  
 		self.number_of_jobs_added += 1
             rounded_up_time = rounded_up_time / 2
             
-
-    def empty_touch(self, time): # just add bins.
-        rounded_up_time = pow(2, int(log(max(2 * time - 1, 1) , 2))) 
-       	while rounded_up_time > 1: 
-            if not self.bins.has_key(rounded_up_time):  
-                self.bins[rounded_up_time] = 0  
-            rounded_up_time = rounded_up_time / 2
-
             
     def add_job(self, job): #to be called when a termination event has occured
         assert job.actual_run_time > 0
-        
+
+        self.touch(job.actual_run_time)        
         rounded_up_run_time = pow(2, int(log(max(2 * job.actual_run_time - 1, 1), 2)))
         self.number_of_jobs_added += 1
-        
-        if self.bins.has_key(rounded_up_run_time):
-            self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
-        else: 
-            self.bins[rounded_up_run_time]  = 1   # we add a new entry initialized to 1
+        self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
+
 
         
             
@@ -137,7 +127,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         first_job = self.unscheduled_jobs[0]
         for tmp_job in self.currently_running_jobs:
-            self.user_distribution[tmp_job.user_id].empty_touch(job.user_estimated_run_time)
+            self.user_distribution[tmp_job.user_id].touch(job.user_estimated_run_time)
       
         prediction  = 0.0
         max_bottle_neck = 0.0 
