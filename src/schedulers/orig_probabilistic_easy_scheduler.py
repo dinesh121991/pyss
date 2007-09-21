@@ -173,25 +173,21 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
         
-        for c in range(K + 1): 
+        for c in xrange(K + 1): 
             M[0, c] = 0.0
             
-        for n in range(1,num_of_currently_running_jobs+1):
+        for n in xrange(1,num_of_currently_running_jobs+1):
             M[n, 0] = 1.0
 
-        for n in range(1,num_of_currently_running_jobs+1):
+        for n in xrange(1,num_of_currently_running_jobs+1):
             job = self.currently_running_jobs[n-1]
-            # print "current job:", job
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
-            
-            # print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
             for c in xrange (1, K + 1):
                 if c >= job.num_required_processors:  
                     M[n, c] = M[n-1, c] + (M[n-1, c - job.num_required_processors] - M[n-1, c]) * Pn
-                    # print "case 1"
                 else:
                     M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
-                    # print "case 2"
+
 
 
         last_row_index = len(self.currently_running_jobs)
@@ -200,11 +196,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         elif flag == 2: 
                 result = 1 - M[last_row_index, first_job.num_required_processors]
 
-        if   result < 0:
-            result = 0
-        elif result > 1:
-            result = 1
-
         assert 0 <= result <= 1 
         return result 
 
@@ -212,21 +203,17 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
         rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
+        if time >= job.user_estimated_run_time - rounded_down_run_time:
+            return 1.0
+        
         rounded_up_estimated_remaining_duration = pow(2, int(log(max(2*(job.user_estimated_run_time - rounded_down_run_time)-1, 1), 2)))
-        if time >=  rounded_up_estimated_remaining_duration:
-                # print "prob job upto time:", time, "is: >>> 1"
-                return 1.0
+
 
         num_of_jobs_in_first_bins  = 0
-        num_of_jobs_in_middle_bins = 0.0
+        num_of_jobs_in_middle_bins = 0
         num_of_jobs_in_last_bins   = 0
         job_distribution = self.user_distribution[job.user_id]
 
-        #print "in function probability_of_running_job_to_end_upto:"
-        #print "---- current time, job_start", current_time, job.start_to_run_at_time, job 
-        #print "---- rounded_down_run_time", rounded_down_run_time
-        #print "---- rounded_up_estimated_remaining_duration", rounded_up_estimated_remaining_duration
-        
         time = min(time, rounded_up_estimated_remaining_duration) 
         #print "up to time:", time
         
@@ -242,13 +229,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
             elif key < time + rounded_down_run_time:
                 #print "case 2 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key]) 
+                num_of_jobs_in_middle_bins += job_distribution.bins[key] 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
 
             elif key >= time + rounded_down_run_time > key / 2 :
                 #print "case 3 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + rounded_down_run_time - (key / 2))) / (key 
-/ 2) 
+                num_of_jobs_in_middle_bins += job_distribution.bins[key] * (time + rounded_down_run_time - (key / 2)) / (key / 2) 
                 #print "num of mid bins:", num_of_jobs_in_middle_bins
                 
   
@@ -257,13 +243,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         result = 0.0 
         if num_of_relevant_jobs > 0: 
-                result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
+                result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
     
-        #print "prob job upto time:", time, "is: >>>", result
-        #print "num_of_jobs_in_first_bins", num_of_jobs_in_first_bins
-        #print "num_of_jobs_in_middle_bins", num_of_jobs_in_middle_bins
-        #print "num_of_jobs_in_last_bins", num_of_jobs_in_last_bins
-
         assert 0 <= result <= 1
         return result 
 
