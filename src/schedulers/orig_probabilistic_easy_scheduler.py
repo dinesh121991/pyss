@@ -136,14 +136,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         C = first_job.num_required_processors + job.num_required_processors
         if C <= self.num_processors:
-            flag = 1
-        else: 
-            flag = 2
-
-        if flag == 1:         
             while t <= max(2*job.user_estimated_run_time-1,1):
                 job_probability_to_end_at_t = self.probability_to_end_at(t, job)
-                max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time, flag))
+                max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time, 1))
                 prediction += job_probability_to_end_at_t * max_bottle_neck
                 # print "t is:", t
                 t = t * 2 
@@ -154,7 +149,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         else: 
             while t <= max(2*job.user_estimated_run_time-1, 1):
                 job_probability_to_end_at_t = self.probability_to_end_at(t, job)
-                bottle_neck = self.bottle_neck(t, job, first_job, current_time, flag)
+                bottle_neck = self.bottle_neck(t, job, first_job, current_time, 2)
                 prediction += job_probability_to_end_at_t * bottle_neck
                 t = t * 2 
 
