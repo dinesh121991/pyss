@@ -162,7 +162,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     def bottle_neck(self, time, second_job, first_job, current_time, flag):
         result = 0.0
         M = {}
-        C = first_job.num_required_processors + second_job.num_required_processors
+        C = min(self.num_processors, first_job.num_required_processors + second_job.num_required_processors)
         
         # M[n,c] denotes the probablity that at time the first n jobs among those that
         # are currently running have released at least c processors
