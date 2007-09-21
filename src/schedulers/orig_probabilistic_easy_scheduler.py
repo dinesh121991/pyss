@@ -19,6 +19,8 @@ class Distribution(object):
             if not self.bins.has_key(rounded_up_time):  
                 self.bins[rounded_up_time] = 1  
                 self.number_of_jobs_added += 1
+            else:
+                return
             rounded_up_time = rounded_up_time / 2
             
             
@@ -169,36 +171,29 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         # are currently running have released at least c processors
         # print ">>> in bottle neck, current time is:", current_time
 
+        num_of_currently_running_jobs = len(self.currently_running_jobs)
+        
         for c in range(K + 1): 
             M[0, c] = 0.0
             
-        for n in range(1,len(self.currently_running_jobs)+1):
+        for n in range(1,num_of_currently_running_jobs+1):
             M[n, 0] = 1.0
 
-        for n in range(1,len(self.currently_running_jobs)+1):
+        for n in range(1,num_of_currently_running_jobs+1):
             job = self.currently_running_jobs[n-1]
             # print "current job:", job
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
+            
             # print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
-            for c in range (K + 1):
-                # print "current c", c
-                if c > self.num_processors:
-                    M[n, c] = 0
-                elif c >= job.num_required_processors:  
+            for c in xrange (1, K + 1):
+                if c >= job.num_required_processors:  
                     M[n, c] = M[n-1, c] + (M[n-1, c - job.num_required_processors] - M[n-1, c]) * Pn
                     # print "case 1"
-                elif c >= 1:
+                else:
                     M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
                     # print "case 2"
 
-                M[n, c] = float(int(1000 * M[n, c])) / 1000 # rounding step 
-                
-                # print "[", n, ",",  c, "]", M[n, c]
 
-                    
-        # for c in range (C + 1):
-            # for n in range(len(self.currently_running_jobs)):
-                # print "[", n, ",",  c, "]", M[n, c]
         last_row_index = len(self.currently_running_jobs)
         if   flag == 1:  
                 result = M[last_row_index, first_job.num_required_processors] - M[last_row_index, C]
