@@ -175,7 +175,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             M[n, 0] = 1.0
 
         for n in range(1,len(self.currently_running_jobs)+1):
-            job = self.currently_running_jobs[n]
+            job = self.currently_running_jobs[n-1]
             # print "current job:", job
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
             # print "self.probability_of_running_job_to_end_upto", time, "is: ", Pn 
