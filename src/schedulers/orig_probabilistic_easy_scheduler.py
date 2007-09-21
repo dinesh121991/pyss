@@ -198,10 +198,11 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         # for c in range (C + 1):
             # for n in range(len(self.currently_running_jobs)):
                 # print "[", n, ",",  c, "]", M[n, c]
+        last_row_index = len(self.currently_running_jobs)-1
         if flag == 1:  
-                result = M[n, first_job.num_required_processors] - M[n, C]
+                result = M[last_row_index, first_job.num_required_processors] - M[last_row_index, C]
         elif flag == 2: 
-                result = 1 - M[n, first_job.num_required_processors]
+                result = 1 - M[last_row_index, first_job.num_required_processors]
 
         if   result < 0:
             result = 0
