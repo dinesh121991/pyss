@@ -48,7 +48,7 @@ def parse_options():
     parser.add_option("--num-processors", type="int", \
                       help="the number of available processors in the simulated parallel machine")
     parser.add_option("--input-file", \
-                      help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
+                      help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html, if '-' read from stdin")
     parser.add_option("--scheduler", 
                       help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) OrigProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler, 18) AlphaEasyScheduler, 19)DoubleAlphaEasyScheduler 20)ProbabilisticAlphaEasyScheduler")
     
@@ -71,7 +71,10 @@ def parse_options():
 def main():
     options = parse_options()
 
-    input_file = open(options.input_file)
+    if options.input_file == "-":
+        input_file = sys.stdin
+    else:
+        input_file = open(options.input_file)
 
     if options.scheduler == "FcfsScheduler" or options.scheduler == "1":
         scheduler = FcfsScheduler(options.num_processors)
@@ -155,7 +158,8 @@ def main():
         print "Scheduler:", type(scheduler)
 
     finally:
-        input_file.close()
+        if input_file is not sys.stdin:
+            input_file.close()
 
 if __name__ == "__main__":
     main()
