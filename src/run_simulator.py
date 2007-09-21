@@ -34,7 +34,7 @@ from schedulers.double_perfect_easy_scheduler import DoublePerfectEasyBackfillSc
 
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
-from schedulers.probabilistic_easy_scheduler import ProbabilisticEasyScheduler
+from schedulers.orig_probabilistic_easy_scheduler import OrigProbabilisticEasyScheduler
 from schedulers.probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
 from schedulers.probabilistic_alpha_easy_scheduler import ProbabilisticAlphaEasyScheduler
 from schedulers.probabilistic_linear_scale_easy_scheduler import ProbabilisticLinearScaleEasyScheduler
@@ -50,7 +50,7 @@ def parse_options():
     parser.add_option("--input-file", \
                       help="a file in the standard workload format: http://www.cs.huji.ac.il/labs/parallel/workload/swf.html")
     parser.add_option("--scheduler", 
-                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) ProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler, 18) AlphaEasyScheduler, 19)DoubleAlphaEasyScheduler 20)ProbabilisticAlphaEasyScheduler")
+                      help="1) FcfsScheduler, 2) ConservativeScheduler, 3) DoubleConservativeScheduler, 4) EasyBackfillScheduler, 5) DoubleEasyBackfillScheduler, 6) GreedyEasyBackfillScheduler, 7) EasyPlusPlusScheduler, 8) ShrinkingEasyScheduler, 9) LookAheadEasyBackFillScheduler,  10) EasySJBFScheduler, 11) HeadDoubleEasyScheduler, 12) TailDoubleEasyScheduler, 13) OrigProbabilisticEasyScheduler, 14) ReverseEasyScheduler,  15) PerfectEasyBackfillScheduler, 16)DoublePerfectEasyBackfillScheduler, 17) ProbabilisticNodesEasyScheduler, 18) AlphaEasyScheduler, 19)DoubleAlphaEasyScheduler 20)ProbabilisticAlphaEasyScheduler")
     
     options, args = parser.parse_args()
 
@@ -109,8 +109,8 @@ def main():
     elif options.scheduler == "TailDoubleEasyScheduler" or options.scheduler == "12":
         scheduler = TailDoubleEasyScheduler(options.num_processors)
 
-    elif options.scheduler == "ProbabilisticEasyScheduler" or options.scheduler == "13":
-        scheduler = ProbabilisticEasyScheduler(options.num_processors)    
+    elif options.scheduler == "OrigProbabilisticEasyScheduler" or options.scheduler == "13":
+        scheduler = OrigProbabilisticEasyScheduler(options.num_processors)    
 
     elif options.scheduler == "ReverseEasyScheduler" or options.scheduler == "14":
         scheduler = ReverseEasyScheduler(options.num_processors)
