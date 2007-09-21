@@ -532,7 +532,69 @@ mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedul
 mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part1.swf --scheduler=0 >! res_1664_DS-1_0 &; 
 mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part2.swf --scheduler=0 >! res_1664_DS-2_0 &; 
 
+
+
 -------------------------------------------------------------
 man mosrun
 man mosix
 man mosps
+-------------------------------------------------------------
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf 
+--scheduler=ws1 > ! res_100_kth_ws1 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws2 > ! res_100_kth_ws2 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws3 > ! 
+res_100_kth_ws3 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws4 > ! res_100_kth_ws4 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws5 > ! 
+res_100_kth_ws5 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws6 > ! res_100_kth_ws6 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws7 > ! 
+res_100_kth_ws7 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws8 > ! res_100_kth_ws8 & ;
+
+
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf 
+--scheduler=w01 > ! res_100_kth_w01 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w02 > ! res_100_kth_w02 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w03 > ! 
+res_100_kth_w03 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w04 > ! res_100_kth_w04 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w05 > ! 
+res_100_kth_w05 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w06 > ! res_100_kth_w06 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w07 > ! 
+res_100_kth_w07 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
+--input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w08 > ! res_100_kth_w08 & ;
+
+
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf 
+--scheduler=ws1 > ! res_128_sdsc_ws1 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
+--input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws2 > ! res_128_sdsc_ws2 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws3 
+> ! res_128_sdsc_ws3 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
+--input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws4 > ! res_128_sdsc_ws4 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws5 
+> ! res_128_sdsc_ws5 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
+--input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws6 > ! res_128_sdsc_ws6 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws7 
+> ! res_128_sdsc_ws7 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
+--input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws8 > ! res_128_sdsc_ws8 & ;
+
+
+
+
+mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf 
+--scheduler=w01 > ! res_430_CTC_w01 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
+--input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w02 > ! res_430_CTC_w02 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w03 > 
+! res_430_CTC_w03 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
+--input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w04 > ! res_430_CTC_w04 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w05 > 
+! res_430_CTC_w05 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
+--input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w06 > ! res_430_CTC_w06 & ; mosrun -q -G -b 
+run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w07 > 
+! res_430_CTC_w07 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
+--input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w08 > ! res_430_CTC_w08 & ;
