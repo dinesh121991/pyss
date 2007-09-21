@@ -202,6 +202,10 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         else: # flag == 2  
                 result = 1 - M[last_row_index, first_job.num_required_processors]
 
+        if   result < 0:
+            result = 0
+        elif result > 1:
+            reuslt = 1
         assert 0 <= result <= 1 
         return result 
 
@@ -210,7 +214,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
         
-        rounded_up_estimated_remaining_duration = pow(2, int(log(2*(job.user_estimated_run_time - rounded_down_run_time), 2)))
+        rounded_up_estimated_remaining_duration = pow(2, int(log(2*(job.user_estimated_run_time - rounded_down_run_time + 1), 2)))
 
         if time >= rounded_up_estimated_remaining_duration:
             return 1.0 
