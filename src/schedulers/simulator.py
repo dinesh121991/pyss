@@ -159,7 +159,7 @@ def print_statistics(jobs, time_of_last_job_submission):
     print "Tail slowdown (if bounded_sld >= 3): ", sum_tail_slowdowns / max(tail_counter, 1)
     print "   Number of jobs in the tail: ", tail_counter
 
-    print "Tail Percentile (the 10% top sld): ", sum_percentile_tail_slowdowns / max(counter - percentile_counter + 1, 1)    
+    print "Tail Percentile (the top 10% sld): ", sum_percentile_tail_slowdowns / max(counter - percentile_counter + 1, 1)    
     
     print "Total Number of jobs: ", size
     
