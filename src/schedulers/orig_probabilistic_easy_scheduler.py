@@ -169,12 +169,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         # print ">>> in bottle neck, current time is:", current_time
 
         for c in range(C + 1): 
-            M[-1, c] = 0.0
+            M[0, c] = 0.0
             
-        for n in range(len(self.currently_running_jobs)):
+        for n in range(1,len(self.currently_running_jobs)+1):
             M[n, 0] = 1.0
 
-        for n in range(len(self.currently_running_jobs)):
+        for n in range(1,len(self.currently_running_jobs)+1):
             job = self.currently_running_jobs[n]
             # print "current job:", job
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
@@ -198,7 +198,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         # for c in range (C + 1):
             # for n in range(len(self.currently_running_jobs)):
                 # print "[", n, ",",  c, "]", M[n, c]
-        last_row_index = len(self.currently_running_jobs)-1
+        last_row_index = len(self.currently_running_jobs)
         if flag == 1:  
                 result = M[last_row_index, first_job.num_required_processors] - M[last_row_index, C]
         elif flag == 2: 
