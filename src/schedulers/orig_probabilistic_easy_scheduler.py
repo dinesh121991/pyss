@@ -239,11 +239,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
                 
   
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs + 1
 
-        result = 0.0 
-        if num_of_relevant_jobs > 0: 
-                result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
+        result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
     
         assert 0 <= result <= 1
         return result 
@@ -253,24 +251,17 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         job_distribution = self.user_distribution[job.user_id]
         assert job_distribution.bins.has_key(time) == True
         
-        result = 0.0
         num_of_jobs_in_last_bins = 0
-        # print "in  probability_to_end_at:"
-        for key in job_distribution.bins.keys():
-            #print "- key, num: ", key, job_distribution.bins[key]
-            rounded_up_user_estimated_run_time = 2 * job.user_estimated_run_time - 1
+        rounded_up_user_estimated_run_time = 2 * job.user_estimated_run_time - 1
+
+        for key in job_distribution.bins.keys():  
             if key > rounded_up_user_estimated_run_time:
-                # print "print added to last bins"
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
+
  
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins + 1
 
-        if num_of_relevant_jobs > 0: 
-                result = float(job_distribution.bins[time]) / num_of_relevant_jobs
-
-        #print "probability to finish at time: ", time, "is: ", result, job
-        #print "num of relevant jobs: ", num_of_relevant_jobs
-        #print "num_of_jobs_in_last_bins:", num_of_jobs_in_last_bins
+        result = float(job_distribution.bins[time]) / num_of_relevant_jobs
     
         assert 0 <= result <= 1
         return result 
