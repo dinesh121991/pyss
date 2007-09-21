@@ -599,8 +599,14 @@ run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC
 ! res_430_CTC_w07 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w08 > ! res_430_CTC_w08 & ;
 
+
+# running the simulator _without_ profiler 
 env PYTHONOPTIMIZE=1 ./run_profile.sh 15 1000
+
+# running the simulator _with_ profiler 
 env PYTHONOPTIMIZE=1 PYPROFILE="-o prof.15_1000_run00" ./run_profile.sh 15 1000
+
+# getting the profiling report 
 ./print_prof.py prof.15_1000_run00 time | head -40
 ./print_prof.py prof.15_1000_run00 cumulative | head -40
 ./print_prof.py prof.15_1000_run00 calls | head -40
