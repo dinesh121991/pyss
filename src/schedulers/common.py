@@ -88,8 +88,8 @@ class CpuTimeSlice(object):
                 duration = self.duration,
                 total_processors = self.total_processors,
             )
-        for j_id in self.job_ids:
-            result.job_ids.add(j_id)
+
+        result.job_ids = self.job_ids.copy()
 
         return result
 
