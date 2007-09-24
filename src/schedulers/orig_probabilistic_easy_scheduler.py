@@ -35,8 +35,6 @@ class Distribution(object):
         self.number_of_jobs_added += 1
         self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
 
-
-        
             
         
 class  OrigProbabilisticEasyScheduler(Scheduler):
@@ -52,8 +50,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         self.unscheduled_jobs  = []
         self.currently_running_jobs = []
      
-    
-    
+
     def new_events_on_job_submission(self, job, current_time):
         # print "arrived:", job
         if  self.user_distribution.has_key(job.user_id):
@@ -143,8 +140,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         t = 1
 
         C = first_job.num_required_processors + job.num_required_processors
+
         if C <= self.num_processors:
-            while t <= 2*job.user_estimated_run_time-1:
+            while t < 2 * job.user_estimated_run_time:
                 job_probability_to_end_at_t = self.probability_to_end_at(t, job)
                 max_bottle_neck = max(max_bottle_neck, self.bottle_neck(t, job, first_job, current_time, 1))
                 prediction += job_probability_to_end_at_t * max_bottle_neck
@@ -155,7 +153,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
                 # print "prediction:", prediction
                 return True
         else: 
-            while t <= 2*job.user_estimated_run_time-1:
+            while t < 2 * job.user_estimated_run_time:
                 job_probability_to_end_at_t = self.probability_to_end_at(t, job)
                 bottle_neck = self.bottle_neck(t, job, first_job, current_time, 2)
                 prediction += job_probability_to_end_at_t * bottle_neck
@@ -182,11 +180,11 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         for c in xrange(K + 1): 
             M[0, c] = 0.0
             
-        for n in xrange(1,num_of_currently_running_jobs+1):
+        for n in xrange(1, num_of_currently_running_jobs+1):
             M[n, 0] = 1.0
 
-        for n in xrange(1,num_of_currently_running_jobs+1):
-            job = self.currently_running_jobs[n-1]
+        for n in xrange(1, num_of_currently_running_jobs+1):
+            job = self.currently_running_jobs[n-1] # this is the n'th job, recall that a list has a zero index   
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job)
             for c in xrange (1, K + 1):
                 if c >= job.num_required_processors:  
@@ -220,30 +218,29 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             return 1.0 
 
         num_of_jobs_in_first_bins  = 0
-        num_of_jobs_in_middle_bins = 0
+        num_of_jobs_in_middle_bins = 0.0
         num_of_jobs_in_last_bins   = 0
         job_distribution = self.user_distribution[job.user_id]
 
         for key in job_distribution.bins.keys():
 
-            if key <= rounded_down_run_time:
-                #print "case 1 key, num: ", key, job_distribution.bins[key] 
+            if   key > rounded_up_estimated_remaining_duration:
+                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
+                
+            elif key <= rounded_down_run_time:
                 num_of_jobs_in_first_bins += job_distribution.bins[key]
 
             elif key < time + rounded_down_run_time:
-                #print "case 2 key, num: ", key, job_distribution.bins[key] 
                 num_of_jobs_in_middle_bins += job_distribution.bins[key] 
-                #print "num of mid bins:", num_of_jobs_in_middle_bins
 
-            elif key > rounded_down_run_time + rounded_up_estimated_remaining_duration:
-                #print "case 4 key, num: ", key, job_distribution.bins[key] 
-                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
-                
-  
+            elif time + rounded_down_run_time > key/2 : 
+                num_of_jobs_in_middle_bins += float(job_distribution.bins[key] *(time+rounded_down_run_time-(key/2))) / (key/2) 
+
+          
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs + 1
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs+1 # +1 avoiding devision by zero
 
-        result = float(num_of_jobs_in_middle_bins) / num_of_relevant_jobs
+        result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
     
         assert 0 <= result <= 1
         return result 
@@ -259,9 +256,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         for key in job_distribution.bins.keys():  
             if key > rounded_up_user_estimated_run_time:
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
-
  
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins + 1
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins+1 # +1 avoiding devision by zero
 
         result = float(job_distribution.bins[time]) / num_of_relevant_jobs
     

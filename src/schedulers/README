@@ -1,8 +1,11 @@
 
+killing all running simulations on mosix:  
 ps aux| grep ahumu| grep mosrun | awk '{print "kill -9 " $2}' > ! /tmp/junk; chmod +x /tmp/junk; /tmp/junk
 
 
+------------------------------------
 
+gnuplot:  
 
 set grid
 set terminal postscript
@@ -24,6 +27,7 @@ plot [0:10] "tiny2col.dat" ls 1, "tiny1col.dat" ls 2
 plot [0:10] "tiny2col.dat" with linespoints lw 3, "tiny1col.dat" with linespoints lw 3
 
 
+------------------------------------
 
 Test Files Dants: 
 
@@ -31,11 +35,36 @@ Test Files Dants:
 -------------------------------------------
 
 
-
 Avi Nissimov files: 
 /cs/par/users/abradina/lab/thesis/java/iml_em
 /cs/par/users/abradina/lab/thesis/java/backfilling
 
+------------------------------------
+
+an early version of the main loop of probability_of_running_job_to_end_upto(self, time, current_time, job): 
+
+  for key in sorted(job_distribution.bins.keys()):
+            #print "+ key, num: ", key, job_distribution.bins[key] 
+            if key <= run_time:
+                #print "case 1 key, num: ", key, job_distribution.bins[key] 
+                num_of_jobs_in_first_bins += job_distribution.bins[key]
+
+            elif key > job.user_estimated_run_time:
+                #print "case 4 key, num: ", key, job_distribution.bins[key] 
+                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
+
+            elif key <= (2 * time)  + run_time: # recall that the user original estimates was "rounded up" 
+                #print "case 2 key, num: ", key, job_distribution.bins[key] 
+                num_of_jobs_in_middle_bins += job_distribution.bins[key] 
+                #print "num of mid bins:", num_of_jobs_in_middle_bins
+
+            # elif key >= time + run_time > key / 2 :
+                #print "case 3 key, num: ", key, job_distribution.bins[key] 
+                # num_of_jobs_in_middle_bins += float(job_distribution.bins[key] * (time + run_time - (key / 2))) / (key / 2) 
+                #print "num of mid bins:", num_of_jobs_in_middle_bins
+          
+
+-------------------------------------
 
 
         tmp_bottle_neck = M[n, first_job.num_required_processors] - M[n, C]
@@ -50,6 +79,8 @@ Avi Nissimov files:
 	    result = max (M[n, first_job.num_required_processors] / 2, M[n, first_job.num_required_processors] - M[n, C])
  
 
+
+---------------------------------------
 
  Python 2.3.5 (#2, Aug 30 2005, 15:50:26) 
 [GCC 4.0.2 20050821 (prerelease) (Debian 4.0.1-6)] on linux2
@@ -66,7 +97,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 '__builtins__', '__doc__', '__name__', 'sim']
 >>> 
 
-----------------------------------------------------------------------
+------------------------------------
+svn useful commands: 
 
 % svn stat
 % svn diff
@@ -82,8 +114,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ./tests.py
 
------
-# Debugging an exception:
+------------------------------------
+
+# Debugging an exception in python:
+
 % python2.4 -m pdb ./event.py
 # then do a 'continue' ('c' + <enter>) to reach the exception
 
@@ -91,7 +125,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 import pdb; pdb.set_trace()
 
 
-code optimization sunday/monday 
+
+------------------------------------
+
+profiling the code sunday/monday 
 
 head -10000 stam2/input > ! input ; time sim4.py > ! output
 
