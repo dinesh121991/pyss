@@ -170,31 +170,31 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     def bottle_neck(self, time, second_job, first_job, current_time):
         C = first_job.num_required_processors + second_job.num_required_processors
         K = min(self.num_processors, C)
-        M = {} # M[n,c] denotes the probability that the first n running jobs will release at least c processors at time
+        M = [[None for i in xrange(K+1)] for j in xrange(K+1)]
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
         
         for c in xrange(K + 1): 
-            M[0, c] = 0.0
+            M[0][c] = 0.0
             
         for n in xrange(1, num_of_currently_running_jobs+1):
-            M[n, 0] = 1.0
+            M[n][0] = 1.0
 
         for n in xrange(1, num_of_currently_running_jobs+1):
             job_n = self.currently_running_jobs[n-1] # the n'th job: recall that a list has a zero index   
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job_n)
             for c in xrange (1, K + 1):
                 if c >= job_n.num_required_processors:  
-                    M[n, c] = M[n-1, c] + (M[n-1, c - job_n.num_required_processors] - M[n-1, c]) * Pn
+                    M[n][c] = M[n-1][c] + (M[n-1][c - job_n.num_required_processors] - M[n-1][c]) * Pn
                 else:
-                    M[n, c] = M[n-1, c] + (1 - M[n-1, c]) * Pn
+                    M[n][c] = M[n-1][c] + (1 - M[n-1][c]) * Pn
 
 
         last_row_index = num_of_currently_running_jobs
         if  C <= K:  
-            result = M[last_row_index, first_job.num_required_processors] - M[last_row_index, C]
+            result = M[last_row_index][first_job.num_required_processors] - M[last_row_index][C]
         else:   
-            result = M[last_row_index, first_job.num_required_processors]
+            result = M[last_row_index][first_job.num_required_processors]
 
         if   result < 0:
             result = 0
