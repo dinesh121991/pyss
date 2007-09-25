@@ -85,4 +85,17 @@ Checking running time on real data:
 % time runeasy -s ~/par/logs/l_lanl_cm5_cln.swf
 0.892u 0.060s 0:00.97 97.9%     0+0k 0+0io 0pf+0w
 
+delete or add to svn:
+?      schedulers/alpha_easy_plus_plus_10_scheduler.py
+?      schedulers/alpha_easy_plus_plus_20_scheduler.py
+?      schedulers/alpha_easy_plus_plus_5_scheduler.py
+?      schedulers/alpha_easy_plus_plus_scheduler.py
+?      schedulers/double_alpha_easy_scheduler.py
+?      schedulers/orig_4_probabilistic_easy_scheduler.py
+?      schedulers/orig_changing_dist_probabilistic_easy_scheduler.py
+?      schedulers/orig_window_probabilistic_easy_scheduler.py
+?      schedulers/orig_window_single_dist_probabilistic_easy_scheduler.py
+?      schedulers/probabilistic_4_nodes_easy_scheduler.py
+?      schedulers/probabilistic_linear_scale_easy_scheduler.py
+?      schedulers/shrinking_alpha_easy_scheduler.py
 
