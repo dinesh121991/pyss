@@ -2,6 +2,9 @@ from common import Scheduler, CpuSnapshot, list_copy
 from base.prototype import JobStartEvent
 from math import log
 
+def _round_time_up(time):
+    return pow(2, int(log(2 * time -1, 2)))
+            
     
 class Distribution(object):
     def __init__(self, job, window_size = 150):
@@ -13,7 +16,7 @@ class Distribution(object):
         self.jobs     = []
         
         if job is not None: # we init the distribution to be uniform w.r.t. to the user estimation 
-            self.touch(self._round_time_up(job.user_estimated_run_time))
+            self.touch(_round_time_up(job.user_estimated_run_time))
             
 
     def touch(self, rounded_up_time):
@@ -30,12 +33,9 @@ class Distribution(object):
 
             curr_time /=  2
 
-    def _round_time_up(self, time):
-        return pow(2, int(log(2 * time -1, 2)))
-            
     def add_job(self, job): #to be called when a termination event has occured
         assert job.actual_run_time > 0
-        rounded_up_run_time = self._round_time_up(job.actual_run_time)
+        rounded_up_run_time = _round_time_up(job.actual_run_time)
         self.touch(rounded_up_run_time)
 
         self.number_of_jobs_added += 1
@@ -73,7 +73,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     def new_events_on_job_submission(self, job, current_time):
         # print "arrived:", job
         if  self.user_distribution.has_key(job.user_id):
-            self.user_distribution[job.user_id].touch(self._round_time_up(job.user_estimated_run_time))
+            self.user_distribution[job.user_id].touch(_round_time_up(job.user_estimated_run_time))
         else:
             self.user_distribution[job.user_id] = Distribution(job, self.window_size)
 
@@ -147,7 +147,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         first_job = self.unscheduled_jobs[0]
 
         for tmp_job in self.currently_running_jobs:
-            self.user_distribution[tmp_job.user_id].touch(self._round_time_up(job.user_estimated_run_time))
+            self.user_distribution[tmp_job.user_id].touch(_round_time_up(job.user_estimated_run_time))
       
         prediction  = 0.0
         max_bottle_neck = 0.0 
