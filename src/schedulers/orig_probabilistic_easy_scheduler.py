@@ -173,6 +173,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         C = first_job.num_required_processors + second_job.num_required_processors
         K = min(self.num_processors, C)
 
+        # M[n,c] denotes the probability that the first n running jobs will release at least c processors at time
         M = self.work_list
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
