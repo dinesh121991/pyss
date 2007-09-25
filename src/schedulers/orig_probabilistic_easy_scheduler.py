@@ -199,9 +199,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             result = M[last_row_index][first_job.num_required_processors]
 
         if   result < 0:
-            result = 0
+            result = 0.0
         elif result > 1:
-            reuslt = 1
+            reuslt = 1.0
             
         assert 0 <= result <= 1 
         return result 
