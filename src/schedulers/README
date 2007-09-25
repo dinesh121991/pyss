@@ -647,3 +647,6 @@ env PYTHONOPTIMIZE=1 PYPROFILE="-o prof.15_1000_run00" ./run_profile.sh 15 1000
 ./print_prof.py prof.15_1000_run00 time | head -40
 ./print_prof.py prof.15_1000_run00 cumulative | head -40
 ./print_prof.py prof.15_1000_run00 calls | head -40
+
+Installing python packages:
+easy_install --install-dir=$HOME/pythonpath numpy
