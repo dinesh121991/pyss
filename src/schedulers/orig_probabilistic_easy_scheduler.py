@@ -22,14 +22,16 @@ class Distribution(object):
         else:
             rounded_up_time = pow(2, int(log(2 * time, 2)))
             
-        while rounded_up_time > 1: 
+        while True:
             if not self.bins.has_key(rounded_up_time):  
                 self.bins[rounded_up_time] = 1  
                 self.number_of_jobs_added += 1
             else:
-                return
-            rounded_up_time = rounded_up_time / 2
-            
+                break
+
+            rounded_up_time /=  2
+            if rounded_up_time <= 1:
+                break
             
     def add_job(self, job): #to be called when a termination event has occured
         assert job.actual_run_time > 0     
