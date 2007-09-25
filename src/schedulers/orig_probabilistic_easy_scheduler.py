@@ -146,8 +146,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         first_job = self.unscheduled_jobs[0]
 
+        rounded_time = _round_time_up(job.user_estimated_run_time)
         for tmp_job in self.currently_running_jobs:
-            self.user_distribution[tmp_job.user_id].touch(_round_time_up(job.user_estimated_run_time))
+            self.user_distribution[tmp_job.user_id].touch(rounded_time)
       
         prediction  = 0.0
         max_bottle_neck = 0.0 
