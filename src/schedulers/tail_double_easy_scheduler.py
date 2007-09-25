@@ -1,4 +1,4 @@
-from common import Scheduler, CpuSnapshot
+from common import Scheduler, CpuSnapshot, list_copy 
 from easy_scheduler import EasyBackfillScheduler
 
 # This scheduler is similar to the standard easy scheduler. The only diffrence is that 
@@ -21,7 +21,7 @@ class  TailDoubleEasyScheduler(EasyBackfillScheduler):
 
         result = []  
         first_job = self.unscheduled_jobs[0]        
-        tail =  self.unscheduled_jobs[1:]
+        tail =  list_copy(self.unscheduled_jobs[1:]) 
         
         self.cpu_snapshot.assignJobEarliest(first_job, current_time)
         

@@ -1,4 +1,4 @@
-from common import CpuSnapshot
+from common import CpuSnapshot, list_copy 
 from easy_scheduler import EasyBackfillScheduler
 
 def default_score_function(job):
@@ -42,7 +42,7 @@ class LookAheadEasyBackFillScheduler(EasyBackfillScheduler):
         self._mark_jobs_in_look_ahead_best_order(current_time)
 
         result = []
-        tail_of_waiting_list = self.unscheduled_jobs[1:]
+        tail_of_waiting_list = list_copy(self.unscheduled_jobs[1:])
         for job in tail_of_waiting_list:
             if job.backfill_flag == 1:
                 self.unscheduled_jobs.remove(job)

@@ -1,4 +1,4 @@
-from common import Scheduler, CpuSnapshot
+from common import Scheduler, CpuSnapshot, list_copy 
 from base.prototype import JobStartEvent
 
 class EasyBackfillScheduler(Scheduler):
@@ -62,9 +62,9 @@ class EasyBackfillScheduler(Scheduler):
         
         result = []
 
-        # need to iterate over a copy, because the list is modified
-        tail_of_waiting_list = self.unscheduled_jobs[1:]
 
+        tail_of_waiting_list = list_copy(self.unscheduled_jobs[1:])
+        
         for job in tail_of_waiting_list:
             if self.canBeBackfilled(job, current_time):
                 self.unscheduled_jobs.remove(job)
