@@ -298,7 +298,7 @@ class CpuSnapshot(object):
 	size = len(self.slices)
 	while size > 0:
 	    s = self.slices[0]
-            if s.end_time < current_time:
+            if s.end_time <= current_time:
                 self.archive_of_old_slices.append(s)
                 self.slices.pop(0)
 		size -= 1 
@@ -308,14 +308,18 @@ class CpuSnapshot(object):
        
     def unify_slices(self):
         assert self.slices
+
+        # optimization
 	if len(self.slices) < 10:
-		return 
+		return
+
         prev = self.slices[0]
-        for s in self.slices[1: ]:
+        # use a copy so we don't change the container while iterating over it
+        for s in list_copy(self.slices[1: ]):
 	    assert s.start_time == prev.start_time + prev.duration
             if s.free_processors == prev.free_processors and s.job_ids == prev.job_ids:
                 prev.duration += s.duration
-                self.slices.remove(s) # TODO: change the for condition: bad to removing s while itterating through list
+                self.slices.remove(s)
             else:
                 prev = s
 
