@@ -240,9 +240,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             elif time + rounded_down_run_time > key/2 : 
                 num_of_jobs_in_middle_bins += float(job_distribution.bins[key]*(time+rounded_down_run_time-(key/2))) / (key/2) 
 
-            else:
-                pass # at the tail of the middle bin, it won't terminate because of conditional probability
-
+            # at the tail of the middle bin, it won't terminate because of conditional probability
+            #else: pass
           
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs+1 # +1 avoiding devision by zero
