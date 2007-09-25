@@ -14,7 +14,7 @@ class Distribution(object):
         
         self.window_size = window_size # the distribution contains information about at most window_size (recently terminated) jobs    
         self.jobs     = []
-        
+
         if job is not None: # we init the distribution to be uniform w.r.t. to the user estimation 
             self.touch(_round_time_up(job.user_estimated_run_time))
             
@@ -55,6 +55,7 @@ class Distribution(object):
 
 
         
+
 class  OrigProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
@@ -69,6 +70,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         self.unscheduled_jobs  = []
         self.currently_running_jobs = []
      
+        self.work_list = [[None for i in xrange(self.num_processors+1)] for j in xrange(self.num_processors+1)]
 
     def new_events_on_job_submission(self, job, current_time):
         # print "arrived:", job
@@ -170,7 +172,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     def bottle_neck(self, time, second_job, first_job, current_time):
         C = first_job.num_required_processors + second_job.num_required_processors
         K = min(self.num_processors, C)
-        M = [[None for i in xrange(K+1)] for j in xrange(K+1)]
+
+        M = self.work_list
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
         
@@ -188,7 +191,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
                     M[n][c] = M[n-1][c] + (M[n-1][c - job_n.num_required_processors] - M[n-1][c]) * Pn
                 else:
                     M[n][c] = M[n-1][c] + (1 - M[n-1][c]) * Pn
-
 
         last_row_index = num_of_currently_running_jobs
         if  C <= K:  
