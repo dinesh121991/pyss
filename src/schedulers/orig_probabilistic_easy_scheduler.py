@@ -226,19 +226,19 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         num_of_jobs_in_last_bins   = 0
         job_distribution = self.user_distribution[job.user_id]
 
-        for key in job_distribution.bins.keys():
+        for (key,value) in job_distribution.bins.iteritems():
 
             if   key > rounded_up_estimated_remaining_duration:
-                num_of_jobs_in_last_bins  += job_distribution.bins[key]  
+                num_of_jobs_in_last_bins  += value
                 
             elif key <= rounded_down_run_time:
-                num_of_jobs_in_first_bins += job_distribution.bins[key]
+                num_of_jobs_in_first_bins += value
 
             elif key <= time + rounded_down_run_time:
-                num_of_jobs_in_middle_bins += job_distribution.bins[key] 
+                num_of_jobs_in_middle_bins += value
 
             elif time + rounded_down_run_time > key/2 : 
-                num_of_jobs_in_middle_bins += float(job_distribution.bins[key]*(time+rounded_down_run_time-(key/2))) / (key/2) 
+                num_of_jobs_in_middle_bins += float(value*(time+rounded_down_run_time-(key/2))) / (key/2) 
 
             # at the tail of the middle bin, it won't terminate because of conditional probability
             #else: pass
