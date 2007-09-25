@@ -186,11 +186,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         for n in xrange(1, num_of_currently_running_jobs+1):
             job_n = self.currently_running_jobs[n-1] # the n'th job: recall that a list has a zero index   
+            job_n_required_processors = job_n.num_required_processors
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job_n)
-            for c in xrange (1, job_n.num_required_processors):
+            for c in xrange (1, job_n_required_processors):
                 M[n][c] = M[n-1][c] + (1 - M[n-1][c]) * Pn
-            for c in xrange (job_n.num_required_processors, K + 1):
-                M[n][c] = M[n-1][c] + (M[n-1][c - job_n.num_required_processors] - M[n-1][c]) * Pn
+            for c in xrange (job_n_required_processors, K + 1):
+                M[n][c] = M[n-1][c] + (M[n-1][c - job_n_required_processors] - M[n-1][c]) * Pn
 
         last_row_index = num_of_currently_running_jobs
         if  C <= K:  
