@@ -1,8 +1,4 @@
-
-loops: check that there are no removing of elements from a list while itterating on the list (use list_copy .... be fore itteration)   
-
-look again at the code of the probabilistic easy .... I think that there is a bit redundancy there ...
-
+check what's going on with the lookahead: the test fails for some reason ......
 
 
 run_simulator.py: extract total number of processors from the log file itself "MaxProcs"
@@ -21,8 +17,6 @@ Change the LookAhead scheduler to give better statistics .........
 
 
 commenting the code .....
-
-profiling the code ....
 
 add maui to the tests (take the system quality of service from somewhere ....) 
 
