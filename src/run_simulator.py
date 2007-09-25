@@ -1,5 +1,11 @@
 #! /usr/bin/env python2.4
 
+try:
+    import psyco
+    psyco.full()
+except ImportError:
+    print "Psyco not available, will run slower (http://psyco.sourceforge.net)"
+
 import sys
 if __debug__:
     import warnings
