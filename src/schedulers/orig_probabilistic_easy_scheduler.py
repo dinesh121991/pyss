@@ -3,14 +3,17 @@ from base.prototype import JobStartEvent
 
 
 def _round_time_up(num):
-    assert num > 0 
+    assert num >= 0
     result = 1
     while result < num:
-        result += result 
+        result *= 2 
     return result
 
+
 def _round_time_down(num):
-    assert num > 0 
+    assert num >= 0
+    if num == 0:
+        return 0 
     result = 1
     while True:
         tmp = result*2
@@ -86,7 +89,13 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         self.unscheduled_jobs  = []
         self.currently_running_jobs = []
      
-        self.work_list = [[None for i in xrange(self.num_processors+1)] for j in xrange(self.num_processors+1)]
+        #self.work_list = [[None for i in xrange(self.num_processors+1)] for j in xrange(self.num_processors+1)]
+        self.M = {}
+        
+        for c in xrange(self.num_processors+1):
+            for n in xrange(self.num_processors+1):
+                self.M[c, n] = 0.0
+
 
         self.max_user_rounded_estimated_run_time = 0
         self.prev_max_user_rounded_estimated_run_time = 0
@@ -202,34 +211,32 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         K = min(self.num_processors, C)
 
         # M[n,c] denotes the probability that the first n running jobs will release at least c processors at time
-        M = self.work_list
+        M = self.M
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
         
         for c in xrange(K + 1): 
-            M[0][c] = 0.0
+            M[0, c] = 0.0
             
         for n in xrange(1, num_of_currently_running_jobs+1):
-            M[n][0] = 1.0
+            M[n, 0] = 1.0
 
         for n in xrange(1, num_of_currently_running_jobs+1):
             job_n = self.currently_running_jobs[n-1] # the n'th job: recall that a list has a zero index   
             job_n_required_processors = job_n.num_required_processors
             Pn = self.probability_of_running_job_to_end_upto(time, current_time, job_n)
-            prev_row = M[n-1]
-            curr_row = M[n]
             for c in xrange (1, job_n_required_processors):
-                x = prev_row[c]
-                curr_row[c] = x + (1 - x) * Pn
+                val = M[n-1, c]
+                M[n, c] = val + (1.0 - val) * Pn
             for c in xrange (job_n_required_processors, K + 1):
-                x = prev_row[c]
-                curr_row[c] = x + (prev_row[c - job_n_required_processors] - x) * Pn
+                val = M[n-1, c]
+                M[n, c] = val + (M[n, c - job_n_required_processors] - val) * Pn
 
         last_row_index = num_of_currently_running_jobs
         if  C <= K:  
-            result = M[last_row_index][first_job.num_required_processors] - M[last_row_index][C]
+            result = M[last_row_index, first_job.num_required_processors] - M[last_row_index, C]
         else:   
-            result = M[last_row_index][first_job.num_required_processors]
+            result = M[last_row_index, first_job.num_required_processors]
 
         if   result < 0:
             result = 0.0
