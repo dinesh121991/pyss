@@ -20,9 +20,6 @@ class Distribution(object):
         self.window_size = window_size # the distribution contains information about at most window_size (recently terminated) jobs    
         self.jobs     = []
 
-        if job is not None: # we init the distribution to be uniform w.r.t. to the user estimation 
-            self.touch(_round_time_up(job.user_estimated_run_time))
-            
 
     def touch(self, rounded_up_time):
         curr_time = rounded_up_time
@@ -35,13 +32,14 @@ class Distribution(object):
 
             self.bins[curr_time] = 1  
             self.number_of_jobs_added += 1
-
+            
             curr_time /=  2
 
+
     def add_job(self, job): #to be called when a termination event has occured
-        assert job.actual_run_time > 0
+        #Assumption: there exists a bin with a key value equals to rounded_up_run_time (see below).  
+        assert job.user_estimated_run_time >= job.actual_run_time > 0
         rounded_up_run_time = _round_time_up(job.actual_run_time)
-        self.touch(rounded_up_run_time)
 
         self.number_of_jobs_added += 1
         self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
@@ -77,13 +75,29 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
      
         self.work_list = [[None for i in xrange(self.num_processors+1)] for j in xrange(self.num_processors+1)]
 
+        self.max_user_rounded_estimated_run_time = 0
+        self.prev_max_user_rounded_estimated_run_time = 0
+
+        
+
     def new_events_on_job_submission(self, job, current_time):
         # print "arrived:", job
-        if  self.user_distribution.has_key(job.user_id):
-            self.user_distribution[job.user_id].touch(_round_time_up(job.user_estimated_run_time))
-        else:
-            self.user_distribution[job.user_id] = Distribution(job, self.window_size)
+        rounded_up_estimated_time = _round_time_up(job.user_estimated_run_time)
 
+        if rounded_up_estimated_time > self.max_user_rounded_estimated_run_time:
+            self.prev_max_user_rounded_estimated_run_time = self.max_user_rounded_estimated_run_time
+            self.max_user_rounded_estimated_run_time = rounded_up_estimated_time
+    
+
+        if  not self.user_distribution.has_key(job.user_id):
+            self.user_distribution[job.user_id] = Distribution(job, self.window_size)
+        self.user_distribution[job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
+
+        if self.prev_max_user_rounded_estimated_run_time < self.max_user_rounded_estimated_run_time:
+            for tmp_job in self.currently_running_jobs:
+                self.user_distribution[tmp_job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
+      
+            
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unscheduled_jobs.append(job)
         return [
@@ -153,10 +167,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
         first_job = self.unscheduled_jobs[0]
 
-        rounded_time = _round_time_up(job.user_estimated_run_time)
-        for tmp_job in self.currently_running_jobs:
-            self.user_distribution[tmp_job.user_id].touch(rounded_time)
-      
         prediction  = 0.0
         max_bottle_neck = 0.0 
         bottle_neck = 0.0 
