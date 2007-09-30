@@ -6,8 +6,21 @@ def _round_time_up(num):
     assert num > 0 
     result = 1
     while result < num:
-        result *= 2
+        result += result 
     return result
+
+def _round_time_down(num):
+    assert num > 0 
+    result = 1
+    while True:
+        tmp = result*2
+        if tmp <= num: 
+            result = tmp
+        else:
+            break
+        
+    return result
+
 
             
     
@@ -229,13 +242,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
-        rounded_down_run_time = _round_time_up(current_time - job.start_to_run_at_time)
-        
-        rounded_up_estimated_remaining_duration = _round_time_up(2*(job.user_estimated_run_time-rounded_down_run_time+1))
-
+        run_time = current_time - job.start_to_run_at_time 
+        rounded_up_estimated_remaining_duration = _round_time_up(job.user_estimated_run_time - run_time)
         if time >= rounded_up_estimated_remaining_duration:
             return 1.0 
-
+        rounded_down_run_time = _round_time_down(run_time)
+        
         num_of_jobs_in_first_bins  = 0
         num_of_jobs_in_middle_bins = 0.0
         num_of_jobs_in_last_bins   = 0
