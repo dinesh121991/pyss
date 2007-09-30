@@ -1,9 +1,14 @@
 from common import Scheduler, CpuSnapshot, list_copy
 from base.prototype import JobStartEvent
-from math import log
 
-def _round_time_up(time):
-    return pow(2, int(log(2 * time -1, 2)))
+
+def _round_time_up(num):
+    assert num > 0 
+    result = 1
+    while result < num:
+        result *= 2
+    return result
+
             
     
 class Distribution(object):
@@ -47,7 +52,7 @@ class Distribution(object):
         
 
     def del_job(self, job):
-        rounded_up_run_time = pow(2, int(log(2 * job.actual_run_time-1, 2)))
+        rounded_up_run_time = _round_time_up(job.actual_run_time)
 	assert self.number_of_jobs_added >= self.bins[rounded_up_run_time] > 0
    
         self.number_of_jobs_added -= 1
@@ -214,9 +219,9 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
-        rounded_down_run_time = pow(2, int(log(max(current_time - job.start_to_run_at_time, 1), 2)))
+        rounded_down_run_time = _round_time_up(current_time - job.start_to_run_at_time)
         
-        rounded_up_estimated_remaining_duration = pow(2, int(log(2*(job.user_estimated_run_time - rounded_down_run_time + 1), 2)))
+        rounded_up_estimated_remaining_duration = _round_time_up(2*(job.user_estimated_run_time-rounded_down_run_time+1))
 
         if time >= rounded_up_estimated_remaining_duration:
             return 1.0 
