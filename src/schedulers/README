@@ -128,354 +128,6 @@ import pdb; pdb.set_trace()
 
 ------------------------------------
 
-profiling the code sunday/monday 
-
-head -10000 stam2/input > ! input ; time sim4.py > ! output
-
-Cons
-104.926u 0.180s 3:14.90 53.9%   0+0k 0+0io 0pf+0w
-103.258u 0.380s 2:21.06 73.4%   0+0k 0+0io 0pf+0w
-104.122u 0.236s 2:00.55 86.5%   0+0k 0+0io 0pf+0w
-94.717u 0.204s 1:37.27 97.5%    0+0k 0+0io 0pf+0w
-93.905u 0.228s 1:46.65 88.2%    0+0k 0+0io 0pf+0w (without profiling)
-
-
-head -20000 stam2/input > ! input ; time sim4.py > ! output
-Easy without profiling monday evening
-422.086u 0.492s 7:08.70 98.5%   0+0k 0+0io 0pf+0w
-Easy without profiling tuesday evening
-452.036u 0.756s 7:52.51 95.8%   0+0k 0+0io 30pf+0w
-
-
-_______________________
-
-Code Optimization: 
-
-Sunday morning - evening  
-500 input lines  
-
-head -500 stam2/input > ! input ; time sim4.py > ! output
-
-FCFS: 
-7.888u 0.120s 0:08.69 92.0%     0+0k 0+0io 4pf+0w
-15.808u 0.180s 0:18.18 87.8%    0+0k 0+0io 0pf+0w
-13.272u 0.176s 0:15.37 87.4%    0+0k 0+0io 0pf+0w
-8.876u 0.100s 0:10.24 87.5%     0+0k 0+0io 0pf+0w
-8.700u 0.108s 0:09.92 88.7%     0+0k 0+0io 0pf+0w
-6.992u 0.068s 0:07.94 88.7%     0+0k 0+0io 0pf+0w
-7.048u 0.068s 0:08.04 88.3%     0+0k 0+0io 0pf+0w
-1.100u 0.060s 0:01.53 75.8%     0+0k 0+0io 10pf+0w
-0.492u 0.036s 0:00.73 71.2%     0+0k 0+0io 0pf+0w
-0.516u 0.036s 0:00.61 88.5%     0+0k 0+0io 0pf+0w
-0.504u 0.032s 0:00.63 84.1%     0+0k 0+0io 0pf+0w
-
-
-Easy:
-8.036u 0.140s 0:08.80 92.8%     0+0k 0+0io 0pf+0w
-7.920u 0.108s 0:08.47 94.6%     0+0k 0+0io 0pf+0w
-7.596u 0.104s 0:08.13 94.5%     0+0k 0+0io 0pf+0w
-15.368u 0.176s 0:17.76 87.4%    0+0k 0+0io 0pf+0w
-13.324u 0.144s 0:15.86 84.8%    0+0k 0+0io 4pf+0w
-8.744u 0.152s 0:09.64 92.2%     0+0k 0+0io 0pf+0w
-6.952u 0.096s 0:07.72 91.1%     0+0k 0+0io 0pf+0w
-7.104u 0.092s 0:08.28 86.8%     0+0k 0+0io 0pf+0w
-7.104u 0.112s 0:08.10 89.0%     0+0k 0+0io 0pf+0w
-1.076u 0.048s 0:01.45 76.5%     0+0k 0+0io 0pf+0w
-0.484u 0.040s 0:00.60 86.6%     0+0k 0+0io 0pf+0w
-
-
-
-Cons: 
-7.796u 0.096s 0:09.45 83.3%     0+0k 0+0io 0pf+0w
-16.485u 0.184s 0:18.78 88.7%    0+0k 0+0io 0pf+0w
-13.460u 0.096s 0:15.23 88.9%    0+0k 0+0io 0pf+0w
-8.892u 0.092s 0:10.28 87.3%     0+0k 0+0io 1pf+0w
-7.004u 0.076s 0:07.95 88.9%     0+0k 0+0io 0pf+0w
-1.068u 0.032s 0:01.36 80.1%     0+0k 0+0io 0pf+0w
-0.524u 0.036s 0:00.62 88.7%     0+0k 0+0io 0pf+0w
-0.752u 0.056s 0:00.88 90.9%     0+0k 0+0io 0pf+0w
-0.536u 0.032s 0:00.67 83.5%     0+0k 0+0io 0pf+0w
-0.512u 0.060s 0:00.71 80.2%     0+0k 0+0io 0pf+0w
-0.504u 0.044s 0:00.61 88.5%     0+0k 0+0io 0pf+0w
-0.576u 0.048s 0:00.64 95.3%     0+0k 0+0io 0pf+0w
-0.476u 0.040s 0:00.55 92.7%     0+0k 0+0io 0pf+0w
-
-Tests: 
-Ran 12 tests in 3.919s
-3.548u 0.144s 0:04.37 84.2%     0+0k 0+0io 1pf+0w
-Ran 12 tests in 3.337s
-3.340u 0.080s 0:03.65 93.6%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 4.584s
-4.252u 0.096s 0:04.98 87.1%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 2.911s
-2.624u 0.116s 0:03.23 84.5%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 2.991s
-2.672u 0.104s 0:03.31 83.6%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 3.170s
-2.280u 0.132s 0:03.43 70.2%     0+0k 0+0io 1pf+0w
-Ran 12 tests in 1.586s
-1.500u 0.108s 0:01.81 88.3%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 1.161s
-1.184u 0.088s 0:01.51 83.4%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.824s
-0.836u 0.080s 0:01.02 89.2%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.623s
-0.608u 0.088s 0:00.80 85.0%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.604s
-0.624u 0.068s 0:00.79 86.0%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.596s
-0.608u 0.064s 0:00.74 89.1%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.623s
-0.652u 0.064s 0:00.80 88.7%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.624s
-0.644u 0.108s 0:00.86 86.0%     0+0k 0+0io 2pf+0w
-Ran 12 tests in 0.670s
-0.668u 0.108s 0:00.87 87.3%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.674s
-0.688u 0.092s 0:00.88 87.5%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 0.744s
-0.760u 0.092s 0:00.94 90.4%     0+0k 0+0io 0pf+0w
-Ran 12 tests in 1.999s
-1.992u 0.100s 0:02.17 96.3%     0+0k 0+0io 0pf+0w
-
-
-
-
--------------------------
--------------------------
--------------------------
-Monday
-
-5000 input lines with profiler
-head -5000 stam2/input > ! input ; time sim4.py > ! output 
-
-FCFS
-20.621u 0.100s 0:21.59 95.9%    0+0k 0+0io 0pf+0w
-
-Easy
-20.893u 0.100s 0:22.16 94.7%    0+0k 0+0io 0pf+0w
-18.881u 0.068s 0:19.54 96.9%    0+0k 0+0io 0pf+0w 
-25.385u 0.432s 0:26.32 98.0%    0+0k 0+0io 5pf+0w
-25.453u 0.576s 0:29.35 88.6%    0+0k 0+0io 1pf+0w
-25.465u 0.672s 0:29.48 88.6%    0+0k 0+0io 1pf+0w
-
-
-Cons 
-21.205u 0.108s 0:22.62 94.1%    0+0k 0+0io 2pf+0w
-20.321u 0.076s 0:22.67 89.9%    0+0k 0+0io 0pf+0w
-20.177u 0.120s 0:20.88 97.1%    0+0k 0+0io 0pf+0w
-19.365u 0.128s 0:20.76 93.8%    0+0k 0+0io 8pf+0w
-18.881u 0.064s 0:18.97 99.8%    0+0k 0+0io 0pf+0w
-18.817u 0.076s 0:19.04 99.1%    0+0k 0+0io 0pf+0w
-25.569u 0.464s 0:26.60 97.8%    0+0k 0+0io 2pf+0w
-25.561u 0.504s 0:27.65 94.2%    0+0k 0+0io 0pf+0w
-
-
--------------------------
--------------------------
--------------------------
-Tuesday 
-
-5000 input lines with profiler
-head -5000 stam2/input > ! input ; time sim4.py > ! output 
- 
-Easy 
-26.125u 0.456s 0:27.95 95.0%    0+0k 0+0io 0pf+0w
-25.945u 0.508s 0:32.42 81.5%    0+0k 0+0io 0pf+0w
-25.969u 0.380s 0:27.29 96.5%    0+0k 0+0io 0pf+0w
-25.669u 0.428s 0:28.97 90.0%    0+0k 0+0io 0pf+0w
-25.613u 0.440s 0:28.18 92.4%    0+0k 0+0io 0pf+0w
-25.801u 0.452s 0:27.29 96.1%    0+0k 0+0io 0pf+0w
-25.973u 0.404s 0:28.16 93.6%    0+0k 0+0io 0pf+0w
-25.901u 0.420s 0:29.52 89.1%    0+0k 0+0io 0pf+0w
-25.769u 0.444s 0:26.82 97.6%    0+0k 0+0io 0pf+0w
-25.501u 0.460s 0:28.08 92.4%    0+0k 0+0io 0pf+0w
-27.153u 0.552s 0:30.20 91.7%    0+0k 0+0io 4pf+0w
-26.953u 0.452s 0:27.63 99.1%    0+0k 0+0io 3pf+0w
-26.905u 0.440s 0:28.44 96.1%    0+0k 0+0io 3pf+0w
-26.861u 0.364s 0:28.53 95.4%    0+0k 0+0io 0pf+0w
-26.957u 0.512s 0:32.35 84.8%    0+0k 0+0io 0pf+0w
-27.213u 0.456s 0:28.73 96.2%    0+0k 0+0io 0pf+0w
-
-
-Cons 
-27.465u 0.488s 0:27.98 99.8%    0+0k 0+0io 0pf+0w
-27.861u 0.492s 0:33.18 85.4%    0+0k 0+0io 0pf+0w
-
-FCFS 
-25.093u 0.456s 0:27.24 93.7%    0+0k 0+0io 4pf+0w
-
--------------------------
--------------------------
-
-Sunday 13/5 
-
-head -5000 stam2/input > ! input ; time sim4.py > ! output 
-
-Easy without profiler python 2.3 
-18.069u 0.076s 0:19.15 94.6%    0+0k 0+0io 0pf+0w
-
-Easy without profiler python 2.4
-17.677u 0.044s 0:18.21 97.2%    0+0k 0+0io 0pf+0w
-17.813u 0.048s 0:17.88 99.8%    0+0k 0+0io 0pf+0w
-
-
-
-################################
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-********************************
-
-changing the min of sorted to min ... 
-Easy
-4.808u 0.060s 0:04.88 99.5%     0+0k 0+0io 0pf+0w
-4.708u 0.068s 0:05.27 90.3%     0+0k 0+0io 0pf+0w
-5.612u 0.080s 0:06.14 92.6%     0+0k 0+0io 0pf+0w
-5.176u 0.088s 0:05.39 97.4%     0+0k 0+0io 0pf+0w
-4.952u 0.072s 0:05.04 99.6%     0+0k 0+0io 0pf+0w
-5.008u 0.072s 0:05.18 97.8%     0+0k 0+0io 0pf+0w
-5.436u 0.084s 0:05.69 96.8%     0+0k 0+0io 0pf+0w
-5.208u 0.076s 0:05.52 95.4%     0+0k 0+0io 0pf+0w
-5.252u 0.048s 0:05.43 97.4%     0+0k 0+0io 0pf+0w
-5.188u 0.064s 0:05.35 97.9%     0+0k 0+0io 0pf+0w
-5.712u 0.052s 0:05.82 98.9%     0+0k 0+0io 1pf+0w
-6.560u 0.080s 0:06.74 98.5%     0+0k 0+0io 0pf+0w
-7.320u 0.088s 0:07.44 99.4%     0+0k 0+0io 0pf+0w
-7.152u 0.052s 0:07.20 100.0%    0+0k 0+0io 0pf+0w
-
-
-Cons
-4.932u 0.076s 0:05.28 94.6%     0+0k 0+0io 0pf+0w
-8.536u 0.076s 0:08.80 97.7%     0+0k 0+0io 0pf+0w
-6.552u 0.080s 0:06.97 95.1%     0+0k 0+0io 0pf+0w
-6.572u 0.064s 0:06.84 96.9%     0+0k 0+0io 0pf+0w
-6.360u 0.076s 0:06.55 98.1%     0+0k 0+0io 0pf+0w
-6.396u 0.092s 0:06.99 92.7%     0+0k 0+0io 0pf+0w
-6.224u 0.064s 0:06.63 94.7%     0+0k 0+0io 0pf+0w
-6.372u 0.068s 0:06.49 99.0%     0+0k 0+0io 0pf+0w
-5.980u 0.052s 0:06.09 99.0%     0+0k 0+0io 0pf+0w
-5.556u 0.044s 0:05.75 97.2%     0+0k 0+0io 0pf+0w
-6.664u 0.124s 0:06.97 97.2%     0+0k 0+0io 0pf+0w
-7.624u 0.052s 0:07.83 97.9%     0+0k 0+0io 0pf+0w
-7.444u 0.068s 0:07.52 99.7%     0+0k 0+0io 0pf+0w
-
-
-
-FCFS
-4.656u 0.064s 0:04.90 96.1%     0+0k 0+0io 0pf+0w
-5.668u 0.056s 0:05.95 95.9%     0+0k 0+0io 0pf+0w
-5.336u 0.052s 0:05.49 97.9%     0+0k 0+0io 0pf+0w
-5.308u 0.060s 0:05.38 99.6%     0+0k 0+0io 0pf+0w
-5.288u 0.076s 0:05.61 95.3%     0+0k 0+0io 0pf+0w
-5.384u 0.068s 0:05.47 99.4%     0+0k 0+0io 0pf+0w
-5.180u 0.072s 0:05.52 95.1%     0+0k 0+0io 0pf+0w
-5.084u 0.084s 0:05.27 97.9%     0+0k 0+0io 0pf+0w
-6.744u 0.052s 0:06.82 99.5%     0+0k 0+0io 0pf+0w
-6.864u 0.048s 0:06.93 99.5%     0+0k 0+0io 0pf+0w
-6.796u 0.048s 0:06.86 99.5%     0+0k 0+0io 0pf+0w
-
-
-
-head -5000 ../../temp/stam2/input > ! input ; time simulator.py
-easy with profiler 
-16.557u 0.556s 0:17.78 96.1%    0+0k 0+0io 5pf+0w
-
-
--------------------------
--------------------------
-Sunday 13/5 
-
-head -10000 ../../temp/stam2/input > ! input ; time simulator.py > ! output
-
-Easy without profiler 
-31.141u 0.124s 0:31.91 97.9%    0+0k 0+0io 0pf+0w
-36.126u 0.088s 0:36.23 99.9%    0+0k 0+0io 0pf+0w
-36.342u 0.084s 0:36.70 99.2%    0+0k 0+0io 0pf+0w
-37.446u 0.100s 0:37.57 99.9%    0+0k 0+0io 0pf+0w
-36.366u 0.104s 0:36.82 99.0%    0+0k 0+0io 0pf+0w
-
-
--------------------------
--------------------------
-without profiler on pentium 4 -- cmos and bmos
-head -10000 ../../temp/stam2/input > ! input ; time simulator.py > ! output
-
-Easy 
-5.796u 0.036s 0:05.86 99.3%     0+0k 0+0io 0pf+0w
-10.484u 0.040s 0:10.64 98.8%    0+0k 0+0io 0pf+0w
-10.488u 0.052s 0:10.55 99.8%    0+0k 0+0io 0pf+0w
-10.356u 0.036s 0:10.44 99.4%    0+0k 0+0io 0pf+0w
-13.168u 0.036s 0:13.28 99.3%    0+0k 0+0io 0pf+0w
-
-
-Cons
-13.108u 0.040s 0:13.25 99.1%    0+0k 0+0io 0pf+0w
-13.068u 0.080s 0:13.18 99.6%    0+0k 0+0io 0pf+0w
-11.004u 0.020s 0:11.16 98.7%    0+0k 0+0io 0pf+0w
-13.756u 0.036s 0:13.90 99.1%    0+0k 0+0io 0pf+0w
-
-
-
-Fcfs 
-9.912u 0.016s 0:09.94 99.7%     0+0k 0+0io 0pf+0w
-9.616u 0.032s 0:09.71 99.2%     0+0k 0+0io 0pf+0w
-9.644u 0.032s 0:09.69 99.7%     0+0k 0+0io 0pf+0w
-
-
-
-
-head -20000 stam2/input > ! input ; time sim4.py > ! output
-
-python 2.3 with feasibility check of the schedule 
-161.010u 0.488s 2:42.36 99.4%   0+0k 0+0io 0pf+0w
-
-python 2.3
-22.261u 0.040s 0:22.47 99.2%    0+0k 0+0io 0pf+0w
-25.749u 1.108s 0:29.79 90.0%    0+0k 0+0io 32pf+0w
-23.033u 0.052s 0:26.50 87.0%    0+0k 0+0io 0pf+0w
-22.833u 0.104s 0:23.06 99.4%    0+0k 0+0io 0pf+0w
-22.585u 0.092s 0:22.70 99.8%    0+0k 0+0io 0pf+0w
-
-python 2.4
-22.417u 0.836s 0:23.44 99.1%    0+0k 0+0io 0pf+0w
-25.745u 3.012s 0:30.20 95.1%    0+0k 0+0io 0pf+0w
-23.849u 2.688s 0:28.07 94.4%    0+0k 0+0io 9pf+0w
-22.941u 0.096s 0:23.17 99.3%    0+0k 0+0io 0pf+0w
-
-
-
-head -20000 stam2/input > ! input ; time sim4.py > ! output
-without profiler on pentium 4 -- cmos and then bmos 
-
-Easy 
-37.558u 0.040s 0:37.83 99.3%    0+0k 0+0io 0pf+0w
-37.494u 0.088s 0:37.83 99.3%    0+0k 0+0io 0pf+0w
-38.642u 0.116s 0:39.17 98.9%    0+0k 0+0io 0pf+0w
-
-Cons
-23.077u 0.636s 0:28.44 83.3%    0+0k 0+0io 29pf+0w
-27.433u 0.056s 0:27.55 99.7%    0+0k 0+0io 0pf+0w
-38.654u 0.052s 0:38.96 99.3%    0+0k 0+0io 0pf+0w
-
-
-Fcfs
-35.702u 0.072s 0:36.03 99.2%    0+0k 0+0io 0pf+0w
-36.742u 0.072s 0:37.02 99.4%    0+0k 0+0io 0pf+0w
-
-
-
-
-
-
-cat stam2/input > ! input ; time sim4.py > ! output
-Easy 
-1922.732u 28.725s 32:31.41 100.0%       0+0k 0+0io 0pf+0w
-1561.857u 25.565s 26:31.93 99.7%        0+0k 0+0io 0pf+0w
-
-
-Cons 
-2368.384u 33.434s 40:02.29 99.9%        0+0k 0+0io 0pf+0w
-1742.380u 27.741s 29:31.56 99.9%        0+0k 0+0io 0pf+0w
-
 
 
 
@@ -488,14 +140,6 @@ python2.4 -O ./run_simulator.py < ../l_ctc_sp2_cln.swf
 
 
             
-            
-head -5000 ../../temp/stam2/input > ! input ; time simulator.py > ! output          
-            
-            
-            
-          
-            
-
 testoob.testing.skip("not ready yet")
 
 ./runtests.sh --regex='test_.*easy'
@@ -533,41 +177,38 @@ BLUE 2.1 San-Diego Supercomputer Center 1,152 243,314 Apr 00 Jun 03 76% 73
 run_simulator.sh --num-processors=100 --input-file=10_sample --scheduler=1
 run_simulator.sh --num-processors=100 --input-file=5K_sample --scheduler=1 
 
-mosrun -q -G -b run_simulator.sh --num-processors=512 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=4 >! res_512_CTC_4 &
-mosrun -q -G -b run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=4 >! res_100_kth_4 &
-mosrun -q -G -b run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=4 >! res_128_sdsc_4 &
-mosrun -q -G -b run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=4 >! res_1152_BLU_4 &
-mosrun run_simulator.sh --num-processors=400 --input-file=schedulers/swf_input/SDSC-Par-1995-2.1-cln.swf --scheduler=4 >! res_400_Par95_4 &
-mosrun run_simulator.sh --num-processors=400 --input-file=schedulers/swf_input/SDSC-Par-1996-2.1-cln.swf --scheduler=4 >! res_400_Par96_4 &
+
+mosrun -q -G -b run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=13 >! res_100_kth_13 &
+mosrun -q -G -b run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=13 >! res_128_sdsc_13 &
+mosrun -q -G -b run_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=13 >! res_430_CTC_13 &
+mosrun -q -G -b run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=13 >! res_1152_BLU_13&
+mosrun -q -G -b run_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=13 >! res_1664_DS_13 &
+
+
+mosrun -q -G -b go_prob.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=0 >! res_100_kth_0 &; 
+mosrun -q -G -b go_prob.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=0 >! res_128_sdsc_0 &;
+mosrun -q -G -b go_prob.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=0 >! res_430_CTC_0 &;
+
+mosrun -q -G -b go_prob.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part1.swf --scheduler=0 >! res_1152_BLU-1_0 &;
+mosrun -q -G -b go_prob.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part2.swf --scheduler=0 >! res_1152_BLU-2_0 &;
+mosrun -q -G -b go_prob.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part3.swf --scheduler=0 >! res_1152_BLU-3_0 &;
+
+mosrun -q -G -b go_prob.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part1.swf --scheduler=0 >! res_1664_DS-1_0 &; 
+mosrun -q -G -b go_prob.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part2.swf --scheduler=0 >! res_1664_DS-2_0 &; 
 
 
 
-mosrun run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=13 >! res_100_kth_13 &
-mosrun run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=13 >! res_128_sdsc_13 &
-mosrun run_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=13 >! res_430_CTC_13 &
-mosrun run_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=13 >! res_1152_BLU_13 &
-mosrun run_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=13 >! res_1664_DS_13 &
+mosrun -q -G -b go_prob.sh --processors=100 --input=KTH-SP2-1996-2.swf --scheduler=0 --threshold=0.4 --window_size=1000 >! res_kth_0_0.4_1000 &; 
+
+mosrun -q -G -b go_prob.sh --processors=128 --input=SDSC-SP2-1998-3.1-cln.swf --scheduler=0  --threshold=0.4 --window_size=1000 >! res_sdsc_0_0.4_1000 &; 
+
+mosrun -q -G -b go_prob.sh --processors=430 --input=CTC-SP2-1996-2.1-cln.swf --scheduler=0 --threshold=0.4 --window_size=1000 >! res_CTC_0_0.4_1000 &; 
+
+mosrun -q -G -b go_prob.sh --processors=1152 --input=SDSC-BLUE-2000-3.1-cln.swf --scheduler=0 --threshold=0.4 --window_size=1000 >! res_BLU_0_0.4_1000 &; 
+
+mosrun -q -G -b go_prob.sh --processors=1664 --input=SDSC-DS-2004-1.swf --scheduler=0 --threshold=0.4 --window_size=1000 >! res_DS_0_0.4_1000 &; 
 
 
-mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=0 >! res_100_kth_0 &; 
-mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=0 >! res_128_sdsc_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=0 >! res_430_CTC_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/SDSC-BLUE-2000-3.1-cln.swf --scheduler=0 >! res_1152_BLU_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/SDSC-DS-2004-1.swf --scheduler=0 >! res_1664_DS_0 &; 
-
-
-
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=0 >! res_100_kth_0 &; 
-mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=0 >! res_128_sdsc_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=0 >! res_430_CTC_0 &;
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part1.swf --scheduler=0 >! res_1152_BLU-1_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part2.swf --scheduler=0 >! res_1152_BLU-2_0 &;
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1152 --input-file=schedulers/swf_input/BLUE-Part3.swf --scheduler=0 >! res_1152_BLU-3_0 &;
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part1.swf --scheduler=0 >! res_1664_DS-1_0 &; 
-mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedulers/swf_input/DS-Part2.swf --scheduler=0 >! res_1664_DS-2_0 &; 
 
 
 
@@ -575,66 +216,10 @@ mosrun -q -G -b run_prob_simulator.sh --num-processors=1664 --input-file=schedul
 man mosrun
 man mosix
 man mosps
+mosps -A # shows the status of all jobs in the system 
+mmon # shows the status graphically over time 
+moskillall 
 -------------------------------------------------------------
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf 
---scheduler=ws1 > ! res_100_kth_ws1 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws2 > ! res_100_kth_ws2 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws3 > ! 
-res_100_kth_ws3 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws4 > ! res_100_kth_ws4 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws5 > ! 
-res_100_kth_ws5 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws6 > ! res_100_kth_ws6 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws7 > ! 
-res_100_kth_ws7 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=ws8 > ! res_100_kth_ws8 & ;
-
-
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf 
---scheduler=w01 > ! res_100_kth_w01 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w02 > ! res_100_kth_w02 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w03 > ! 
-res_100_kth_w03 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w04 > ! res_100_kth_w04 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w05 > ! 
-res_100_kth_w05 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w06 > ! res_100_kth_w06 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w07 > ! 
-res_100_kth_w07 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=100 
---input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=w08 > ! res_100_kth_w08 & ;
-
-
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf 
---scheduler=ws1 > ! res_128_sdsc_ws1 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
---input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws2 > ! res_128_sdsc_ws2 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws3 
-> ! res_128_sdsc_ws3 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
---input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws4 > ! res_128_sdsc_ws4 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws5 
-> ! res_128_sdsc_ws5 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
---input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws6 > ! res_128_sdsc_ws6 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws7 
-> ! res_128_sdsc_ws7 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=128 
---input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=ws8 > ! res_128_sdsc_ws8 & ;
-
-
-
-
-mosrun -q -G -b run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf 
---scheduler=w01 > ! res_430_CTC_w01 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
---input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w02 > ! res_430_CTC_w02 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w03 > 
-! res_430_CTC_w03 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
---input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w04 > ! res_430_CTC_w04 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w05 > 
-! res_430_CTC_w05 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
---input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w06 > ! res_430_CTC_w06 & ; mosrun -q -G -b 
-run_prob_simulator.sh --num-processors=430 --input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w07 > 
-! res_430_CTC_w07 & ; mosrun -q -G -b run_prob_simulator.sh --num-processors=430 
---input-file=schedulers/swf_input/CTC-SP2-1996-2.1-cln.swf --scheduler=w08 > ! res_430_CTC_w08 & ;
 
 
 # running the simulator _without_ profiler 

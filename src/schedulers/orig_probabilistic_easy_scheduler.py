@@ -79,7 +79,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
     """ This algorithm implements a version of Feitelson and Nissimov, June 2007
     """
     
-    def __init__(self, num_processors, threshold = 0.05, window_size=150):
+    def __init__(self, num_processors, threshold = 0.2, window_size=150):
         super(OrigProbabilisticEasyScheduler, self).__init__(num_processors)
         self.threshold    = threshold
         self.window_size  = window_size # a parameter for the distribution 
