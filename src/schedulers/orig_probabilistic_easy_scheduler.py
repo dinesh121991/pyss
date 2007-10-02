@@ -38,15 +38,10 @@ class Distribution(object):
     def touch(self, rounded_up_time):
         curr_time = rounded_up_time
         while True:
-            if curr_time <= 1:
-                break
-
             if curr_time in self.bins:
                 break
-
             self.bins[curr_time] = 1  
-            self.number_of_jobs_added += 1
-            
+            self.number_of_jobs_added += 1            
             curr_time /=  2
 
 
@@ -104,7 +99,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         # print "arrived:", job
         rounded_up_estimated_time = _round_time_up(job.user_estimated_run_time)
 
-        if rounded_up_estimated_time > self.max_user_rounded_estimated_run_time:
+        if  rounded_up_estimated_time > self.max_user_rounded_estimated_run_time:
             self.prev_max_user_rounded_estimated_run_time = self.max_user_rounded_estimated_run_time
             self.max_user_rounded_estimated_run_time = rounded_up_estimated_time
     
@@ -112,7 +107,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             self.user_distribution[job.user_id] = Distribution(job, self.window_size)
         self.user_distribution[job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
 
-        if self.prev_max_user_rounded_estimated_run_time < self.max_user_rounded_estimated_run_time:
+        if  self.prev_max_user_rounded_estimated_run_time < self.max_user_rounded_estimated_run_time:
             for tmp_job in self.currently_running_jobs:
                 self.user_distribution[tmp_job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
               
@@ -274,12 +269,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             #else: pass
           
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs+1 # +1 avoiding devision by zero
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs
 
 	assert 0 <= num_of_jobs_in_middle_bins <= num_of_relevant_jobs, \
                str(num_of_jobs_in_middle_bins)+str(" ")+str(num_of_relevant_jobs)
 
-        result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
+        result = num_of_jobs_in_middle_bins / (num_of_relevant_jobs + 0.1)
 
         return result 
 
@@ -296,12 +291,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             if key > rounded_up_user_estimated_run_time:
                 num_of_jobs_in_last_bins  += job_distribution.bins[key]  
  
-        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins+1 # +1 avoiding devision by zero
+        num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins
 
 	assert 0 <= job_distribution.bins[time] <= num_of_relevant_jobs,\
                str(time)+str(" ")+ str(job_distribution.bins[time])+str(" ")+str(num_of_relevant_jobs)
 
-       	result = float(job_distribution.bins[time]) / num_of_relevant_jobs
+       	result = float(job_distribution.bins[time]) / (num_of_relevant_jobs + 0.1) 
 
         return result 
      
