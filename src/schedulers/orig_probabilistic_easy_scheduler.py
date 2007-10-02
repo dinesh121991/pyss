@@ -24,8 +24,6 @@ def _round_time_down(num):
         
     return result
 
-
-            
     
 class Distribution(object):
     def __init__(self, job, window_size = 150):
@@ -110,7 +108,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
             self.prev_max_user_rounded_estimated_run_time = self.max_user_rounded_estimated_run_time
             self.max_user_rounded_estimated_run_time = rounded_up_estimated_time
     
-
         if  not self.user_distribution.has_key(job.user_id):
             self.user_distribution[job.user_id] = Distribution(job, self.window_size)
         self.user_distribution[job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
@@ -118,8 +115,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         if self.prev_max_user_rounded_estimated_run_time < self.max_user_rounded_estimated_run_time:
             for tmp_job in self.currently_running_jobs:
                 self.user_distribution[tmp_job.user_id].touch(2*self.max_user_rounded_estimated_run_time)
-      
-            
+              
         self.cpu_snapshot.archive_old_slices(current_time)
         self.unscheduled_jobs.append(job)
         return [
@@ -210,7 +206,7 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         C = first_job.num_required_processors + second_job.num_required_processors
         K = min(self.num_processors, C)
 
-        # M[n,c] denotes the probability that the first n running jobs will release at least c processors at time
+        # M[n,c] is the probability that the first n running jobs will release at least c processors at _time_
         M = self.M
 
         num_of_currently_running_jobs = len(self.currently_running_jobs)
@@ -280,7 +276,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         num_of_irrelevant_jobs = num_of_jobs_in_first_bins + num_of_jobs_in_last_bins
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_irrelevant_jobs+1 # +1 avoiding devision by zero
 
-	assert 0 <= num_of_jobs_in_middle_bins <= num_of_relevant_jobs, str(num_of_jobs_in_middle_bins)+str(" ")+str(num_of_relevant_jobs)
+	assert 0 <= num_of_jobs_in_middle_bins <= num_of_relevant_jobs, \
+               str(num_of_jobs_in_middle_bins)+str(" ")+str(num_of_relevant_jobs)
 
         result = num_of_jobs_in_middle_bins / num_of_relevant_jobs
 
@@ -301,7 +298,8 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
  
         num_of_relevant_jobs = job_distribution.number_of_jobs_added - num_of_jobs_in_last_bins+1 # +1 avoiding devision by zero
 
-	assert 0 <= job_distribution.bins[time] <= num_of_relevant_jobs,str(time)+str(" ")+ str(job_distribution.bins[time])+str(" ")+str(num_of_relevant_jobs)
+	assert 0 <= job_distribution.bins[time] <= num_of_relevant_jobs,\
+               str(time)+str(" ")+ str(job_distribution.bins[time])+str(" ")+str(num_of_relevant_jobs)
 
        	result = float(job_distribution.bins[time]) / num_of_relevant_jobs
 
