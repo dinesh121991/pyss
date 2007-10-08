@@ -240,11 +240,12 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
 
     def probability_of_running_job_to_end_upto(self, time, current_time, job):
 
-        run_time = current_time - job.start_to_run_at_time 
-        rounded_up_estimated_remaining_duration = _round_time_up(job.user_estimated_run_time - run_time)
+        run_time = current_time - job.start_to_run_at_time
+        rounded_down_run_time = _round_time_down(run_time)
+        rounded_up_estimated_remaining_duration = _round_time_up(job.user_estimated_run_time - rounded_down_run_time)
         if time >= rounded_up_estimated_remaining_duration:
             return 1.0 
-        rounded_down_run_time = _round_time_down(run_time)
+    
         
         num_of_jobs_in_first_bins  = 0
         num_of_jobs_in_middle_bins = 0.0
