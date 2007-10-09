@@ -69,7 +69,7 @@ class Distribution(object):
         
 
 class  OrigProbabilisticEasyScheduler(Scheduler):
-    """ This algorithm implements a version of Feitelson and Nissimov, June 2007
+    """ This algorithm implements a version of Feitelson and Nissimov, June 2007 
     """
     
     def __init__(self, num_processors, threshold = 0.2, window_size=150):
@@ -79,16 +79,15 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         self.cpu_snapshot = CpuSnapshot(num_processors)
         
         self.user_distribution = {}
+
         self.unscheduled_jobs  = []
         self.currently_running_jobs = []
      
         #self.work_list = [[None for i in xrange(self.num_processors+1)] for j in xrange(self.num_processors+1)]
-        self.M = {}
-        
+        self.M = {}        
         for c in xrange(self.num_processors+1):
             for n in xrange(self.num_processors+1):
                 self.M[c, n] = 0.0
-
 
         self.max_user_rounded_estimated_run_time = 0
         self.prev_max_user_rounded_estimated_run_time = 0
