@@ -177,6 +177,9 @@ BLUE 2.1 San-Diego Supercomputer Center 1,152 243,314 Apr 00 Jun 03 76% 73
 run_simulator.sh --num-processors=100 --input-file=10_sample --scheduler=1
 run_simulator.sh --num-processors=100 --input-file=5K_sample --scheduler=1 
 
+go_prob.sh --num-processors=100 --input-file=5K_sample --scheduler=c 
+
+
 
 mosrun -q -G -b run_simulator.sh --num-processors=100 --input-file=schedulers/swf_input/KTH-SP2-1996-2.swf --scheduler=13 >! res_100_kth_13 &
 mosrun -q -G -b run_simulator.sh --num-processors=128 --input-file=schedulers/swf_input/SDSC-SP2-1998-3.1-cln.swf --scheduler=13 >! res_128_sdsc_13 &
@@ -208,6 +211,8 @@ mosrun -q -G -b go_prob.sh --processors=1152 --input=SDSC-BLUE-2000-3.1-cln.swf 
 
 mosrun -q -G -b go_prob.sh --processors=1664 --input=SDSC-DS-2004-1.swf --scheduler=0 --threshold=0.4 --window_size=1000 >! res_DS_0_0.4_1000 &; 
 
+
+run_alpha_simulator.sh --processors=100 --input=10_sample --scheduler=1
 
 
 

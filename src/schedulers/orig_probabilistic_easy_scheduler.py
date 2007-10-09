@@ -20,8 +20,7 @@ def _round_time_down(num):
         if tmp <= num: 
             result = tmp
         else:
-            break
-        
+            break        
     return result
 
     

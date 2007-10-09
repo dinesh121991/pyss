@@ -1,4 +1,6 @@
-check what's going on with the lookahead: the test fails for some reason ......
+
+fix the run_simulator.py to run all schedulers  (including alpha type and the variants of probabilistic) 
+
 
 
 run_simulator.py: extract total number of processors from the log file itself "MaxProcs"
@@ -14,6 +16,7 @@ change this ugly line: self.cpu_snapshot.free_processors_available_at(current_ti
 
 Change the LookAhead scheduler to give better statistics .........
 	in look ahead easy:  assert if  job.backfill_flag == 1
+check what's going on with the lookahead: the test fails for some reason ...... 
 
 
 commenting the code .....
