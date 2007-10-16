@@ -102,9 +102,12 @@ def print_statistics(jobs, time_of_last_job_submission):
     precent_of_size = int(size / 100)
     
     for job in sorted(jobs, key=by_finish_time_sort_key):
+        
         tmp_counter += 1
 
         if job.user_estimated_run_time == 1 and job.num_required_processors == 1: # ignore tiny jobs for the statistics
+            size -= 1
+            precent_of_size = int(size / 100)
             continue
         
         if size >= 100 and tmp_counter <= precent_of_size:

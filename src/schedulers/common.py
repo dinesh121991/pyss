@@ -270,6 +270,7 @@ class CpuSnapshot(object):
         self._ensure_a_slice_starts_at(job_estimated_finish_time)
         for s in self._slices_time_range(job.predicted_finish_time, job_estimated_finish_time):
             s.addJob(job)
+
 	job.predicted_run_time = job.user_estimated_run_time
 
 	    

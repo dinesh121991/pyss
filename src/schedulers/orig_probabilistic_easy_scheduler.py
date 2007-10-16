@@ -282,7 +282,6 @@ class  OrigProbabilisticEasyScheduler(Scheduler):
         job_distribution = self.user_distribution[job.user_id]
         assert job_distribution.bins.has_key(time) == True
 	        
-
         num_of_jobs_in_last_bins = 0
         rounded_up_user_estimated_run_time = 2 * job.user_estimated_run_time - 1
 

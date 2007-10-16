@@ -32,12 +32,13 @@ class  EasyPlusPlusScheduler(Scheduler):
             for job in self._schedule_jobs(current_time)
         ]
 
+
     def new_events_on_job_termination(self, job, current_time):
         assert self.user_run_time_last.has_key(job.user_id) == True
         assert self.user_run_time_prev.has_key(job.user_id) == True
 
-        self.user_run_time_prev[job.user_id]  = self.user_run_time_last[job.user_id]
-        self.user_run_time_last[job.user_id]  = job.actual_run_time
+        self.user_run_time_prev[job.user_id] = self.user_run_time_last[job.user_id]
+        self.user_run_time_last[job.user_id] = job.actual_run_time
         self.cpu_snapshot.archive_old_slices(current_time)
         self.cpu_snapshot.delTailofJobFromCpuSlices(job)
         return [
@@ -48,7 +49,9 @@ class  EasyPlusPlusScheduler(Scheduler):
 
     def new_events_on_job_under_prediction(self, job, current_time):
         assert job.predicted_run_time <= job.user_estimated_run_time
-        self.cpu_snapshot.assignTailofJobToTheCpuSlices(job) 
+
+        self.cpu_snapshot.assignTailofJobToTheCpuSlices(job)
+        job.predicted_run_time = job.user_estimated_run_time
         return []
 
 
