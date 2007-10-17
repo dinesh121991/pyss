@@ -1,3 +1,6 @@
+in all the shrinking/alpha etc schedulers: 
+the alarm event should increase the job prediction value to the estimated value
+
 
 fix the run_simulator.py to run all schedulers  (including alpha type and the variants of probabilistic) 
 
