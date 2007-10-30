@@ -25,7 +25,6 @@ from schedulers.greedy_easy_scheduler import GreedyEasyBackfillScheduler
 
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
 from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
-from schedulers.shrinking_alpha_easy_scheduler import ShrinkingAlphaEasyScheduler
 
 from schedulers.easy_sjbf_scheduler import EasySJBFScheduler
 from schedulers.reverse_easy_scheduler import ReverseEasyScheduler
@@ -41,7 +40,6 @@ from schedulers.probabilistic_linear_scale_easy_scheduler import ProbabilisticLi
 
 from schedulers.alpha_easy_scheduler import AlphaEasyScheduler
 from schedulers.double_alpha_easy_scheduler import DoubleAlphaEasyScheduler
-
 
 def parse_options():
     parser = optparse.OptionParser()
@@ -133,14 +131,7 @@ def main():
     elif options.scheduler == "DoubleAlphaEasyScheduler" or options.scheduler == "19":
         scheduler = DoubleAlphaEasyScheduler(options.num_processors)
 
-    elif options.scheduler == "ProbabilisticAlphaEasyScheduler" or options.scheduler == "20":
-        scheduler = ProbabilisticAlphaEasyScheduler(options.num_processors)
-
-    elif options.scheduler == "ProbabilisticLinearScaleEasyScheduler" or options.scheduler == "21":
-        scheduler = ProbabilisticLinearScaleEasyScheduler(options.num_processors)
     
-    elif options.scheduler == "ShrinkingAlphaEasyScheduler" or options.scheduler == "22":
-        scheduler = ShrinkingAlphaEasyScheduler(options.num_processors)
     else:
         print "No such scheduler"
         return 

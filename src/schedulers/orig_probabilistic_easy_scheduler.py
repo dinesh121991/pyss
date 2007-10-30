@@ -29,6 +29,7 @@ class Distribution(object):
         self.bins     = {}
         self.bins[1]  = 1 # adding the first entry to the main data structure of the distribution 
         self.number_of_jobs_added = 1
+        self.number_of_actual_jobs_added = 0 
         
         self.window_size = window_size # the distribution contains information about at most window_size (recently terminated) jobs    
         self.jobs     = []
@@ -50,6 +51,8 @@ class Distribution(object):
         rounded_up_run_time = _round_time_up(job.actual_run_time)
 
         self.number_of_jobs_added += 1
+        self.number_of_actual_jobs_added += 1
+        
         self.bins[rounded_up_run_time] += 1 # incrementing the numbers of terminated jobs encountered so far
         
         self.jobs.append(job)
