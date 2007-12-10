@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ "$PYPROFILE" != "" ]; then
-    PYTHON="python2.4 -m profile $PYPROFILE"
+    PYTHON="python -m profile $PYPROFILE"
 else
     PYTHON="python2.4"
 fi

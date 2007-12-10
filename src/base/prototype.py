@@ -79,6 +79,9 @@ class Job(object):
         # the next is for the look ahead scheduler
         self.backfill_flag = 0
 
+        # the next is for the probabilistic easy scheduler
+        self.expected_predicted_run_time = user_estimated_run_time 
+
         
     @property
     def finish_time(self):

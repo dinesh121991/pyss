@@ -68,6 +68,16 @@ class Distribution(object):
         self.bins[rounded_up_run_time] -= 1
 
 
+    def expected_run_time(self, job):
+        key_value_sum = value_sum = 0 
+        for (key,value) in self.bins.iteritems():
+            if key <= job.user_estimated_run_time:
+                key_value_sum  += (key * value)
+		value_sum += value 
+		 
+        result = (float(key_value_sum) / value_sum)
+        return result
+
         
 
 class  OrigProbabilisticEasyScheduler(Scheduler):

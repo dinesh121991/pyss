@@ -1,6 +1,10 @@
 
+# define this from the shell 
+setenv PYTHONOPTIMIZE 1
+
+
 killing all running simulations on mosix:  
-ps aux| grep ahumu| grep mosrun | awk '{print "kill -9 " $2}' > ! /tmp/junk; chmod +x /tmp/junk; /tmp/junk
+ps aux| grep ahumu| grep bla_bla | awk '{print "kill -9 " $2}' > ! /tmp/junk; chmod +x /tmp/junk; /tmp/junk
 
 
 ------------------------------------
@@ -154,15 +158,6 @@ time run_simulator.sh --num-processors=128 --input-file=5K_sample
 time run_simulator.sh --num-processors=128 --input-file=20K_sample
 417.242u 0.896s 8:24.15 82.9%   0+0k 0+0io 0pf+0w
 
---mosrun run_simulator.sh --num-processors=128 --input-file=schedulers/workload_input/SDSC-SP2-1998-3.1-cln.swf 
---scheduler=4 >! res_sdsc4 &
---mosrun run_simulator.sh --num-processors=100 --input-file=schedulers/workload_input/KTH-SP2-1996-2.swf 
---scheduler=4 >! res_kth4 &
---mosrun run_simulator.sh --num-processors=430 --input-file=schedulers/workload_input/CTC-SP2-1996-2.1-cln.swf 
---scheduler=4 >! res_CTC4 &
---mosrun run_simulator.sh --num-processors=144 --input-file=schedulers/workload_input/SDSC-BLUE-2000-3.1-cln.swf 
---scheduler=4 >! res_BLUE4 &
-
 
 -------------------------------------------------------------
 _cleaned_ swf files used by Etzman, dants, and feit:  
@@ -224,19 +219,29 @@ man mosps
 mosps -A # shows the status of all jobs in the system 
 mmon # shows the status graphically over time 
 moskillall 
+mmon -h bmos
 -------------------------------------------------------------
 
 
 # running the simulator _without_ profiler 
-env PYTHONOPTIMIZE=1 ./run_profile.sh 15 1000
+env PYTHONOPTIMIZE=1 ./run_profile.sh 13 1000
 
-# running the simulator _with_ profiler 
-env PYTHONOPTIMIZE=1 PYPROFILE="-o prof.15_1000_run00" ./run_profile.sh 15 1000
+
+# running the simulator _with_ profiler  
+env PYTHONOPTIMIZE=1 PYPROFILE="-o prof.13_1000_run00" ./run_profile.sh 13 1000
+
+
+# manual run of profiler: 
+env PYTHONOPTIMIZE=1 python -m profile -o prof.13_1000_run00 ./run_simulator.py 13 1000
+
 
 # getting the profiling report 
-./print_prof.py prof.15_1000_run00 time | head -40
-./print_prof.py prof.15_1000_run00 cumulative | head -40
-./print_prof.py prof.15_1000_run00 calls | head -40
+./print_prof.py prof.13_1000_run00 time | head -40
+./print_prof.py prof.13_1000_run00 cumulative | head -40
+./print_prof.py prof.13_1000_run00 calls | head -40
 
 Installing python packages:
 easy_install --install-dir=$HOME/pythonpath numpy
+
+
+

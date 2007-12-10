@@ -24,7 +24,11 @@ from schedulers.tail_double_easy_scheduler import TailDoubleEasyScheduler
 from schedulers.greedy_easy_scheduler import GreedyEasyBackfillScheduler
 
 from schedulers.easy_plus_plus_scheduler import EasyPlusPlusScheduler
+from schedulers.common_dist_easy_plus_plus_scheduler import CommonDistEasyPlusPlusScheduler
+from schedulers.alpha_easy_scheduler import AlphaEasyScheduler
+
 from schedulers.shrinking_easy_scheduler import ShrinkingEasyScheduler
+
 
 from schedulers.easy_sjbf_scheduler import EasySJBFScheduler
 from schedulers.reverse_easy_scheduler import ReverseEasyScheduler
@@ -34,12 +38,8 @@ from schedulers.double_perfect_easy_scheduler import DoublePerfectEasyBackfillSc
 from schedulers.lookahead_easy_scheduler import LookAheadEasyBackFillScheduler
 
 from schedulers.orig_probabilistic_easy_scheduler import OrigProbabilisticEasyScheduler
-from schedulers.probabilistic_nodes_easy_scheduler import ProbabilisticNodesEasyScheduler
-from schedulers.probabilistic_alpha_easy_scheduler import ProbabilisticAlphaEasyScheduler
-from schedulers.probabilistic_linear_scale_easy_scheduler import ProbabilisticLinearScaleEasyScheduler
 
-from schedulers.alpha_easy_scheduler import AlphaEasyScheduler
-from schedulers.double_alpha_easy_scheduler import DoubleAlphaEasyScheduler
+
 
 def parse_options():
     parser = optparse.OptionParser()
@@ -122,14 +122,12 @@ def main():
     elif options.scheduler == "DoublePerfectEasyBackfillScheduler" or options.scheduler == "16":
         scheduler = DoublePerfectEasyBackfillScheduler(options.num_processors)
 
-    elif options.scheduler == "ProbabilisticNodesEasyScheduler" or options.scheduler == "17":
-        scheduler = ProbabilisticNodesEasyScheduler(options.num_processors)
-
     elif options.scheduler == "AlphaEasyScheduler" or options.scheduler == "18":
         scheduler = AlphaEasyScheduler(options.num_processors)
+
+    elif options.scheduler == "CommonDistEasyPlusPlusScheduler" or options.scheduler == "28":
+        scheduler = CommonDistEasyPlusPlusScheduler(options.num_processors)
         
-    elif options.scheduler == "DoubleAlphaEasyScheduler" or options.scheduler == "19":
-        scheduler = DoubleAlphaEasyScheduler(options.num_processors)
 
     
     else:
@@ -152,7 +150,8 @@ def main():
         if input_file is not sys.stdin:
             input_file.close()
 
-if __name__ == "__main__":
+
+if __name__ == "__main__" and not "time" in sys.modules:
     try:
         import psyco
         psyco.full()
